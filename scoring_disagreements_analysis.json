@@ -1,0 +1,192 @@
+{
+  "export_timestamp": "2026-01-21T22:15:01.969563",
+  "summary": {
+    "total_disagreements": 3,
+    "total_agreements": 47,
+    "agreement_rate": 94.0,
+    "disagreement_breakdown": {
+      "old_poor_new_good": 2,
+      "old_good_new_poor": 1
+    },
+    "by_old_score_range": {
+      "1-2": 1,
+      "3": 1,
+      "4-5": 1
+    }
+  },
+  "borderline_cases": [
+    {
+      "index": 17,
+      "old_score": 3,
+      "old_binary": 0,
+      "new_score": 1,
+      "task": "",
+      "estimate": {},
+      "old_evaluation": {
+        "score": 3,
+        "reasonableness_score": 4,
+        "consistency_score": 4,
+        "range_score": 4,
+        "category_score": 4,
+        "reasoning": "The estimated time of 75 minutes is reasonable given the complexity of the material and the requirement for detailed notes. The explanation provides good justification for the time needed, considering factors like concentration and potential distractions. However, while the estimate is good, it could be improved by explicitly linking the time needed to the specific chapters being read. The range is appropriate and accounts for variability in comprehension and interruptions. The category is also suitable for the task at hand. Overall, the estimate is acceptable but could benefit from more specificity regarding the chapters.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      },
+      "new_evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 75 minutes is reasonable for reading and summarizing three chapters of a dense book, especially considering the need for detailed note-taking. The explanation is thorough and addresses multiple relevant factors, including the complexity of the material and the additional time required for summarizing and note-taking. The range provided (60-90 minutes) is appropriate and well-explained. Everything aligns well with the task, demonstrating a good understanding of the complexities involved.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      }
+    }
+  ],
+  "all_disagreements": [
+    {
+      "index": 12,
+      "old_score": 2,
+      "old_binary": 0,
+      "new_score": 1,
+      "disagreement_type": "old_poor_new_good",
+      "task": "",
+      "estimate": {},
+      "old_evaluation": {
+        "score": 2,
+        "reasonableness_score": 2,
+        "consistency_score": 2,
+        "range_score": 3,
+        "category_score": 4,
+        "reasoning": "The estimate of 30 minutes is questionable given the task's complexity, which involves checking a colleague's availability and confirming a mutually agreeable time. The explanation lacks depth and does not adequately justify the time frame, especially since the task involves potential back-and-forth communication. The range of 20-45 minutes is somewhat appropriate, but the estimate itself is too optimistic. The category of 'admin' is appropriate for this task. Overall, there are significant issues with the reasoning and justification provided for the estimate.",
+        "checks": {
+          "reasonable_number": false,
+          "reasonable_explanation": false,
+          "explanation_number_aligned": false,
+          "range_aligned": true,
+          "internally_consistent": false,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      },
+      "new_evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 30 minutes is reasonable for scheduling a coffee meeting, considering the need to check availability and send a calendar invite. The explanation is thorough, discussing potential delays and the assumption of prompt responses. It addresses multiple factors, showing a deep understanding of the task's complexity. The range of 20-30-45 minutes is appropriate, as it reflects variations in response times. The category of 'admin' is correct and aligns with the task description.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      }
+    },
+    {
+      "index": 17,
+      "old_score": 3,
+      "old_binary": 0,
+      "new_score": 1,
+      "disagreement_type": "old_poor_new_good",
+      "task": "",
+      "estimate": {},
+      "old_evaluation": {
+        "score": 3,
+        "reasonableness_score": 4,
+        "consistency_score": 4,
+        "range_score": 4,
+        "category_score": 4,
+        "reasoning": "The estimated time of 75 minutes is reasonable given the complexity of the material and the requirement for detailed notes. The explanation provides good justification for the time needed, considering factors like concentration and potential distractions. However, while the estimate is good, it could be improved by explicitly linking the time needed to the specific chapters being read. The range is appropriate and accounts for variability in comprehension and interruptions. The category is also suitable for the task at hand. Overall, the estimate is acceptable but could benefit from more specificity regarding the chapters.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      },
+      "new_evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 75 minutes is reasonable for reading and summarizing three chapters of a dense book, especially considering the need for detailed note-taking. The explanation is thorough and addresses multiple relevant factors, including the complexity of the material and the additional time required for summarizing and note-taking. The range provided (60-90 minutes) is appropriate and well-explained. Everything aligns well with the task, demonstrating a good understanding of the complexities involved.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      }
+    },
+    {
+      "index": 19,
+      "old_score": 4,
+      "old_binary": 1,
+      "new_score": 0,
+      "disagreement_type": "old_good_new_poor",
+      "task": "",
+      "estimate": {},
+      "old_evaluation": {
+        "score": 4,
+        "reasonableness_score": 4,
+        "consistency_score": 4,
+        "range_score": 4,
+        "category_score": 5,
+        "reasoning": "The estimate of 120 minutes is reasonable for writing a 500-word short story, considering the need for brainstorming, drafting, and revising. The explanation provided is good, detailing the emotional depth and vivid imagery required. However, it could be slightly more detailed regarding the time allocation for each phase of writing. The range of 90-180 minutes is appropriate, as it accounts for varying levels of inspiration. The category of 'writing' is perfectly matched to the task. Overall, while the estimate is solid, there is room for improvement in the depth of explanation.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      },
+      "new_evaluation": {
+        "score": 0,
+        "reasonableness_score": 0,
+        "consistency_score": 0,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 120 minutes is reasonable for writing a 500-word short story, considering the complexities involved. However, the explanation lacks depth and does not thoroughly justify the specific number or account for multiple relevant factors, such as the emotional journey and vivid imagery required. The range provided (90-120-180 minutes) is appropriate, capturing variations in inspiration and interruptions, but the overall lack of a thorough explanation results in a score of 0. The category is correct as it matches the task description.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": false,
+          "explanation_number_aligned": false,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        }
+      }
+    }
+  ]
+}

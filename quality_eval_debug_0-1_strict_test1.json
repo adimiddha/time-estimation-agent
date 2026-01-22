@@ -1,0 +1,1290 @@
+{
+  "samples": [
+    {
+      "task": "Draft a detailed project proposal for the upcoming marketing campaign, specifying goals, target audience, timelines, and budget, in a quiet office environment.",
+      "estimate": {
+        "estimated_minutes": 180,
+        "estimate_range": {
+          "optimistic": 120,
+          "realistic": 180,
+          "pessimistic": 240
+        },
+        "explanation": "Drafting a detailed project proposal involves thorough research, clear articulation of goals, and careful consideration of timelines and budgets. Given the complexity and the need for focus, it is reasonable to estimate around 3 hours, with variations depending on the clarity of the project requirements and the amount of information available.",
+        "category": "writing",
+        "ambiguity": "moderate"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 180 minutes for drafting a detailed project proposal is reasonable given the complexity of the task. The explanation is thorough, addressing the need for research, articulation of goals, and consideration of timelines and budgets. It acknowledges the moderate ambiguity in project requirements, which justifies the provided range of 120 to 240 minutes. The range itself is appropriate for the task's complexity. The category 'writing' accurately reflects the nature of the task, and all elements are consistent with one another.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Schedule a yearly dental check-up appointment for yourself by calling the dentist's office and confirming the date and time.",
+      "estimate": {
+        "estimated_minutes": 15,
+        "estimate_range": {
+          "optimistic": 10,
+          "realistic": 15,
+          "pessimistic": 25
+        },
+        "explanation": "Scheduling a dental appointment typically involves calling the office, waiting for someone to answer, and possibly dealing with scheduling conflicts or limited availability. The optimistic estimate assumes quick access and availability, while the pessimistic estimate accounts for longer wait times or complications in scheduling.",
+        "category": "admin",
+        "ambiguity": "clear"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate for scheduling a dental appointment is reasonable, as 15 minutes is a typical duration for such a task. The explanation is thorough and considers multiple relevant factors such as waiting times and scheduling conflicts. The range (10-15-25 minutes) is appropriate and clearly justified, acknowledging the potential variations in how quickly the appointment can be set. The category is correct as it falls under administrative tasks. All aspects align well, demonstrating a deep understanding of the task's complexity.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Plan a surprise birthday party for a close friend by coordinating with three mutual friends to finalize the guest list, venue, and theme.",
+      "estimate": {
+        "estimated_minutes": 120,
+        "estimate_range": {
+          "optimistic": 90,
+          "realistic": 120,
+          "pessimistic": 180
+        },
+        "explanation": "Planning a surprise birthday party involves coordinating with friends, which can take time due to discussions on the guest list, venue options, and theme selection. The estimate considers the need for communication and potential scheduling conflicts among the friends involved.",
+        "category": "social",
+        "ambiguity": "moderate"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate is fundamentally sound. The estimated time of 120 minutes is reasonable for planning a surprise birthday party, considering the need for coordination with friends and discussions on guest lists, venue options, and themes. The explanation is thorough, addressing multiple relevant factors like communication and scheduling conflicts, demonstrating a deep understanding of the task. The range provided (90-180 minutes) is appropriate, reflecting potential variations in how long the task might take based on different scenarios. The category 'social' is accurate. Overall, all dimensions align well, leading to a good quality score.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Pick up the dry cleaning from the store on Main Street between 3 PM and 4 PM.",
+      "estimate": {
+        "estimated_minutes": 15,
+        "estimate_range": {
+          "optimistic": 10,
+          "realistic": 15,
+          "pessimistic": 25
+        },
+        "explanation": "The task involves picking up dry cleaning, which typically requires a short drive or walk to the store, a brief wait if the items are ready, and then returning home. The time can vary based on traffic conditions and any potential delays at the store.",
+        "category": "errands",
+        "ambiguity": "clear"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 15 minutes for picking up dry cleaning is reasonable, as it aligns with typical durations for similar errands. The explanation is thorough, considering factors like driving/walking time, potential wait time, and traffic conditions. The range of 10-15-25 minutes is appropriate, accounting for variations in these factors. The category 'errands' is correct and matches the task description. All elements are consistent and demonstrate a good understanding of the task's complexity.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Estimate the time required to implement user authentication using OAuth 2.0 in the existing web application.",
+      "estimate": {
+        "estimated_minutes": 120,
+        "estimate_range": {
+          "optimistic": 90,
+          "realistic": 120,
+          "pessimistic": 180
+        },
+        "explanation": "Implementing user authentication using OAuth 2.0 involves several steps, including understanding the existing application architecture, integrating the OAuth provider, handling token management, and ensuring security measures are in place. The optimistic estimate assumes a straightforward integration with minimal issues, while the pessimistic estimate accounts for potential challenges such as debugging and testing across different scenarios.",
+        "category": "coding",
+        "ambiguity": "moderate"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 120 minutes for implementing user authentication using OAuth 2.0 is reasonable given the complexity of the task. The explanation is thorough, addressing multiple relevant factors such as understanding the existing architecture, integration, token management, and security measures. It also provides a detailed rationale for the optimistic, realistic, and pessimistic time ranges, demonstrating a deep understanding of the task's nuances. Everything aligns well, and the range is appropriate for the task's complexity.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Write a 500-word short story centered around a character discovering an old, hidden diary while renovating their childhood home.",
+      "estimate": {
+        "estimated_minutes": 120,
+        "estimate_range": {
+          "optimistic": 90,
+          "realistic": 120,
+          "pessimistic": 180
+        },
+        "explanation": "Writing a 500-word short story involves brainstorming ideas, outlining the plot, drafting, and revising. The time can vary based on the writer's familiarity with the topic and their writing speed. The optimistic estimate assumes a clear idea and minimal distractions, while the pessimistic estimate accounts for potential writer's block or extensive revisions.",
+        "category": "writing",
+        "ambiguity": "clear"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 120 minutes for writing a 500-word short story is reasonable, considering the need for brainstorming, outlining, drafting, and revising. The explanation is thorough, addressing multiple relevant factors such as writing speed and potential distractions. The range is appropriate, reflecting variations in the writing process, and the category of 'writing' is correct. All aspects are consistent and demonstrate a deep understanding of the task's complexity.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Estimate the time required for the upcoming project kickoff meeting by reviewing the agenda and allocating time for each topic to ensure a comprehensive discussion within the scheduled hour.",
+      "estimate": {
+        "estimated_minutes": 60,
+        "estimate_range": {
+          "optimistic": 50,
+          "realistic": 60,
+          "pessimistic": 75
+        },
+        "explanation": "The kickoff meeting is expected to cover multiple agenda items, requiring thorough discussion. An hour is typically sufficient for a well-structured meeting, but factors like participant engagement and topic complexity can extend the duration. The optimistic estimate assumes efficient discussion, while the pessimistic estimate accounts for potential delays or extended conversations.",
+        "category": "meetings",
+        "ambiguity": "clear"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 60 minutes is reasonable and well-justified for a project kickoff meeting covering multiple agenda items. The explanation is thorough, considering factors like participant engagement and topic complexity which can affect the meeting duration. The range of 50-75 minutes appropriately reflects optimistic, realistic, and pessimistic scenarios, demonstrating an understanding of potential variations in discussion length. The category 'meetings' is appropriate for the task. Overall, all aspects align well, indicating a sound estimate.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Spend one hour reading the chapter on \"Photosynthesis\" from your biology textbook and taking detailed notes.",
+      "estimate": {
+        "estimated_minutes": 75,
+        "estimate_range": {
+          "optimistic": 60,
+          "realistic": 75,
+          "pessimistic": 90
+        },
+        "explanation": "Reading a chapter and taking detailed notes can often take longer than the reading time alone due to the need for comprehension and note-taking. The estimate accounts for potential distractions and the time needed to process the information.",
+        "category": "learning",
+        "ambiguity": "clear"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate of 75 minutes is reasonable for the task of reading a chapter and taking notes, as it effectively considers the time required for comprehension and note-taking, which typically extends beyond just reading time. The explanation is thorough, addressing potential distractions and the cognitive processing needed. The range of 60 to 90 minutes is appropriate and reflects varying reading speeds and note-taking styles. All elements are aligned and demonstrate a solid understanding of the task's complexity.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Prepare a homemade marinara sauce by simmering crushed tomatoes, garlic, olive oil, and herbs for 30 minutes uninterrupted.",
+      "estimate": {
+        "estimated_minutes": 30,
+        "estimate_range": {
+          "optimistic": 25,
+          "realistic": 30,
+          "pessimistic": 40
+        },
+        "explanation": "The task involves simmering ingredients for a set duration of 30 minutes. While the cooking time is fixed, there may be slight variations in preparation time or potential interruptions. However, the main task is straightforward and well-defined.",
+        "category": "admin",
+        "ambiguity": "clear"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate is fundamentally sound. The estimated time of 30 minutes is reasonable for preparing a homemade marinara sauce, considering the straightforward nature of the task. The explanation is thorough, detailing that the main task involves a fixed cooking duration with possible minor variations in preparation time. The range is appropriate, allowing for slight variations while remaining realistic. The category 'admin' is suitable as it aligns with the task type. Overall, all aspects are consistent and demonstrate a good understanding of the task's complexity.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "task": "Write a 2,000-word article on the benefits of remote work, focusing on productivity, work-life balance, and employee satisfaction.",
+      "estimate": {
+        "estimated_minutes": 240,
+        "estimate_range": {
+          "optimistic": 180,
+          "realistic": 240,
+          "pessimistic": 300
+        },
+        "explanation": "Writing a 2,000-word article requires significant research, drafting, and editing. The estimate considers the time needed to gather information on remote work benefits, structure the article, and revise it for clarity and coherence. The range accounts for varying levels of familiarity with the topic and potential interruptions.",
+        "category": "writing",
+        "ambiguity": "clear"
+      },
+      "evaluation": {
+        "score": 1,
+        "reasonableness_score": 1,
+        "consistency_score": 1,
+        "range_score": 1,
+        "category_score": 1,
+        "reasoning": "The estimate is fundamentally sound. The estimated time of 240 minutes for writing a 2,000-word article is reasonable, considering the complexity of research, drafting, and editing involved. The explanation is thorough, addressing multiple relevant factors such as research time, writing structure, and the need for revisions. The range of 180-300 minutes is appropriate, reflecting varying levels of familiarity with the topic and potential interruptions. The task category is correctly identified as writing. Overall, all aspects are consistent and well-aligned.",
+        "checks": {
+          "reasonable_number": true,
+          "reasonable_explanation": true,
+          "explanation_number_aligned": true,
+          "range_aligned": true,
+          "internally_consistent": true,
+          "range_valid": true,
+          "category_appropriate": true
+        },
+        "evaluator": "ai",
+        "model": "gpt-4o-mini"
+      }
+    }
+  ],
+  "score_distribution": {
+    "1": 46,
+    "0": 4
+  },
+  "all_evaluations": [
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 180 minutes for drafting a detailed project proposal is reasonable given the complexity of the task. The explanation is thorough, addressing the need for research, articulation of goals, and consideration of timelines and budgets. It acknowledges the moderate ambiguity in project requirements, which justifies the provided range of 120 to 240 minutes. The range itself is appropriate for the task's complexity. The category 'writing' accurately reflects the nature of the task, and all elements are consistent with one another.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate for scheduling a dental appointment is reasonable, as 15 minutes is a typical duration for such a task. The explanation is thorough and considers multiple relevant factors such as waiting times and scheduling conflicts. The range (10-15-25 minutes) is appropriate and clearly justified, acknowledging the potential variations in how quickly the appointment can be set. The category is correct as it falls under administrative tasks. All aspects align well, demonstrating a deep understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 120 minutes is reasonable for planning a surprise birthday party, considering the need for coordination with friends and discussions on guest lists, venue options, and themes. The explanation is thorough, addressing multiple relevant factors like communication and scheduling conflicts, demonstrating a deep understanding of the task. The range provided (90-180 minutes) is appropriate, reflecting potential variations in how long the task might take based on different scenarios. The category 'social' is accurate. Overall, all dimensions align well, leading to a good quality score.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 15 minutes for picking up dry cleaning is reasonable, as it aligns with typical durations for similar errands. The explanation is thorough, considering factors like driving/walking time, potential wait time, and traffic conditions. The range of 10-15-25 minutes is appropriate, accounting for variations in these factors. The category 'errands' is correct and matches the task description. All elements are consistent and demonstrate a good understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes for implementing user authentication using OAuth 2.0 is reasonable given the complexity of the task. The explanation is thorough, addressing multiple relevant factors such as understanding the existing architecture, integration, token management, and security measures. It also provides a detailed rationale for the optimistic, realistic, and pessimistic time ranges, demonstrating a deep understanding of the task's nuances. Everything aligns well, and the range is appropriate for the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes for writing a 500-word short story is reasonable, considering the need for brainstorming, outlining, drafting, and revising. The explanation is thorough, addressing multiple relevant factors such as writing speed and potential distractions. The range is appropriate, reflecting variations in the writing process, and the category of 'writing' is correct. All aspects are consistent and demonstrate a deep understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 60 minutes is reasonable and well-justified for a project kickoff meeting covering multiple agenda items. The explanation is thorough, considering factors like participant engagement and topic complexity which can affect the meeting duration. The range of 50-75 minutes appropriately reflects optimistic, realistic, and pessimistic scenarios, demonstrating an understanding of potential variations in discussion length. The category 'meetings' is appropriate for the task. Overall, all aspects align well, indicating a sound estimate.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 75 minutes is reasonable for the task of reading a chapter and taking notes, as it effectively considers the time required for comprehension and note-taking, which typically extends beyond just reading time. The explanation is thorough, addressing potential distractions and the cognitive processing needed. The range of 60 to 90 minutes is appropriate and reflects varying reading speeds and note-taking styles. All elements are aligned and demonstrate a solid understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 30 minutes is reasonable for preparing a homemade marinara sauce, considering the straightforward nature of the task. The explanation is thorough, detailing that the main task involves a fixed cooking duration with possible minor variations in preparation time. The range is appropriate, allowing for slight variations while remaining realistic. The category 'admin' is suitable as it aligns with the task type. Overall, all aspects are consistent and demonstrate a good understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 240 minutes for writing a 2,000-word article is reasonable, considering the complexity of research, drafting, and editing involved. The explanation is thorough, addressing multiple relevant factors such as research time, writing structure, and the need for revisions. The range of 180-300 minutes is appropriate, reflecting varying levels of familiarity with the topic and potential interruptions. The task category is correctly identified as writing. Overall, all aspects are consistent and well-aligned.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 20 minutes is reasonable for scheduling a routine medical check-up, considering hold times and confirming details. The explanation provides thorough reasoning by acknowledging potential delays and confirming instructions, demonstrating a good understanding of the task's complexity. The range of 15-30 minutes is appropriate, as it accounts for variations in scheduling. The category 'admin' is correct and aligns with the task. All aspects are consistent and well-aligned.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes is reasonable given the complexity of planning a dinner party, which includes selecting a theme, deciding on a menu, and creating a guest list. The explanation is thorough, addressing multiple relevant factors such as recipe research and dietary restrictions. The range of 90-120-180 minutes is appropriate, reflecting varying levels of complexity and potential distractions. The category of 'general' fits the task description well, and all parts of the estimate align consistently.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 30 minutes is reasonable given the task of picking up dry cleaning, which includes driving and checking items. The explanation is thorough, considering factors like driving time and potential traffic, as well as the importance of checking items for readiness. The range provided (20-30-45 minutes) is appropriate as it accounts for variations in driving conditions and potential delays. The category 'errands' matches the task description accurately. Overall, all dimensions are aligned and demonstrate a good understanding of the task complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 30 minutes for implementing a recursive factorial function is reasonable, given the task's complexity and the explanation provided. The explanation is thorough and addresses multiple factors, such as edge case handling and testing, demonstrating a deep understanding of the task. The range of 20-30-50 minutes is appropriate, as it accounts for different scenarios that could arise during implementation and testing. The category of 'coding' is correct and aligns with the nature of the task. Overall, all dimensions are well justified and consistent.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 60 minutes for writing a 500-word short story is reasonable, given the complexity of the task, which includes brainstorming, drafting, and revising. The explanation is thorough, addressing multiple factors such as potential creative blocks and the variability in writing speed. The range provided (45-90 minutes) is appropriate, as it accounts for optimistic, realistic, and pessimistic scenarios based on the writer's flow and potential interruptions. The category of 'writing' is accurate and aligns with the task description. Overall, all dimensions are well-justified and consistent.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 30 minutes for scheduling a follow-up meeting is reasonable, considering the need to check team members' availability and prepare an agenda. The explanation is thorough, detailing multiple factors that affect the scheduling process, such as potential communication back-and-forth. The range of 20-45 minutes appropriately captures the variability in how long this task might take depending on the circumstances. The category 'admin' is appropriate for this task. Overall, all aspects align well and demonstrate a deep understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes is reasonable for completing a learning module on project management principles, considering factors like familiarity with the topic and potential disruptions. The explanation is detailed, addressing multiple relevant factors and demonstrating a deep understanding of the task's complexity. The range from 90 to 180 minutes is appropriate, accounting for variations in engagement and potential interruptions. All elements are aligned and consistent, making this a fundamentally sound estimate.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes is reasonable for a creative project like designing a marketing brochure or presentation, especially considering the potential interruptions and feedback loops mentioned. The explanation is thorough, addressing multiple factors such as familiarity with the subject matter, task complexity, and interruptions, demonstrating a deep understanding of the task. The range of 90-180 minutes is appropriate as it reflects varying levels of efficiency and potential delays. The category 'deep work' is also suitable for this type of task. Overall, all dimensions align well, supporting a score of 1.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 90 minutes is reasonable for analyzing project data, considering the complexity involved and the potential for interruptions. The explanation is thorough, addressing the task's cognitive demands and interruptions, while also providing a detailed rationale for the optimistic and pessimistic ranges. The range of 60-90-120 minutes is appropriate and well-justified, reflecting varying levels of complexity and potential distractions. The category of 'deep work' is fitting for the nature of the task.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 420 minutes is reasonable for the personal care tasks described, considering the complexity and variety of activities involved. The explanation is thorough, detailing daily routines, weekly appointments, and self-care activities while addressing potential interruptions, demonstrating a solid understanding of the task. The range provided (360-480 minutes) appropriately reflects the variability in time requirements, and the category 'admin' fits the nature of the tasks. All aspects are consistent and well-aligned.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 60 minutes for arranging a team lunch is reasonable given the task's complexity, which involves selecting restaurants and coordinating dietary restrictions and preferences. The explanation is thorough, addressing multiple relevant factors such as potential interruptions and scheduling conflicts. It effectively justifies the estimate with a clear range that considers optimistic, realistic, and pessimistic scenarios, demonstrating a deep understanding of the task's nuances. The category of 'admin' is appropriate for this task, and all aspects align well.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes is reasonable given the complexity of running multiple errands, and the explanation provides thorough reasoning by considering the time needed for each stop, potential traffic, waiting times, and interruptions. The range of 90-150 minutes is appropriate as it reflects different scenarios (optimistic, realistic, and pessimistic). The category 'errands' accurately matches the task description, and all aspects are consistent and aligned, demonstrating a deep understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 180 minutes is reasonable for the complexity of the task, which involves multiple steps and potential interruptions. The explanation is thorough, detailing the various factors that influence the time required, and it demonstrates a deep understanding of the task. The range provided (120-240 minutes) appropriately reflects the uncertainty and complexity of the task. The category of 'deep work' is fitting for the nature of the task. All aspects align well, with no noticeable issues.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 180 minutes is reasonable for the task of drafting a creative piece, considering the multiple stages involved and potential interruptions. The explanation is thorough, detailing the different phases of the task and how interruptions can influence the time required. The range (120-300 minutes) appropriately reflects the variability in feedback and collaboration, with a clear justification for each point in the range. All elements are consistent and aligned with the task category of 'writing'.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 60 minutes is reasonable given the complexity of planning a meeting, which involves gathering input, estimating time for each agenda item, and accounting for potential interruptions. The explanation is thorough, addressing multiple relevant factors such as team member availability and past discussions, demonstrating a deep understanding of the task. The range of 45-90 minutes is appropriate, reflecting different scenarios that could impact the meeting duration. The category of 'meetings' is correct and aligns with the task description.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes is reasonable for completing a training module, considering the complexity involved in reviewing the outline and identifying key topics. The explanation provides thorough reasoning, addressing potential interruptions and the need for flexibility based on team feedback. The range of 90-180 minutes appropriately reflects varying levels of complexity and feedback, and the category of 'deep work' fits the task description well. All elements are consistent and demonstrate a deep understanding of the task's requirements.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 720 minutes is reasonable for a software update project, considering it involves planning, development, testing, and deployment. The explanation provides thorough reasoning, addressing potential interruptions and the complexity of the task. The range of 600-900 minutes is appropriate, accounting for variability in the project's phases. The category of 'coding' aligns with the task description. Overall, the estimate demonstrates a good understanding of the task's complexity and ambiguity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 240 minutes is reasonable for the complexity of analyzing workflows and gathering input from team members. The explanation is thorough, addressing potential interruptions and the need for adjustments based on feedback, demonstrating a deep understanding of the task. The range is appropriate, accounting for different scenarios of interruptions and feedback. The category 'deep work' accurately reflects the nature of the task. All aspects are consistent and aligned.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 180 minutes for personal care tasks is reasonable given the complexity and variability of the tasks involved. The explanation thoroughly justifies the estimate by considering potential distractions, interruptions, and the need for flexibility. It provides a detailed breakdown of how the range is determined, addressing both optimistic and pessimistic scenarios. The category of 'admin' is appropriate as it encompasses scheduling and organizing tasks. Overall, the estimate demonstrates a good understanding of the task's complexity and ambiguity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 240 minutes for planning and organizing a team-building event is reasonable and well-justified given the complexity of the task, which includes brainstorming, coordination, and potential interruptions. The explanation is thorough, addressing multiple relevant factors such as interruptions and feedback adjustments. The range provided (180-240-360 minutes) is appropriate and clearly explained, reflecting varying levels of interruptions and decision-making speed. The category 'general' accurately matches the task description, and all elements are consistent and aligned with each other, demonstrating a deep understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 75 minutes is reasonable given the detailed breakdown of tasks involved, such as checking the pantry, grocery shopping, and picking up a prescription. The explanation is thorough, considering multiple relevant factors like potential interruptions and the time needed for each component of the task. The range is appropriate and well-justified. The category 'errands' accurately reflects the nature of the task. Overall, the estimate demonstrates a deep understanding of the task's complexity and ambiguity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 480 minutes is reasonable given the complexity of implementing a user authentication feature, which includes multiple components like designing the interface, integrating the backend API, and ensuring security. The explanation is thorough, covering key factors such as design, integration, security measures, testing, and potential interruptions. The range (360-600 minutes) is appropriate, reflecting variations in task execution and interruptions. The category 'coding' is correct and aligns with the task description. All aspects are consistent and well-supported.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 180 minutes for drafting a blog post is reasonable, considering the need for research, outlining, writing, and revising based on feedback. The explanation is thorough, addressing the complexity of the task and potential interruptions. The range provided (120-240 minutes) is appropriate for the task's nature, reflecting variations in writing speed and interruptions. All elements align well, demonstrating a deep understanding of the task.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 180 minutes is reasonable considering the complexity of scheduling and conducting multiple team meetings, accommodating various members' schedules, and addressing interruptions. The explanation is thorough, detailing how disruptions and the need for flexible agendas can extend the duration. The range is appropriate, covering a spectrum of potential scenarios from optimistic to pessimistic. The category of 'meetings' accurately reflects the nature of the task, and all aspects align consistently without contradictions.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 0,
+      "reasonableness_score": 0,
+      "consistency_score": 0,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 90 minutes is reasonable given the task's complexity, but the explanation lacks sufficient depth and detail. It fails to thoroughly address how interruptions and note-taking will impact the estimate, making it feel superficial. While the range of 60-120 minutes is appropriate, the lack of detailed reasoning regarding why the specific number was chosen undermines the estimate's reliability. Moreover, the explanation does not adequately address task complexity or ambiguity, which is crucial for a learning task that involves potential distractions and varying engagement levels.",
+      "checks": {
+        "reasonable_number": false,
+        "reasonable_explanation": false,
+        "explanation_number_aligned": false,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 120 minutes is reasonable given the complexity of managing errands and handling inquiries. The explanation is thorough, detailing the time required for compiling a list and the potential variability based on errands and unexpected situations. The range of 90-180 minutes is appropriate as it reflects the uncertainty associated with interruptions and varying task durations. The category 'errands' accurately matches the task description, and all elements are consistent and well-aligned.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 180 minutes is reasonable for the task of assessing and enhancing the customer support process, given its complexity and the requirement for deep analysis and collaboration. The explanation is thorough, detailing the various factors that could affect the time, such as the need for deep analysis, interruptions, and the requirement for adaptability. The range provided (120-240 minutes) is appropriate, reflecting both optimistic and pessimistic scenarios while accounting for potential disruptions. The category 'deep work' accurately describes the nature of the task. Overall, everything aligns well and demonstrates a clear understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 90 minutes is reasonable given the complexity of the task, which involves multiple steps and potential interruptions. The explanation is thorough, detailing how each step contributes to the time estimate and acknowledging the impact of interruptions. The range provided (60-120 minutes) is appropriate, reflecting the variability in potential outcomes. The category 'admin' matches the task type accurately, and all elements of the estimate align well with each other, demonstrating a deep understanding of the task's requirements.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 180 minutes is reasonable given the complexity and dynamic nature of managing social media accounts. The explanation is thorough, detailing the various tasks involved, including content creation, engagement, and real-time responses, while acknowledging potential interruptions. The range of 120-240 minutes is appropriate as it reflects variations in task complexity and interruptions. The category 'social' accurately captures the nature of the task. All aspects are aligned and demonstrate a deep understanding of the task's requirements.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes is reasonable given the complexity of running multiple errands, including potential delays at each stop. The explanation is thorough and considers various factors such as travel time, waiting in lines, and interruptions from work communications. The range provided (90-150 minutes) effectively captures the uncertainty involved in these errands, accounting for both optimistic and pessimistic scenarios. The category 'errands' accurately matches the task description, and everything is consistent and aligned with the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 480 minutes is reasonable given the complexity of integrating an external API with unclear requirements. The explanation is thorough and detailed, addressing multiple relevant factors such as the need for a flexible data model, the analysis of API documentation, and the impact of interruptions. The range provided (360-600 minutes) appropriately captures the uncertainty involved in the task. The category of 'coding' is correct and aligns with the task description. Overall, the estimate demonstrates a good understanding of the task's complexity and ambiguity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 480 minutes for creating a series of blog posts is reasonable given the complexity of the task, which involves brainstorming, outlining, writing, and revising while considering interruptions and feedback. The explanation is thorough and detailed, addressing multiple relevant factors that impact the time required. The range of 360-600 minutes appropriately reflects the uncertainty in the task due to potential variations in interruptions and feedback. The category of 'writing' is correct and aligns with the task description. Overall, the estimate demonstrates a deep understanding of the task's requirements and complexities.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 0,
+      "reasonableness_score": 0,
+      "consistency_score": 0,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimated time of 120 minutes for coordinating team meetings is not reasonable considering the complexity and ambiguity of the task. While the explanation discusses various factors like participant availability and decision-making, it lacks sufficient detail and depth regarding how these factors specifically contribute to the time estimate. The explanation does not clearly justify the chosen number or adequately address the task's complexity. The range is appropriate as it accounts for uncertainty, but the overall estimate suffers due to the lack of thorough explanation. The category is correct, but the overall quality is diminished by the problems in the estimate's reasoning and depth.",
+      "checks": {
+        "reasonable_number": false,
+        "reasonable_explanation": false,
+        "explanation_number_aligned": false,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The number of 480 minutes is reasonable given the complexity of developing a comprehensive learning module, which involves research, collaboration, and drafting. The explanation is thorough, addressing multiple relevant factors like potential interruptions and varying team needs. The range of 360-600 minutes is appropriate, reflecting different scenarios of feedback and interruptions. The category of 'deep work' accurately reflects the nature of the task. All aspects align logically and demonstrate a deep understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 90 minutes is reasonable for the task of managing a personal care routine given the complexity and potential interruptions mentioned. The explanation provides thorough reasoning, detailing the typical duration for the tasks involved and acknowledging the impact of interruptions and unexpected errands. The range (60-90-120 minutes) is well-justified, accounting for variations in interruptions, which aligns with the task's nature. The category 'admin' is appropriate as it relates to managing personal tasks. Overall, all aspects demonstrate a good understanding of the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The time estimate of 480 minutes is reasonable given the complexity of developing a comprehensive marketing strategy, particularly with vague product details and potential interruptions. The explanation thoroughly addresses the task's complexity, including the need for extensive research, coordination with departments, and adaptability to shifting priorities. The range provided (360-600 minutes) is appropriate, reflecting the uncertainty inherent in the task. The category of 'deep work' accurately matches the nature of the task. Overall, all aspects align well, demonstrating a deep understanding of the task's requirements.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 0,
+      "reasonableness_score": 0,
+      "consistency_score": 0,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 180 minutes is reasonable given the complexity of the task, but the explanation lacks depth and fails to provide thorough reasoning for how the time was determined. While it acknowledges potential interruptions and miscommunication, it does not sufficiently detail how these factors specifically impact the estimate. The range is appropriate as it reflects varying levels of optimism and pessimism, but the explanation does not adequately justify these variances. The category 'admin' is correct and matches the task description. However, the overall lack of detail in the explanation leads to a score of 0.",
+      "checks": {
+        "reasonable_number": false,
+        "reasonable_explanation": false,
+        "explanation_number_aligned": false,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 0,
+      "reasonableness_score": 0,
+      "consistency_score": 0,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate has significant issues. While the range of 360-600 minutes is appropriate given the ambiguity of the task, the main estimate of 480 minutes lacks justification and is not well-supported by the explanation. The explanation does mention multiple factors such as brainstorming, interruptions, and coordination, but it fails to provide the depth of reasoning needed to justify why 480 minutes specifically is a reasonable estimate. Additionally, it does not adequately address how the ambiguity of community interests impacts the time needed. The explanation feels superficial and lacks detailed exploration of the task's complexity. Therefore, despite the range being valid, the overall estimate is flawed due to insufficient reasoning and depth, leading to a score of 0.",
+      "checks": {
+        "reasonable_number": false,
+        "reasonable_explanation": false,
+        "explanation_number_aligned": false,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate of 120 minutes is reasonable given the complexity of the errands, including potential delays and interruptions. The explanation is thorough, detailing multiple relevant factors such as traffic, uncertainty of grocery items, and the dry cleaner's hours. It addresses the task's ambiguity effectively. The range of 90-180 minutes is appropriate, accounting for variations in the situation. The category 'errands' is correctly matched to the task described. Overall, all aspects align well with the task's complexity.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    },
+    {
+      "score": 1,
+      "reasonableness_score": 1,
+      "consistency_score": 1,
+      "range_score": 1,
+      "category_score": 1,
+      "reasoning": "The estimate is fundamentally sound. The estimated time of 240 minutes is reasonable for the complexity of developing a new feature with varying stakeholder opinions and potential interruptions. The explanation is thorough, detailing multiple factors such as the need for discussions to clarify requirements, the likelihood of interruptions from support tickets, and the complexity of integrating with existing systems. The range of 180 to 360 minutes appropriately reflects the uncertainty in the task, with a well-justified rationale for both optimistic and pessimistic scenarios. The category of 'deep work' aligns well with the nature of the task, and all parts of the estimate are consistent with each other.",
+      "checks": {
+        "reasonable_number": true,
+        "reasonable_explanation": true,
+        "explanation_number_aligned": true,
+        "range_aligned": true,
+        "internally_consistent": true,
+        "range_valid": true,
+        "category_appropriate": true
+      },
+      "evaluator": "ai",
+      "model": "gpt-4o-mini"
+    }
+  ]
+}

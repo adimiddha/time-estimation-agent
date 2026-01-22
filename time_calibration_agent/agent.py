@@ -5,6 +5,7 @@ Agent logic for estimating task durations and learning from outcomes.
 import os
 from pathlib import Path
 from typing import Dict, List, Optional
+from enum import Enum
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -122,6 +123,15 @@ def validate_and_normalize_category(category: str) -> str:
     return normalize_category(category)
 
 
+class ContextStrategy(Enum):
+    """Different strategies for building context in prompts."""
+    MINIMAL = "minimal"  # No historical context, just system prompt
+    RECENT_N = "recent_n"  # Last N tasks (current approach)
+    SUMMARIZED = "summarized"  # AI-generated summary of history
+    CATEGORY_FILTERED = "category_filtered"  # Only similar category tasks
+    SIMILARITY_BASED = "similarity_based"  # Semantic similarity to current task
+
+
 class EstimationAgent:
     """AI agent that estimates task durations and learns from feedback."""
     
@@ -170,28 +180,63 @@ class EstimationAgent:
         
         return None
     
-    def estimate_task(self, task_description: str, 
+    def _build_context(self, task_description: str,
                      calibration_context: Optional[Dict] = None,
                      historical_tasks: Optional[List[Dict]] = None,
-                     suggested_category: Optional[str] = None) -> Dict:
+                      suggested_category: Optional[str] = None,
+                      strategy: ContextStrategy = ContextStrategy.RECENT_N,
+                      n: int = 10) -> str:
         """
-        Estimate duration for a task.
+        Build context string based on the specified strategy.
+        
+        Args:
+            task_description: Current task description
+            calibration_context: Calibration data
+            historical_tasks: Available historical tasks
+            suggested_category: Suggested category
+            strategy: Context building strategy
+            n: Number of tasks for RECENT_N strategy
         
         Returns:
-            {
-                "estimated_minutes": int,
-                "estimate_range": {
-                    "optimistic": int,
-                    "realistic": int,
-                    "pessimistic": int
-                },
-                "explanation": str,
-                "category": str,
-                "ambiguity": str
-            }
+            Context string for the prompt
         """
+        if strategy == ContextStrategy.MINIMAL:
+            return self._build_minimal_context(calibration_context, suggested_category)
+        elif strategy == ContextStrategy.RECENT_N:
+            return self._build_recent_context(calibration_context, historical_tasks, suggested_category, n)
+        elif strategy == ContextStrategy.SUMMARIZED:
+            return self._build_summarized_context(calibration_context, historical_tasks, suggested_category)
+        elif strategy == ContextStrategy.CATEGORY_FILTERED:
+            return self._build_category_context(task_description, calibration_context, historical_tasks, suggested_category)
+        elif strategy == ContextStrategy.SIMILARITY_BASED:
+            return self._build_similarity_context(task_description, calibration_context, historical_tasks, suggested_category, n)
+        else:
+            # Default to RECENT_N
+            return self._build_recent_context(calibration_context, historical_tasks, suggested_category, n)
+    
+    def _build_minimal_context(self, calibration_context: Optional[Dict] = None,
+                               suggested_category: Optional[str] = None) -> str:
+        """Build minimal context with only calibration patterns, no task examples."""
+        context_parts = []
         
-        # Build context about user's historical patterns
+        if calibration_context:
+            bias = calibration_context.get('user_bias', 0.0)
+            if abs(bias) > 0.1:
+                if bias > 0.1:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to UNDERESTIMATE by ~{bias:.1%} on average.")
+                else:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to OVERESTIMATE by ~{abs(bias):.1%} on average.")
+        
+        if suggested_category:
+            context_parts.append(f"CATEGORY HINT: A similar task was previously categorized as '{suggested_category}'. Please use this same category for consistency.")
+        
+        return "\n".join(context_parts) if context_parts else "No historical data yet."
+    
+    def _build_recent_context(self, calibration_context: Optional[Dict] = None,
+                             historical_tasks: Optional[List[Dict]] = None,
+                             suggested_category: Optional[str] = None,
+                             n: int = 10) -> str:
+        """Build context with last N completed tasks (current approach)."""
         context_parts = []
         
         if calibration_context:
@@ -207,14 +252,12 @@ class EstimationAgent:
                 for category, pattern in list(category_patterns.items())[:3]:  # Top 3
                     context_parts.append(f"  - {category}: {pattern}")
         
-        # Include category hint if provided
         if suggested_category:
             context_parts.append(f"CATEGORY HINT: A similar task was previously categorized as '{suggested_category}'. Please use this same category for consistency.")
         
-        # Include similar historical tasks for reference
         if historical_tasks:
             similar_examples = []
-            for task in historical_tasks[-10:]:  # Last 10 completed tasks
+            for task in historical_tasks[-n:]:  # Last N completed tasks
                 if task.get('actual_minutes'):
                     similar_examples.append(
                         f"  - '{task['description'][:50]}...': "
@@ -226,7 +269,323 @@ class EstimationAgent:
                 context_parts.append("Recent similar tasks:")
                 context_parts.extend(similar_examples)
         
-        context_str = "\n".join(context_parts) if context_parts else "No historical data yet."
+        return "\n".join(context_parts) if context_parts else "No historical data yet."
+    
+    def _build_summarized_context(self, calibration_context: Optional[Dict] = None,
+                                  historical_tasks: Optional[List[Dict]] = None,
+                                  suggested_category: Optional[str] = None) -> str:
+        """Build context with AI-generated summary instead of raw tasks."""
+        context_parts = []
+        
+        if calibration_context:
+            bias = calibration_context.get('user_bias', 0.0)
+            if abs(bias) > 0.1:
+                if bias > 0.1:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to UNDERESTIMATE by ~{bias:.1%} on average.")
+                else:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to OVERESTIMATE by ~{abs(bias):.1%} on average.")
+            
+            category_patterns = calibration_context.get('category_patterns', {})
+            if category_patterns:
+                context_parts.append("Category-specific patterns:")
+                for category, pattern in list(category_patterns.items())[:3]:
+                    context_parts.append(f"  - {category}: {pattern}")
+        
+        if suggested_category:
+            context_parts.append(f"CATEGORY HINT: A similar task was previously categorized as '{suggested_category}'. Please use this same category for consistency.")
+        
+        if historical_tasks and len(historical_tasks) > 0:
+            # Generate summary using AI
+            summary = self._summarize_history(historical_tasks)
+            if summary:
+                context_parts.append("Summary of historical estimation patterns:")
+                context_parts.append(summary)
+        
+        return "\n".join(context_parts) if context_parts else "No historical data yet."
+    
+    def _build_category_context(self, task_description: str,
+                                calibration_context: Optional[Dict] = None,
+                                historical_tasks: Optional[List[Dict]] = None,
+                                suggested_category: Optional[str] = None) -> str:
+        """Build context with only tasks from similar categories."""
+        context_parts = []
+        
+        if calibration_context:
+            bias = calibration_context.get('user_bias', 0.0)
+            if abs(bias) > 0.1:
+                if bias > 0.1:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to UNDERESTIMATE by ~{bias:.1%} on average.")
+                else:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to OVERESTIMATE by ~{abs(bias):.1%} on average.")
+        
+        # Try to find category from similar tasks or use suggested
+        target_category = suggested_category
+        if not target_category and historical_tasks:
+            # Try to infer category from task description or similar tasks
+            target_category = self.find_category_for_task(task_description, historical_tasks)
+        
+        if target_category:
+            context_parts.append(f"CATEGORY HINT: A similar task was previously categorized as '{target_category}'. Please use this same category for consistency.")
+            
+            # Filter tasks by category
+            if historical_tasks:
+                category_tasks = [t for t in historical_tasks if t.get('category') == target_category and t.get('actual_minutes')]
+                if category_tasks:
+                    similar_examples = []
+                    for task in category_tasks[-10:]:  # Last 10 in this category
+                        similar_examples.append(
+                            f"  - '{task['description'][:50]}...': "
+                            f"estimated {task['estimated_minutes']}min, "
+                            f"actual {task['actual_minutes']}min "
+                            f"(error: {((task['actual_minutes'] - task['estimated_minutes']) / task['estimated_minutes'] * 100):.0f}%)"
+                        )
+                    if similar_examples:
+                        context_parts.append(f"Similar {target_category} tasks:")
+                        context_parts.extend(similar_examples)
+        
+        return "\n".join(context_parts) if context_parts else "No historical data yet."
+    
+    def _build_similarity_context(self, task_description: str,
+                                  calibration_context: Optional[Dict] = None,
+                                  historical_tasks: Optional[List[Dict]] = None,
+                                  suggested_category: Optional[str] = None,
+                                  n: int = 5) -> str:
+        """Build context with tasks that are semantically similar to current task."""
+        context_parts = []
+        
+        if calibration_context:
+            bias = calibration_context.get('user_bias', 0.0)
+            if abs(bias) > 0.1:
+                if bias > 0.1:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to UNDERESTIMATE by ~{bias:.1%} on average.")
+                else:
+                    context_parts.append(f"Historical pattern: Previous estimates have tended to OVERESTIMATE by ~{abs(bias):.1%} on average.")
+        
+        if suggested_category:
+            context_parts.append(f"CATEGORY HINT: A similar task was previously categorized as '{suggested_category}'. Please use this same category for consistency.")
+        
+        # Use find_similar_completed_task to find similar tasks
+        if historical_tasks:
+            similar_match = self.find_similar_completed_task(task_description, historical_tasks)
+            if similar_match and similar_match.get('confidence') == 'high':
+                matched_task = similar_match['task']
+                context_parts.append("Very similar completed task:")
+                context_parts.append(
+                    f"  - '{matched_task['description'][:50]}...': "
+                    f"estimated {matched_task['estimated_minutes']}min, "
+                    f"actual {matched_task['actual_minutes']}min"
+                )
+            else:
+                # Fall back to recent tasks if no good match
+                similar_examples = []
+                for task in historical_tasks[-n:]:
+                    if task.get('actual_minutes'):
+                        similar_examples.append(
+                            f"  - '{task['description'][:50]}...': "
+                            f"estimated {task['estimated_minutes']}min, "
+                            f"actual {task['actual_minutes']}min"
+                        )
+                if similar_examples:
+                    context_parts.append("Recent similar tasks:")
+                    context_parts.extend(similar_examples)
+        
+        return "\n".join(context_parts) if context_parts else "No historical data yet."
+    
+    def _summarize_history(self, historical_tasks: List[Dict]) -> Optional[str]:
+        """
+        Use AI to generate a concise summary of historical estimation patterns.
+        
+        Args:
+            historical_tasks: List of completed tasks
+            
+        Returns:
+            Summary string or None if generation fails
+        """
+        if not historical_tasks or len(historical_tasks) == 0:
+            return None
+        
+        # Build task list for summary
+        task_summaries = []
+        for task in historical_tasks[-20:]:  # Last 20 for summary
+            if task.get('actual_minutes'):
+                error_pct = ((task['actual_minutes'] - task['estimated_minutes']) / task['estimated_minutes'] * 100) if task['estimated_minutes'] > 0 else 0
+                task_summaries.append(
+                    f"- {task.get('category', 'unknown')}: '{task['description'][:40]}' - "
+                    f"Est: {task['estimated_minutes']}min, Actual: {task['actual_minutes']}min ({error_pct:+.0f}%)"
+                )
+        
+        prompt = f"""Summarize the following task estimation history in 3-4 sentences. 
+Focus on patterns: which categories are consistently over/underestimated, 
+typical error magnitudes, and any notable trends.
+
+Task History:
+{chr(10).join(task_summaries)}
+
+Provide a concise summary of estimation patterns:"""
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant that summarizes patterns concisely."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=200
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"Warning: History summarization failed: {e}")
+            return None
+    
+    def validate_task_clarity(self, task_description: str) -> Dict:
+        """
+        Validate if a task description is clear enough to provide a time estimate.
+        
+        Args:
+            task_description: The task description to validate
+            
+        Returns:
+            Dict with:
+                - "is_clear": bool - True if task is clear enough to estimate
+                - "reason": str - If not clear, explanation of why (e.g., "task_too_vague")
+                - "explanation": str - Detailed explanation of why the task is unclear (if not clear)
+        """
+        # SIMPLE RULE-BASED VALIDATION: Only reject if obviously just a reference
+        # Check BEFORE calling LLM
+        task_lower = task_description.lower()
+        task_words = task_description.split()
+        
+        # Only reject if it's EXTREMELY OBVIOUSLY just a reference (3 words or less, only references)
+        reference_only_patterns = [
+            'do that', 'handle that', 'that thing', 'do it', 'handle it', 
+            'finish that', 'that task', 'do stuff', 'handle stuff'
+        ]
+        
+        is_obvious_reference = (
+            len(task_words) <= 3 and 
+            any(pattern in task_lower for pattern in reference_only_patterns)
+        )
+        
+        # If NOT obviously just a reference, ALWAYS accept (skip LLM call)
+        if not is_obvious_reference:
+            return {
+                "is_clear": True,
+                "reason": "clear",
+                "explanation": "Task describes work to be done (rule-based: has substance, not just a reference)."
+            }
+        
+        # Only call LLM if it's obviously just a reference (very rare case)
+        prompt = f"""You are a task clarity validator. This task appears to be just a reference with no work described.
+
+TASK DESCRIPTION: "{task_description}"
+
+Only reject if it's OBVIOUSLY just a reference with NO work mentioned (like "do that", "handle it").
+
+Respond in JSON format:
+{{
+    "is_clear": <true or false>,
+    "reason": <"clear" if is_clear is true, or "task_too_vague" if false>,
+    "explanation": "<Explain your decision>"
+}}"""
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a task clarity validator. CRITICAL: DEFAULT TO ACCEPTING. Set is_clear to TRUE unless the task is OBVIOUSLY just a reference like 'do that' with NO work mentioned. If the task mentions ANY work/activity/action, ACCEPT it. Only reject if it's ONLY a reference with zero work described. Always respond with valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.0  # Zero temperature for maximum consistency
+            )
+            
+            import json
+            result = json.loads(response.choices[0].message.content)
+            
+            # ULTRA-AGGRESSIVE: Always accept unless EXTREMELY obviously just a reference
+            # Check BEFORE using LLM's decision
+            task_lower = task_description.lower()
+            task_words = task_description.split()
+            
+            # Only reject if it's EXTREMELY OBVIOUSLY just a reference (3 words or less, only references)
+            reference_only_patterns = [
+                'do that', 'handle that', 'that thing', 'do it', 'handle it', 
+                'finish that', 'that task', 'do stuff', 'handle stuff'
+            ]
+            
+            is_obvious_reference = (
+                len(task_words) <= 3 and 
+                any(pattern in task_lower for pattern in reference_only_patterns)
+            )
+            
+            # If NOT obviously just a reference, ALWAYS accept (ignore LLM completely)
+            if not is_obvious_reference:
+                # Override to clear - task has substance
+                is_clear = True
+                result["reason"] = "clear"
+                result["explanation"] = "Task describes work to be done (override: has substance, not just a reference)."
+            else:
+                # Only use LLM's decision if it's obviously just a reference
+                is_clear = result.get("is_clear", True)
+            
+            return {
+                "is_clear": is_clear,
+                "reason": result.get("reason", "clear"),
+                "explanation": result.get("explanation", "Task description is clear enough to estimate.")
+            }
+        except Exception as e:
+            print(f"Warning: Task clarity validation failed: {e}")
+            # Default to clear if validation fails (fail open)
+            return {
+                "is_clear": True,
+                "reason": "clear",
+                "explanation": "Task description is clear enough to estimate."
+            }
+    
+    def estimate_task(self, task_description: str, 
+                     calibration_context: Optional[Dict] = None,
+                     historical_tasks: Optional[List[Dict]] = None,
+                     suggested_category: Optional[str] = None,
+                     context_strategy: ContextStrategy = ContextStrategy.RECENT_N,
+                     context_n: int = 10) -> Dict:
+        """
+        Estimate duration for a task.
+        
+        Args:
+            task_description: Description of the task to estimate
+            calibration_context: Calibration data (bias, patterns)
+            historical_tasks: List of completed tasks for context
+            suggested_category: Suggested category for consistency
+            context_strategy: Strategy for building context (default: RECENT_N)
+            context_n: Number of tasks to include for RECENT_N strategy (default: 10)
+        
+        Returns:
+            {
+                "estimated_minutes": int (or None if cannot_estimate),
+                "estimate_range": {
+                    "optimistic": int,
+                    "realistic": int,
+                    "pessimistic": int
+                } (or None if cannot_estimate),
+                "explanation": str,
+                "category": str (or None if cannot_estimate),
+                "ambiguity": str,
+                "cannot_estimate": bool (optional, True if task is too vague),
+                "reason": str (optional, e.g., "task_too_vague" if cannot_estimate)
+            }
+        """
+        
+        # No refusal logic - always estimate, even if task is vague
+        # Build context based on strategy
+        context_str = self._build_context(
+            task_description=task_description,
+            calibration_context=calibration_context,
+            historical_tasks=historical_tasks,
+            suggested_category=suggested_category,
+            strategy=context_strategy,
+            n=context_n
+        )
         
         prompt = f"""You are a time estimation expert helping someone become better calibrated at estimating task durations.
 

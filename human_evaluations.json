@@ -1,0 +1,187 @@
+{
+  "source_ai_file": "quality_eval_debug_0-1_strict_test1.json",
+  "total_evaluations": 10,
+  "evaluations": [
+    {
+      "task": "Draft a detailed project proposal for the upcoming marketing campaign, specifying goals, target audience, timelines, and budget, in a quiet office environment.",
+      "estimate": {
+        "estimated_minutes": 180,
+        "estimate_range": {
+          "optimistic": 120,
+          "realistic": 180,
+          "pessimistic": 240
+        },
+        "explanation": "Drafting a detailed project proposal involves thorough research, clear articulation of goals, and careful consideration of timelines and budgets. Given the complexity and the need for focus, it is reasonable to estimate around 3 hours, with variations depending on the clarity of the project requirements and the amount of information available.",
+        "category": "writing",
+        "ambiguity": "moderate"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 0
+    },
+    {
+      "task": "Schedule a yearly dental check-up appointment for yourself by calling the dentist's office and confirming the date and time.",
+      "estimate": {
+        "estimated_minutes": 15,
+        "estimate_range": {
+          "optimistic": 10,
+          "realistic": 15,
+          "pessimistic": 25
+        },
+        "explanation": "Scheduling a dental appointment typically involves calling the office, waiting for someone to answer, and possibly dealing with scheduling conflicts or limited availability. The optimistic estimate assumes quick access and availability, while the pessimistic estimate accounts for longer wait times or complications in scheduling.",
+        "category": "admin",
+        "ambiguity": "clear"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 1
+    },
+    {
+      "task": "Plan a surprise birthday party for a close friend by coordinating with three mutual friends to finalize the guest list, venue, and theme.",
+      "estimate": {
+        "estimated_minutes": 120,
+        "estimate_range": {
+          "optimistic": 90,
+          "realistic": 120,
+          "pessimistic": 180
+        },
+        "explanation": "Planning a surprise birthday party involves coordinating with friends, which can take time due to discussions on the guest list, venue options, and theme selection. The estimate considers the need for communication and potential scheduling conflicts among the friends involved.",
+        "category": "social",
+        "ambiguity": "moderate"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 2
+    },
+    {
+      "task": "Pick up the dry cleaning from the store on Main Street between 3 PM and 4 PM.",
+      "estimate": {
+        "estimated_minutes": 15,
+        "estimate_range": {
+          "optimistic": 10,
+          "realistic": 15,
+          "pessimistic": 25
+        },
+        "explanation": "The task involves picking up dry cleaning, which typically requires a short drive or walk to the store, a brief wait if the items are ready, and then returning home. The time can vary based on traffic conditions and any potential delays at the store.",
+        "category": "errands",
+        "ambiguity": "clear"
+      },
+      "human_score": 0,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 3
+    },
+    {
+      "task": "Estimate the time required to implement user authentication using OAuth 2.0 in the existing web application.",
+      "estimate": {
+        "estimated_minutes": 120,
+        "estimate_range": {
+          "optimistic": 90,
+          "realistic": 120,
+          "pessimistic": 180
+        },
+        "explanation": "Implementing user authentication using OAuth 2.0 involves several steps, including understanding the existing application architecture, integrating the OAuth provider, handling token management, and ensuring security measures are in place. The optimistic estimate assumes a straightforward integration with minimal issues, while the pessimistic estimate accounts for potential challenges such as debugging and testing across different scenarios.",
+        "category": "coding",
+        "ambiguity": "moderate"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 4
+    },
+    {
+      "task": "Write a 500-word short story centered around a character discovering an old, hidden diary while renovating their childhood home.",
+      "estimate": {
+        "estimated_minutes": 120,
+        "estimate_range": {
+          "optimistic": 90,
+          "realistic": 120,
+          "pessimistic": 180
+        },
+        "explanation": "Writing a 500-word short story involves brainstorming ideas, outlining the plot, drafting, and revising. The time can vary based on the writer's familiarity with the topic and their writing speed. The optimistic estimate assumes a clear idea and minimal distractions, while the pessimistic estimate accounts for potential writer's block or extensive revisions.",
+        "category": "writing",
+        "ambiguity": "clear"
+      },
+      "human_score": 0,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 5
+    },
+    {
+      "task": "Estimate the time required for the upcoming project kickoff meeting by reviewing the agenda and allocating time for each topic to ensure a comprehensive discussion within the scheduled hour.",
+      "estimate": {
+        "estimated_minutes": 60,
+        "estimate_range": {
+          "optimistic": 50,
+          "realistic": 60,
+          "pessimistic": 75
+        },
+        "explanation": "The kickoff meeting is expected to cover multiple agenda items, requiring thorough discussion. An hour is typically sufficient for a well-structured meeting, but factors like participant engagement and topic complexity can extend the duration. The optimistic estimate assumes efficient discussion, while the pessimistic estimate accounts for potential delays or extended conversations.",
+        "category": "meetings",
+        "ambiguity": "clear"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 6
+    },
+    {
+      "task": "Spend one hour reading the chapter on \"Photosynthesis\" from your biology textbook and taking detailed notes.",
+      "estimate": {
+        "estimated_minutes": 75,
+        "estimate_range": {
+          "optimistic": 60,
+          "realistic": 75,
+          "pessimistic": 90
+        },
+        "explanation": "Reading a chapter and taking detailed notes can often take longer than the reading time alone due to the need for comprehension and note-taking. The estimate accounts for potential distractions and the time needed to process the information.",
+        "category": "learning",
+        "ambiguity": "clear"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 7
+    },
+    {
+      "task": "Prepare a homemade marinara sauce by simmering crushed tomatoes, garlic, olive oil, and herbs for 30 minutes uninterrupted.",
+      "estimate": {
+        "estimated_minutes": 30,
+        "estimate_range": {
+          "optimistic": 25,
+          "realistic": 30,
+          "pessimistic": 40
+        },
+        "explanation": "The task involves simmering ingredients for a set duration of 30 minutes. While the cooking time is fixed, there may be slight variations in preparation time or potential interruptions. However, the main task is straightforward and well-defined.",
+        "category": "admin",
+        "ambiguity": "clear"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 8
+    },
+    {
+      "task": "Write a 2,000-word article on the benefits of remote work, focusing on productivity, work-life balance, and employee satisfaction.",
+      "estimate": {
+        "estimated_minutes": 240,
+        "estimate_range": {
+          "optimistic": 180,
+          "realistic": 240,
+          "pessimistic": 300
+        },
+        "explanation": "Writing a 2,000-word article requires significant research, drafting, and editing. The estimate considers the time needed to gather information on remote work benefits, structure the article, and revise it for clarity and coherence. The range accounts for varying levels of familiarity with the topic and potential interruptions.",
+        "category": "writing",
+        "ambiguity": "clear"
+      },
+      "human_score": 1,
+      "ai_score": 1,
+      "notes": null,
+      "sample_index": 9
+    }
+  ],
+  "timestamp": "2026-01-21T22:59:13.099835"
+}

@@ -1,0 +1,19 @@
+{
+  "total_comparisons": 10,
+  "agreement_count": 8,
+  "agreement_percentage": 80.0,
+  "cohens_kappa": 0.0,
+  "confusion_matrix": {
+    "both_0": 0,
+    "both_1": 8,
+    "human_0_ai_1": 2,
+    "human_1_ai_0": 0
+  },
+  "score_distributions": {
+    "human_good": 8,
+    "human_poor": 2,
+    "ai_good": 10,
+    "ai_poor": 0
+  },
+  "kappa_interpretation": "Slight agreement"
+}

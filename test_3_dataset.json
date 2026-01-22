@@ -1,0 +1,683 @@
+{
+  "test_prompts": [
+    {
+      "id": "test_45",
+      "prompt": "You need to take care of some personal stuff that involves various tasks, but it\u2019s a bit hard to pin down exactly what you should do since things might come up unexpectedly. It could be something related to your health or maybe just general upkeep, but I\u2019m not sure what specifics you should focus on, as it might change based on what you encounter throughout the day. There\u2019s a chance you\u2019ll have to switch gears a lot, especially if interruptions arise, which they probably will, but I can\u2019t really say how many or when. Just keep an eye on things that feel important, and make sure you handle whatever pops up, but don\u2019t stress too much about the order since it\u2019s all kind of fluid. You might want to write down what you think needs doing, but remember that not everything will be clear-cut, and some things might take longer than expected.",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "personal_care",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_18",
+      "prompt": "Estimate the time required to complete a project update that involves gathering input from team members and compiling it into a report. Consider potential meetings or discussions that may arise during this process, as well as the need to communicate with others for clarification. Your estimation should take into account the varying availability of team members and any potential interruptions typical in a shared workspace.",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "social",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_32",
+      "prompt": "You are tasked with estimating the time required for the development of a new feature in our web application, which involves several steps. First, you will need to review the existing codebase and documentation to understand the current architecture and how the new feature will fit in. After that, collaborate with the design team to clarify any questions regarding the user interface and experience, as their input will be crucial for accurate implementation. Once you have a solid grasp of the requirements, draft a rough timeline that includes coding, testing, and integration phases. Keep in mind that this estimation process may be interrupted by queries from team members or urgent issues arising from ongoing projects, so maintaining flexibility in your schedule is important. Additional specifics regarding the feature requirements may emerge during discussions, so be prepared to adjust your estimation accordingly.",
+      "metadata": {
+        "category": "coding",
+        "ambiguity": "moderate",
+        "length": "long",
+        "task_type": "technical",
+        "complexity": "multi_step",
+        "interruption_likelihood": "high",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_39",
+      "prompt": "You need to connect with some people about a few things that could be important for the team, maybe. There might be different angles to consider, and you should probably think about how it all fits together, but I\u2019m not really sure what specific things you need to focus on. It\u2019s possible that you\u2019ll have to coordinate with various stakeholders along the way, and they could have different priorities, which might change things. Just keep in mind that interruptions will happen, as this is a busy environment, so you should be ready to shift gears a lot. Overall, it\u2019s about managing those conversations and figuring out the best way to address the various needs, whatever they may be.",
+      "metadata": {
+        "category": "social",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "social",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_40",
+      "prompt": "You need to go out and take care of some stuff related to the deliveries and maybe pick up something for the office, but it\u2019s not clear what exactly we need, so just keep an eye out for anything that seems important. Also, you might have to talk to a few people while you\u2019re out, and don\u2019t forget about whatever that thing was we mentioned last week about the supplies\u2014there\u2019s a chance you\u2019ll need it, but it\u2019s kind of fuzzy. Try to be quick, but you never know who might interrupt you or if something else comes up while you\u2019re out, so be prepared for that. Just make sure to get back before it gets too late, but we\u2019re not entirely sure what \"too late\" means in this case. Good luck!",
+      "metadata": {
+        "category": "errands",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "errands",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_12",
+      "prompt": "Plan a small gathering with three close friends at your apartment next Saturday evening, ensuring to decide on a theme, food options, and activities to keep everyone engaged. Create a list of potential themes and menu items, and send out an invitation via text message by the end of this week. Consider the dietary preferences of your friends, but specific preferences should be confirmed later.",
+      "metadata": {
+        "category": "social",
+        "ambiguity": "clear",
+        "length": "medium",
+        "task_type": "social",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_42",
+      "prompt": "We need you to write something that captures a certain feeling or idea, but make sure it\u2019s not too specific about what that is, as it might change based on feedback from various stakeholders who may have differing opinions. It should probably be about something relatable, but again, the audience isn\u2019t clearly defined, so it could be for anyone really. Keep in mind that you might be interrupted often for other tasks or questions that could alter the direction of the writing, so flexibility is key. The format isn\u2019t strictly set, but it should probably include some elements from other pieces we\u2019ve done, though it\u2019s hard to say which ones exactly. Make sure to draft it quickly, as we\u2019ll likely need revisions based on vague suggestions that may come up later.",
+      "metadata": {
+        "category": "writing",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "creative",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_11",
+      "prompt": "Schedule a 30-minute appointment with your dentist to discuss routine dental care and any potential issues. Use the online booking system to select available time slots that work for your schedule. Ensure to confirm the appointment via email or phone to avoid any miscommunication.",
+      "metadata": {
+        "category": "admin",
+        "ambiguity": "clear",
+        "length": "medium",
+        "task_type": "personal_care",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_38",
+      "prompt": "You need to handle some admin stuff today regarding personal care, but the specifics are a bit murky. There might be some forms to fill out or maybe some appointments to schedule, but it\u2019s not clear what exactly is needed or when. You could get interrupted at any moment, so keep that in mind as you sort through things that may come up, like questions from coworkers or other random tasks that pop up. Also, there\u2019s a possibility of needing to check in on various processes or follow up on some communications, but you'll have to figure out what those are as you go. Just try to manage your time while juggling everything, and remember that the scope of what needs to be done is still kind of up in the air.",
+      "metadata": {
+        "category": "admin",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "personal_care",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_44",
+      "prompt": "You\u2019re going to need to learn something that's really important for the project, but the specifics are a bit fuzzy right now. It might involve some coding or maybe it\u2019s about understanding certain concepts that are relevant to what we\u2019re doing, but it\u2019s hard to say for sure. There could be some resources you have to look at, or possibly even some discussions with the team, but again, that\u2019s not totally clear. Keep in mind that you might get interrupted a lot, and there might be some urgent issues popping up that you'll need to address while you're trying to figure this out. Just aim to grasp whatever it is as quickly as you can, and let us know if you have questions, but the answers might take a bit to get, depending on who\u2019s available.",
+      "metadata": {
+        "category": "learning",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "learning",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_41",
+      "prompt": "We need to enhance the system with some new features and fix a few things, but it's not entirely clear which parts of the codebase are problematic or what the new features entail. There are also customer requests that might influence the outcome, but we haven't gathered all the details yet. Please look into the existing components and see what can be done, but be prepared for changes since priorities may shift based on feedback. Consider breaking it down into smaller tasks, but don't overthink it\u2014just start coding. Also, remember that interruptions are likely, so keep communication open with the team.",
+      "metadata": {
+        "category": "coding",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "technical",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_7",
+      "prompt": "Prepare a detailed agenda and time estimate for the upcoming project kickoff meeting, scheduled for March 15, 2024, from 10:00 AM to 11:30 AM, ensuring to allocate specific durations for each agenda item, including introductions (10 minutes), project overview (20 minutes), timelines and milestones discussion (30 minutes), and Q&A (20 minutes), while also incorporating a 10-minute buffer for transitions, and submit the finalized agenda to all participants via email by March 10, 2024, at noon.",
+      "metadata": {
+        "category": "meetings",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "work",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_22",
+      "prompt": "Plan and complete a series of errands that include grocery shopping, picking up a package from the post office, and making a quick stop at the bank. Each stop may require different time commitments depending on traffic, wait times, and any unexpected delays. Be prepared for potential interruptions from work-related tasks or meetings that could affect your schedule.",
+      "metadata": {
+        "category": "errands",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "errands",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_36",
+      "prompt": "Prepare a three-course meal for a small gathering, but be ready to adjust your plans based on unexpected interruptions, such as guests arriving early, needing to help someone with a last-minute grocery run, or handling phone calls. Begin by selecting a main dish, which could be anything from pasta to a stir-fry, and ensure you have all the necessary ingredients, while also considering dietary restrictions you might not be fully aware of until guests arrive. Once you start cooking, you\u2019ll need to multitask by prepping appetizers and desserts simultaneously, which may involve chopping vegetables, marinating proteins, or whipping cream, all while keeping an eye on the stove. Be prepared to pause and adapt your timing based on the flow of the evening, as you might have to switch gears if someone asks for help or if you run into any ingredient shortages that prompt quick adjustments. It\u2019s important to remain flexible throughout the process, allowing for potential delays or the need for last-minute changes to the menu.",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "cooking",
+        "complexity": "multi_step",
+        "interruption_likelihood": "high",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "edge_case_1",
+      "prompt": "Work stuff",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "fuzzy",
+        "length": "short",
+        "task_type": "general",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "poor",
+        "edge_case_type": "too_vague"
+      }
+    },
+    {
+      "id": "test_19",
+      "prompt": "Estimate the time required to complete the upcoming project by analyzing the different phases involved, such as research, drafting, and revisions. You\u2019ll need to consult with team members for their input on each phase, while also considering potential interruptions from meetings and collaborative discussions. Be prepared to adjust your estimates based on feedback, but aim to have a preliminary timeline ready for the next team meeting.",
+      "metadata": {
+        "category": "deep work",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "work",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_37",
+      "prompt": "You need to work on the project that's been floating around and, like, figure out the timeline and stuff. There are a bunch of pieces that might need to be considered, but you should also keep in mind that things could change, and you might have to loop in some people or maybe not. It\u2019s important to also think about the stuff we discussed last week, though I can't remember the details right now. You might want to prioritize some parts over others, but also be ready for interruptions because, you know, people might need you. Just try to get a sense of how long it will all take, but remember it\u2019s not just about the numbers; it\u2019s more about the overall feel of the project and where it\u2019s headed.",
+      "metadata": {
+        "category": "deep work",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "work",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_28",
+      "prompt": "Estimate the time required to complete the upcoming project by breaking it down into its key components, such as research, drafting, and revisions. Consider any potential interruptions from team meetings or collaborative sessions that may arise. Make sure to account for varying degrees of complexity in each step, but feel free to adjust your estimates as new information comes to light.",
+      "metadata": {
+        "category": "deep work",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "work",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_27",
+      "prompt": "Please organize and clean the shared workspace, which includes tidying up desks, organizing supplies, and ensuring common areas are presentable. This may involve clearing clutter, wiping down surfaces, and checking for any maintenance issues that need attention. Keep in mind that the space is used by multiple team members, so be prepared for occasional interruptions from colleagues or meetings while you work.",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "cleaning",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "edge_case_4",
+      "prompt": "Solve world hunger",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "fuzzy",
+        "length": "short",
+        "task_type": "general",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "poor",
+        "edge_case_type": "unrealistic_task"
+      }
+    },
+    {
+      "id": "test_31",
+      "prompt": "Run errands around town, which include picking up groceries from the store, dropping off dry cleaning, and possibly returning a package at the post office. Be prepared for interruptions, as you may encounter unexpected situations like needing to assist a friend or responding to phone calls while out. Make sure to keep track of time, as managing these tasks efficiently may require adjusting priorities based on how your day unfolds.",
+      "metadata": {
+        "category": "errands",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "errands",
+        "complexity": "multi_step",
+        "interruption_likelihood": "high",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_20",
+      "prompt": "Plan and schedule your personal care activities for the upcoming week, including time for exercise, meal prep, and relaxation. You'll need to identify specific days and times for each activity, while considering potential interruptions from work meetings or colleague drop-ins. Be flexible with your schedule to accommodate any changes that may arise during the week.",
+      "metadata": {
+        "category": "admin",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "personal_care",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_29",
+      "prompt": "Schedule and manage personal care appointments, including setting reminders for routine check-ups and organizing follow-up visits based on your health needs. Begin by researching available practitioners and noting their office hours, then reach out to book appointments while keeping track of any necessary paperwork or insurance details. Be prepared for interruptions from work-related tasks or meetings that may affect your timing for calls and scheduling.",
+      "metadata": {
+        "category": "admin",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "personal_care",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_35",
+      "prompt": "As part of your ongoing professional development, you will engage in a learning task aimed at enhancing your skills in project management. Start by reviewing the foundational concepts in our project management resources, which include articles and video tutorials. Afterward, you will need to apply this knowledge by drafting a preliminary project plan for an upcoming project, collaborating with team members for their input. Expect to be frequently interrupted by colleagues seeking assistance or updates on their tasks, as this is a highly dynamic environment. Finally, be prepared to adjust your learning approach based on feedback from your peers and any unforeseen challenges that may arise, which may require revisiting earlier steps or resources.",
+      "metadata": {
+        "category": "learning",
+        "ambiguity": "moderate",
+        "length": "long",
+        "task_type": "learning",
+        "complexity": "multi_step",
+        "interruption_likelihood": "high",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_6",
+      "prompt": "Compose a 1,500-word short story set in a post-apocalyptic world where humanity has reverted to tribal societies, focusing on the daily struggles and moral dilemmas faced by a young leader trying to unite rival factions, and ensure that the narrative includes at least three distinct character perspectives and addresses themes of survival, loyalty, and the quest for peace.",
+      "metadata": {
+        "category": "writing",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "creative",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_9",
+      "prompt": "Estimate the time required to read and summarize the key points from three research articles on the impact of climate change on agriculture, each approximately 10 pages long, while ensuring to highlight the main findings and implications in a concise summary of no more than 500 words for each article.",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "learning",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_25",
+      "prompt": "Schedule a series of project update meetings with key team members over the next month, ensuring to accommodate different time zones and availability preferences. Prepare an agenda for each meeting that includes discussion points, but remain flexible to adapt based on team input and emerging topics. Follow up after each meeting with a summary of key decisions and action items, while keeping in mind that interruptions may arise from ongoing office activities and additional meetings.",
+      "metadata": {
+        "category": "meetings",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "work",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_13",
+      "prompt": "Pick up the dry cleaning from the local shop on Main Street, ensuring to check the receipt for any items that may not have been processed. The shop closes at 6 PM, so plan to arrive no later than 5:30 PM to avoid any last-minute issues. If possible, confirm via phone that all items are ready before heading out.",
+      "metadata": {
+        "category": "errands",
+        "ambiguity": "clear",
+        "length": "medium",
+        "task_type": "errands",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_16",
+      "prompt": "Estimate the time required for the upcoming team meeting scheduled for next week, considering topics such as project updates and any pending decisions. Please take into account potential off-topic discussions and the need for team members to provide input. While the main agenda is clear, be prepared to adjust your estimate based on the flow of the conversation and participation levels.",
+      "metadata": {
+        "category": "meetings",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "work",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_5",
+      "prompt": "Estimate the time required to implement a function in Python that takes a list of integers as input and returns a new list containing only the even integers, ensuring the function adheres to PEP 8 style guidelines and includes unit tests for its expected behavior.",
+      "metadata": {
+        "category": "coding",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "technical",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_2",
+      "prompt": "Review and update your personal financial budget spreadsheet for the month, ensuring all income and expenses are accurately recorded, categorized, and compared against last month\u2019s figures, while allocating one uninterrupted hour in a quiet environment to focus solely on this task.",
+      "metadata": {
+        "category": "admin",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "personal_care",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_15",
+      "prompt": "Draft a short story that explores themes of friendship and discovery, set in a contemporary urban environment. Aim for a word count of around 1,500 to 2,000 words, but feel free to adjust as inspiration strikes. Keep in mind that you may need to pause for occasional meetings and office discussions, so try to work in focused bursts.",
+      "metadata": {
+        "category": "writing",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "creative",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_34",
+      "prompt": "Schedule and coordinate a series of meetings with team members and stakeholders to discuss project progress and address any emerging issues. Begin by identifying key participants and drafting an agenda that outlines the main topics, but be prepared for adjustments as priorities may shift. Once the initial schedule is proposed, send out invites and gather feedback on availability, keeping in mind that responses may vary due to overlapping commitments. During the meetings, facilitate discussions while also managing interruptions, as team members may need to attend to urgent tasks or messages. After each meeting, summarize the key points and action items, ensuring that everyone is aligned, but anticipate that follow-up may require additional clarification based on individual interpretations.",
+      "metadata": {
+        "category": "meetings",
+        "ambiguity": "moderate",
+        "length": "long",
+        "task_type": "work",
+        "complexity": "multi_step",
+        "interruption_likelihood": "high",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_10",
+      "prompt": "Spend two hours analyzing the latest quarterly sales data for the North American region, focusing on trends and identifying potential areas for growth. Prepare a summary report highlighting key findings and any actionable insights that could inform future marketing strategies. Ensure that the report is clear and concise, suitable for presentation to the senior management team.",
+      "metadata": {
+        "category": "deep work",
+        "ambiguity": "clear",
+        "length": "medium",
+        "task_type": "work",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_21",
+      "prompt": "Plan and organize a team lunch outing to strengthen relationships and improve communication. This will involve selecting a suitable restaurant based on dietary preferences, coordinating schedules to find a common time, and sending out invitations to all team members. Be prepared for potential interruptions from meetings or team discussions while managing the logistics.",
+      "metadata": {
+        "category": "social",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "social",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_23",
+      "prompt": "Estimate the time required to refactor the existing user authentication module, which involves analyzing the current code, identifying areas for improvement, and implementing changes to enhance security and performance. Additionally, prepare a brief summary of potential challenges you foresee during the process. Expect to collaborate with team members for input and share your findings in an upcoming meeting, which may lead to interruptions during your work.",
+      "metadata": {
+        "category": "coding",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "technical",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_43",
+      "prompt": "We need to schedule some meetings to discuss various topics that might come up during the week, but it's not entirely clear what those topics actually are. There might be a need for some follow-up on previous discussions, but we haven't defined what that looks like yet. It\u2019s possible that we\u2019ll have to involve different people from different teams, depending on who is available and what gets prioritized, but we should probably figure out when we\u2019re all free first. Also, keep in mind that interruptions can happen quite frequently, so we should be ready for that, whatever that means. It would be great if we could touch base on everything, but I'm not sure how long it will take or what exactly should be on the agenda.",
+      "metadata": {
+        "category": "meetings",
+        "ambiguity": "fuzzy",
+        "length": "long",
+        "task_type": "work",
+        "complexity": "task_breakdown",
+        "interruption_likelihood": "high",
+        "prompt_quality": "poor"
+      }
+    },
+    {
+      "id": "test_30",
+      "prompt": "Engage with customers in a busy retail environment by assisting with their inquiries, recommending products, and processing transactions. While maintaining a friendly demeanor, be prepared to handle interruptions from multiple customers simultaneously and collaborate with team members for stock management and store displays. Time estimations for each interaction may vary, so prioritize tasks based on customer needs and ensure follow-ups on any outstanding queries.",
+      "metadata": {
+        "category": "social",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "social",
+        "complexity": "multi_step",
+        "interruption_likelihood": "high",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_33",
+      "prompt": "You are tasked with creating engaging content for our upcoming marketing campaign, which will involve brainstorming ideas, drafting copy, and revising based on feedback. Start by gathering insights from recent market trends and competitor analysis; this may require you to consult various resources and team members. Once you have a solid foundation, draft multiple versions of the campaign message that resonate with our target audience, keeping in mind the tone and style guidelines. Be prepared for interruptions, as you may need to address immediate feedback from the team or respond to client inquiries while juggling this task. Make sure to allow time for revisions based on input from stakeholders, but keep in mind that the exact number of iterations may vary based on their preferences.",
+      "metadata": {
+        "category": "writing",
+        "ambiguity": "moderate",
+        "length": "long",
+        "task_type": "creative",
+        "complexity": "multi_step",
+        "interruption_likelihood": "high",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "edge_case_5",
+      "prompt": "Take out the trash",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "fuzzy",
+        "length": "short",
+        "task_type": "general",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "poor",
+        "edge_case_type": "very_short_task"
+      }
+    },
+    {
+      "id": "test_3",
+      "prompt": "Schedule a one-hour video call with a close friend to discuss and plan for an upcoming weekend trip, ensuring to establish an agenda that includes travel logistics, accommodation options, and activity preferences, while confirming their availability on either Saturday or Sunday afternoon next week.",
+      "metadata": {
+        "category": "social",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "social",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_1",
+      "prompt": "Devote a focused two-hour block to writing a comprehensive project proposal for the upcoming client engagement, ensuring to include an executive summary, project objectives, detailed methodology, and a budget breakdown, while utilizing a quiet workspace free from distractions.",
+      "metadata": {
+        "category": "deep work",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "work",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_8",
+      "prompt": "Dedicate a focused 30-minute session to read and summarize the key concepts from Chapter 4 of \"Thinking, Fast and Slow\" by Daniel Kahneman, ensuring you note at least three practical applications of the discussed cognitive biases in real-life decision-making scenarios.",
+      "metadata": {
+        "category": "learning",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "learning",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_24",
+      "prompt": "Develop a creative narrative that explores the theme of transformation, incorporating various character perspectives. Start by brainstorming potential storylines and character arcs, then draft an outline before writing the first draft. Be prepared for possible interruptions from team meetings and collaborative discussions that may alter your initial ideas or direction.",
+      "metadata": {
+        "category": "writing",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "creative",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "edge_case_2",
+      "prompt": "Read 1000 books",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "fuzzy",
+        "length": "short",
+        "task_type": "general",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "poor",
+        "edge_case_type": "unrealistic_task"
+      }
+    },
+    {
+      "id": "test_4",
+      "prompt": "Pick up a package from the UPS store located at 123 Main Street, which is open from 9 AM to 6 PM, and ensure to bring the tracking number and a valid ID for verification.",
+      "metadata": {
+        "category": "errands",
+        "ambiguity": "clear",
+        "length": "short",
+        "task_type": "errands",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "excellent"
+      }
+    },
+    {
+      "id": "test_14",
+      "prompt": "Estimate the time required to implement the new feature in our web application, focusing primarily on the user interface components. Consider potential dependencies and any necessary collaboration with the design team, but you can assume existing backend services are stable. Please provide your estimation in hours, along with any assumptions made during your assessment.",
+      "metadata": {
+        "category": "coding",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "technical",
+        "complexity": "simple",
+        "interruption_likelihood": "low",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_17",
+      "prompt": "Estimate the time required to complete a series of online training modules related to project management. Consider factors such as your current familiarity with the topics and any possible interruptions due to meetings or collaborative tasks. While aiming for a rough timeline, keep in mind that individual learning speeds can vary, and adjust your estimate if necessary.",
+      "metadata": {
+        "category": "learning",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "learning",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "test_26",
+      "prompt": "Estimate the time required to learn a new software tool that could enhance your productivity at work. Start by breaking down the learning process into manageable steps, such as familiarizing yourself with the interface, completing online tutorials, and applying the skills in a practical project. Keep in mind that you may face interruptions from meetings or colleagues, so factor in those potential delays while assessing your overall learning timeline.",
+      "metadata": {
+        "category": "learning",
+        "ambiguity": "moderate",
+        "length": "medium",
+        "task_type": "learning",
+        "complexity": "multi_step",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "good"
+      }
+    },
+    {
+      "id": "edge_case_3",
+      "prompt": "Travel to Mars",
+      "metadata": {
+        "category": "general",
+        "ambiguity": "fuzzy",
+        "length": "short",
+        "task_type": "general",
+        "complexity": "simple",
+        "interruption_likelihood": "medium",
+        "prompt_quality": "poor",
+        "edge_case_type": "unrealistic_task"
+      }
+    }
+  ],
+  "total_count": 50,
+  "metadata": {
+    "categories": [
+      "admin",
+      "writing",
+      "errands",
+      "general",
+      "learning",
+      "meetings",
+      "deep work",
+      "social",
+      "coding"
+    ],
+    "ambiguities": [
+      "fuzzy",
+      "moderate",
+      "clear"
+    ],
+    "lengths": [
+      "long",
+      "short",
+      "medium"
+    ]
+  }
+}
