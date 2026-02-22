@@ -3,6 +3,8 @@ Command-line interface for the Time Calibration Agent.
 """
 
 import sys
+import json
+from datetime import datetime
 from typing import List, Optional, Dict
 from rich.console import Console
 from rich.panel import Panel
@@ -25,6 +27,8 @@ from time_calibration_agent.quality_analysis import (
     correlate_estimate_features,
     generate_recommendations
 )
+from time_calibration_agent.replanner import ReplanningAgent
+from time_calibration_agent.session_store import DaySessionStore
 
 
 class TimeCalibrationCLI:
@@ -35,6 +39,8 @@ class TimeCalibrationCLI:
         self.agent = EstimationAgent()
         self.learner = CalibrationLearner()
         self.console = Console()
+        self.replanner = ReplanningAgent()
+        self.session_store = DaySessionStore()
     
     def estimate_tasks(self, task_descriptions: List[str]):
         """Estimate durations for one or more tasks."""
@@ -728,6 +734,97 @@ class TimeCalibrationCLI:
             border_style="red"
         ))
         self.console.print()
+
+    def _resolve_session_id(
+        self,
+        session_label: Optional[str] = None,
+        date_override: Optional[str] = None,
+        use_last: bool = True,
+    ) -> Optional[str]:
+        if session_label or date_override:
+            return self.session_store.build_session_id(date_override, session_label)
+        if use_last:
+            last_id = self.session_store.load_last_session_id()
+            if last_id:
+                return last_id
+        return None
+
+    def plan_day(
+        self,
+        raw_text: str,
+        session_label: Optional[str] = None,
+        date_override: Optional[str] = None,
+        require_existing: bool = False,
+        overwrite: bool = False,
+    ):
+        """Create or update a replanning session from raw text input."""
+        if not raw_text.strip():
+            self.console.print("[red]Error: Please provide context text to plan your day[/red]")
+            return
+
+        session_id = self._resolve_session_id(
+            session_label=session_label,
+            date_override=date_override,
+            use_last=not overwrite,
+        )
+        if not session_id:
+            if overwrite:
+                session_id = self.session_store.build_session_id(date_override, session_label)
+            else:
+                self.console.print("[red]Error: No active session. Start with new-session.[/red]")
+                return
+
+        session = None if overwrite else self.session_store.load_session(session_id)
+        if require_existing and not session:
+            self.console.print(f"[red]Error: No existing session found for {session_id}[/red]")
+            return
+
+        last_plan = None
+        last_input = None
+        if session and session.get("replans") and not overwrite:
+            last_replan = session["replans"][-1]
+            last_plan = last_replan.get("plan_output")
+            last_input = last_replan.get("raw_input")
+
+        current_time = datetime.now().strftime("%H:%M")
+        plan_output, estimated_tasks = self.replanner.plan_with_estimates(
+            raw_text=raw_text,
+            current_time=current_time,
+            last_plan=last_plan,
+            last_input=last_input,
+        )
+
+        self.session_store.append_replan(
+            session_id=session_id,
+            raw_input=raw_text,
+            plan_output=plan_output,
+            current_time=current_time,
+            extra={
+                "estimated_tasks": estimated_tasks,
+            },
+            overwrite=overwrite,
+        )
+
+        self.console.print_json(json.dumps(plan_output))
+
+    def show_session(self, session_label: Optional[str] = None, date_override: Optional[str] = None):
+        """Show the latest plan for a session."""
+        session_id = self._resolve_session_id(
+            session_label=session_label,
+            date_override=date_override,
+            use_last=True,
+        )
+        if not session_id:
+            self.console.print("[yellow]No session found. Start with new-session.[/yellow]")
+            return
+        session = self.session_store.load_session(session_id)
+        if not session or not session.get("replans"):
+            self.console.print(f"[yellow]No session found for {session_id}[/yellow]")
+            return
+
+        last_replan = session["replans"][-1]
+        plan_output = last_replan.get("plan_output", {})
+        self.console.print_json(json.dumps(plan_output))
     
     def generate_test_dataset(self, n: int = 50, output_path: Optional[str] = None):
         """Generate a test dataset with diverse prompts."""
@@ -856,7 +953,7 @@ class TimeCalibrationCLI:
                 
                 # #region agent log
                 import json
-                with open('/Users/adimiddha/time-calibration-agent/.cursor/debug.log', 'a') as f:
+                with open('/Users/adimiddha/Github/time-calibration-agent/.cursor/debug.log', 'a') as f:
                     f.write(json.dumps({
                         "sessionId": "debug-session",
                         "runId": "run1",
@@ -896,7 +993,7 @@ class TimeCalibrationCLI:
                 
                 # #region agent log
                 import json
-                with open('/Users/adimiddha/time-calibration-agent/.cursor/debug.log', 'a') as f:
+                with open('/Users/adimiddha/Github/time-calibration-agent/.cursor/debug.log', 'a') as f:
                     f.write(json.dumps({
                         "sessionId": "debug-session",
                         "runId": "run1",
@@ -1095,9 +1192,9 @@ class TimeCalibrationCLI:
                     "estimate": estimate,
                     "evaluation": eval_result
                 }
-                for task_desc, estimate, eval_result in zip(task_descriptions[:num_samples], 
-                                                          estimates[:num_samples], 
-                                                          eval_results[:num_samples])
+                for task_desc, estimate, eval_result in zip(task_descriptions,
+                                                          estimates,
+                                                          eval_results)
             ],
             "score_distribution": {str(k): len(v) for k, v in score_groups.items()},
             "all_evaluations": eval_results
@@ -2027,8 +2124,12 @@ def main():
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]estimate[/yellow] \"task description\"\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]estimate[/yellow] \"task 1\" \"task 2\" ...\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]log[/yellow] <task_id_or_query> <minutes>\n"
+            "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]replan[/yellow] \"context text\" [--session label] [--date YYYY-MM-DD]\n"
+            "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]new-session[/yellow] \"context text\" [--session label] [--date YYYY-MM-DD]\n"
+            "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]session[/yellow] [--session label] [--date YYYY-MM-DD]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]status[/yellow]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]history[/yellow] [limit]\n"
+            "  [dim]If --session is omitted, the last active session is used.[/dim]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]eval[/yellow] [--export path.json]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]experiment[/yellow] [--output path.json]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]test-dataset[/yellow] generate [--n 50] [--output path.json]\n"
@@ -2040,6 +2141,8 @@ def main():
             "[bold]Examples:[/bold]\n"
             "  [dim]python -m time_calibration_agent.cli estimate \"Write blog post about time estimation\"[/dim]\n"
             "  [dim]python -m time_calibration_agent.cli log task_1_1234567890 45[/dim]\n"
+            "  [dim]python -m time_calibration_agent.cli new-session \"It's 2pm. I did X. I still need A, B. Dinner at 7.\"[/dim]\n"
+            "  [dim]python -m time_calibration_agent.cli replan \"It's 3pm. I finished A. Need B.\"[/dim]\n"
             "  [dim]python -m time_calibration_agent.cli log \"the writing task\" 45[/dim]\n"
             "  [dim]python -m time_calibration_agent.cli status[/dim]",
             border_style="cyan",
@@ -2079,6 +2182,73 @@ def main():
             cli.log_time(task_identifier, minutes)
         except ValueError:
             console.print("[red]Error: Minutes must be a number[/red]")
+
+    elif command == "replan":
+        if len(sys.argv) < 3:
+            console.print("[red]Error: Please provide context text for replanning[/red]")
+            return
+        session_label = None
+        date_override = None
+        raw_parts = []
+        i = 2
+        while i < len(sys.argv):
+            if sys.argv[i] == "--session" and i + 1 < len(sys.argv):
+                session_label = sys.argv[i + 1]
+                i += 2
+            elif sys.argv[i] == "--date" and i + 1 < len(sys.argv):
+                date_override = sys.argv[i + 1]
+                i += 2
+            else:
+                raw_parts.append(sys.argv[i])
+                i += 1
+        raw_text = " ".join(raw_parts)
+        cli.plan_day(
+            raw_text,
+            session_label=session_label,
+            date_override=date_override,
+            require_existing=True,
+        )
+
+    elif command == "new-session" or command == "newsession":
+        if len(sys.argv) < 3:
+            console.print("[red]Error: Please provide context text for a new session[/red]")
+            return
+        session_label = None
+        date_override = None
+        raw_parts = []
+        i = 2
+        while i < len(sys.argv):
+            if sys.argv[i] == "--session" and i + 1 < len(sys.argv):
+                session_label = sys.argv[i + 1]
+                i += 2
+            elif sys.argv[i] == "--date" and i + 1 < len(sys.argv):
+                date_override = sys.argv[i + 1]
+                i += 2
+            else:
+                raw_parts.append(sys.argv[i])
+                i += 1
+        raw_text = " ".join(raw_parts)
+        cli.plan_day(
+            raw_text,
+            session_label=session_label,
+            date_override=date_override,
+            overwrite=True,
+        )
+
+    elif command == "session":
+        session_label = None
+        date_override = None
+        i = 2
+        while i < len(sys.argv):
+            if sys.argv[i] == "--session" and i + 1 < len(sys.argv):
+                session_label = sys.argv[i + 1]
+                i += 2
+            elif sys.argv[i] == "--date" and i + 1 < len(sys.argv):
+                date_override = sys.argv[i + 1]
+                i += 2
+            else:
+                i += 1
+        cli.show_session(session_label=session_label, date_override=date_override)
     
     elif command == "status":
         cli.show_status()

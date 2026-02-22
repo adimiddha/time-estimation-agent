@@ -13,6 +13,7 @@ ENV/
 calibration_data.json
 *.db
 *.sqlite
+day_sessions/
 
 # Environment
 .env
@@ -27,4 +28,3 @@ calibration_data.json
 # OS
 .DS_Store
 Thumbs.db
-
