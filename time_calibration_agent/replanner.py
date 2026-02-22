@@ -6,7 +6,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, List
 
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -33,15 +33,19 @@ class ReplanningAgent:
         last_plan: Optional[Dict[str, Any]] = None,
         last_input: Optional[str] = None,
         estimated_tasks: Optional[list] = None,
+        extracted_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         inferred_time = self._infer_time_from_text(raw_text)
         now = inferred_time or current_time or datetime.now().strftime("%H:%M")
         last_plan_json = json.dumps(last_plan, indent=2) if last_plan else "None"
         last_input_text = last_input or "None"
         if estimated_tasks is None:
-            remaining_tasks = self._extract_remaining_tasks(raw_text, now)
+            if not extracted_context:
+                extracted_context = self._extract_context(raw_text, now)
+            remaining_tasks = extracted_context.get("remaining_tasks", [])
             estimated_tasks = self._estimate_tasks(remaining_tasks)
         estimated_tasks_json = json.dumps(estimated_tasks, indent=2)
+        extracted_context_json = json.dumps(extracted_context or {}, indent=2)
 
         prompt = f"""You are an ADHD-friendly replanning assistant.
 
@@ -50,6 +54,8 @@ Current time (authoritative): {now}
 User context (latest):
 """
         prompt += raw_text.strip() + "\n\n"
+        prompt += "Structured extraction (remaining tasks, priorities, constraints):\n"
+        prompt += extracted_context_json + "\n\n"
         prompt += "Estimated remaining tasks (use these durations):\n"
         prompt += estimated_tasks_json + "\n\n"
         prompt += "Previous session input (if any):\n" + last_input_text + "\n\n"
@@ -65,6 +71,7 @@ Rules:
 - Use 24-hour time format HH:MM for start/end.
 - Provide 1-3 immediate next actions.
 - Provide a plan-level confidence range with low/high between 0 and 1.
+- Explain why each dropped/deferred item was dropped.
 
 Return ONLY valid JSON with this exact schema:
 {
@@ -73,6 +80,7 @@ Return ONLY valid JSON with this exact schema:
   ],
   "next_actions": ["..."],
   "drop_or_defer": ["..."],
+  "drop_reasons": ["..."],
   "confidence": {"low": 0.0, "high": 1.0},
   "rationale": "..."
 }
@@ -101,10 +109,11 @@ Return ONLY valid JSON with this exact schema:
         current_time: Optional[str] = None,
         last_plan: Optional[Dict[str, Any]] = None,
         last_input: Optional[str] = None,
-    ) -> Tuple[Dict[str, Any], list]:
+    ) -> Tuple[Dict[str, Any], list, Dict[str, Any]]:
         inferred_time = self._infer_time_from_text(raw_text)
         now = inferred_time or current_time or datetime.now().strftime("%H:%M")
-        remaining_tasks = self._extract_remaining_tasks(raw_text, now)
+        extracted_context = self._extract_context(raw_text, now)
+        remaining_tasks = extracted_context.get("remaining_tasks", [])
         estimated_tasks = self._estimate_tasks(remaining_tasks)
         plan_output = self.plan(
             raw_text=raw_text,
@@ -112,13 +121,15 @@ Return ONLY valid JSON with this exact schema:
             last_plan=last_plan,
             last_input=last_input,
             estimated_tasks=estimated_tasks,
+            extracted_context=extracted_context,
         )
-        return plan_output, estimated_tasks
+        return plan_output, estimated_tasks, extracted_context
 
     def _normalize_output(self, result: Dict[str, Any]) -> Dict[str, Any]:
         time_blocks = result.get("time_blocks", [])
         next_actions = result.get("next_actions", [])
         drop_or_defer = result.get("drop_or_defer", [])
+        drop_reasons = result.get("drop_reasons", [])
         confidence = result.get("confidence", {})
         rationale = result.get("rationale", "")
 
@@ -128,6 +139,8 @@ Return ONLY valid JSON with this exact schema:
             next_actions = []
         if not isinstance(drop_or_defer, list):
             drop_or_defer = []
+        if not isinstance(drop_reasons, list):
+            drop_reasons = []
         if not isinstance(confidence, dict):
             confidence = {"low": 0.4, "high": 0.7}
 
@@ -150,6 +163,7 @@ Return ONLY valid JSON with this exact schema:
             "time_blocks": time_blocks,
             "next_actions": next_actions,
             "drop_or_defer": drop_or_defer,
+            "drop_reasons": drop_reasons,
             "confidence": {"low": low, "high": high},
             "rationale": rationale,
         }
@@ -207,6 +221,7 @@ Return ONLY valid JSON with this exact schema:
             ],
             "next_actions": ["Try again with more details"],
             "drop_or_defer": [],
+            "drop_reasons": [],
             "confidence": {"low": 0.1, "high": 0.2},
             "rationale": "Fallback plan used due to error.",
         }
@@ -242,14 +257,14 @@ Return ONLY valid JSON with this exact schema:
 
         return None
 
-    def _extract_remaining_tasks(self, raw_text: str, now: str) -> list:
-        """Use the LLM to extract remaining tasks from raw input."""
-        prompt = f"""Extract ONLY the remaining tasks the user still needs to do.\n\nCurrent time: {now}\n\nUser input:\n{raw_text}\n\nReturn JSON:\n{{\"remaining_tasks\": [\"...\"]}}"""
+    def _extract_context(self, raw_text: str, now: str) -> Dict[str, Any]:
+        """Extract remaining tasks, priorities, and constraints in structured form."""
+        prompt = f"""Extract remaining tasks, priorities, and constraints.\n\nCurrent time: {now}\n\nUser input:\n{raw_text}\n\nReturn JSON exactly:\n{{\n  \"remaining_tasks\": [\n    {{\"task\": \"...\", \"priority\": \"high|medium|low\"}}\n  ],\n  \"constraints\": {{\n    \"time_blocks\": [{{\"start\": \"HH:MM\", \"end\": \"HH:MM\", \"label\": \"...\"}}],\n    \"deadlines\": [{{\"time\": \"HH:MM\", \"label\": \"...\"}}]\n  }}\n}}"""
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "Extract remaining tasks. Respond with valid JSON only."},
+                    {"role": "system", "content": "Extract remaining tasks and constraints. Respond with valid JSON only."},
                     {"role": "user", "content": prompt},
                 ],
                 response_format={"type": "json_object"},
@@ -257,20 +272,54 @@ Return ONLY valid JSON with this exact schema:
             )
             result = json.loads(response.choices[0].message.content)
             tasks = result.get("remaining_tasks", [])
-            if isinstance(tasks, list):
-                return [str(t).strip() for t in tasks if str(t).strip()]
+            if not isinstance(tasks, list):
+                tasks = []
+            cleaned_tasks = []
+            for t in tasks:
+                if isinstance(t, dict):
+                    task_text = str(t.get("task", "")).strip()
+                    priority = str(t.get("priority", "medium")).lower().strip()
+                else:
+                    task_text = str(t).strip()
+                    priority = "medium"
+                if not task_text:
+                    continue
+                if priority not in ("high", "medium", "low"):
+                    priority = "medium"
+                cleaned_tasks.append({"task": task_text, "priority": priority})
+
+            constraints = result.get("constraints", {})
+            if not isinstance(constraints, dict):
+                constraints = {}
+            time_blocks = constraints.get("time_blocks", [])
+            deadlines = constraints.get("deadlines", [])
+            if not isinstance(time_blocks, list):
+                time_blocks = []
+            if not isinstance(deadlines, list):
+                deadlines = []
+
+            return {
+                "remaining_tasks": cleaned_tasks,
+                "constraints": {
+                    "time_blocks": time_blocks,
+                    "deadlines": deadlines,
+                },
+            }
         except Exception as e:
             print(f"Warning: task extraction failed: {e}")
-        return []
+        return {"remaining_tasks": [], "constraints": {"time_blocks": [], "deadlines": []}}
 
-    def _estimate_tasks(self, tasks: list) -> list:
+    def _estimate_tasks(self, tasks: List[Dict[str, Any]]) -> list:
         """Estimate durations for each remaining task using the estimator."""
         estimates = []
         for task in tasks:
-            est = self.estimator.estimate_task(task_description=task)
+            task_text = task.get("task", "")
+            priority = task.get("priority", "medium")
+            est = self.estimator.estimate_task(task_description=task_text)
             estimates.append(
                 {
-                    "task": task,
+                    "task": task_text,
+                    "priority": priority,
                     "estimated_minutes": est.get("estimated_minutes"),
                     "estimate_range": est.get("estimate_range"),
                     "category": est.get("category"),

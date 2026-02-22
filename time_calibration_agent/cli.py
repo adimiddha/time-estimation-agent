@@ -756,6 +756,7 @@ class TimeCalibrationCLI:
         date_override: Optional[str] = None,
         require_existing: bool = False,
         overwrite: bool = False,
+        debug: bool = False,
     ):
         """Create or update a replanning session from raw text input."""
         if not raw_text.strip():
@@ -787,12 +788,17 @@ class TimeCalibrationCLI:
             last_input = last_replan.get("raw_input")
 
         current_time = datetime.now().strftime("%H:%M")
-        plan_output, estimated_tasks = self.replanner.plan_with_estimates(
+        plan_output, estimated_tasks, extracted_context = self.replanner.plan_with_estimates(
             raw_text=raw_text,
             current_time=current_time,
             last_plan=last_plan,
             last_input=last_input,
         )
+
+        if debug:
+            plan_output = dict(plan_output)
+            plan_output["estimated_tasks"] = estimated_tasks
+            plan_output["extracted_context"] = extracted_context
 
         self.session_store.append_replan(
             session_id=session_id,
@@ -801,13 +807,19 @@ class TimeCalibrationCLI:
             current_time=current_time,
             extra={
                 "estimated_tasks": estimated_tasks,
+                "extracted_context": extracted_context,
             },
             overwrite=overwrite,
         )
 
         self.console.print_json(json.dumps(plan_output))
 
-    def show_session(self, session_label: Optional[str] = None, date_override: Optional[str] = None):
+    def show_session(
+        self,
+        session_label: Optional[str] = None,
+        date_override: Optional[str] = None,
+        debug: bool = False,
+    ):
         """Show the latest plan for a session."""
         session_id = self._resolve_session_id(
             session_label=session_label,
@@ -824,6 +836,12 @@ class TimeCalibrationCLI:
 
         last_replan = session["replans"][-1]
         plan_output = last_replan.get("plan_output", {})
+        if debug:
+            plan_output = dict(plan_output)
+            if "estimated_tasks" not in plan_output:
+                plan_output["estimated_tasks"] = last_replan.get("estimated_tasks", [])
+            if "extracted_context" not in plan_output:
+                plan_output["extracted_context"] = last_replan.get("extracted_context", {})
         self.console.print_json(json.dumps(plan_output))
     
     def generate_test_dataset(self, n: int = 50, output_path: Optional[str] = None):
@@ -2129,6 +2147,7 @@ def main():
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]session[/yellow] [--session label] [--date YYYY-MM-DD]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]status[/yellow]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]history[/yellow] [limit]\n"
+            "  [dim]Flags: --debug to show extracted tasks/estimates[/dim]\n"
             "  [dim]If --session is omitted, the last active session is used.[/dim]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]eval[/yellow] [--export path.json]\n"
             "  [cyan]python -m time_calibration_agent.cli[/cyan] [yellow]experiment[/yellow] [--output path.json]\n"
@@ -2189,6 +2208,7 @@ def main():
             return
         session_label = None
         date_override = None
+        debug = False
         raw_parts = []
         i = 2
         while i < len(sys.argv):
@@ -2198,6 +2218,9 @@ def main():
             elif sys.argv[i] == "--date" and i + 1 < len(sys.argv):
                 date_override = sys.argv[i + 1]
                 i += 2
+            elif sys.argv[i] == "--debug":
+                debug = True
+                i += 1
             else:
                 raw_parts.append(sys.argv[i])
                 i += 1
@@ -2207,6 +2230,7 @@ def main():
             session_label=session_label,
             date_override=date_override,
             require_existing=True,
+            debug=debug,
         )
 
     elif command == "new-session" or command == "newsession":
@@ -2215,6 +2239,7 @@ def main():
             return
         session_label = None
         date_override = None
+        debug = False
         raw_parts = []
         i = 2
         while i < len(sys.argv):
@@ -2224,6 +2249,9 @@ def main():
             elif sys.argv[i] == "--date" and i + 1 < len(sys.argv):
                 date_override = sys.argv[i + 1]
                 i += 2
+            elif sys.argv[i] == "--debug":
+                debug = True
+                i += 1
             else:
                 raw_parts.append(sys.argv[i])
                 i += 1
@@ -2233,11 +2261,13 @@ def main():
             session_label=session_label,
             date_override=date_override,
             overwrite=True,
+            debug=debug,
         )
 
     elif command == "session":
         session_label = None
         date_override = None
+        debug = False
         i = 2
         while i < len(sys.argv):
             if sys.argv[i] == "--session" and i + 1 < len(sys.argv):
@@ -2246,9 +2276,12 @@ def main():
             elif sys.argv[i] == "--date" and i + 1 < len(sys.argv):
                 date_override = sys.argv[i + 1]
                 i += 2
+            elif sys.argv[i] == "--debug":
+                debug = True
+                i += 1
             else:
                 i += 1
-        cli.show_session(session_label=session_label, date_override=date_override)
+        cli.show_session(session_label=session_label, date_override=date_override, debug=debug)
     
     elif command == "status":
         cli.show_status()
