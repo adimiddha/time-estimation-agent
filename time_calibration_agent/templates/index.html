@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day Planner</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Header -->
+  <header class="app-header">
+    <h1>Day Planner</h1>
+    <span class="session-badge" id="meta-row" style="display:none;"></span>
+  </header>
+
+  <!-- Main body: calendar + sidebar -->
+  <div class="app-body">
+
+    <!-- Left: Calendar column -->
+    <div class="calendar-column">
+
+      <!-- Calendar panel -->
+      <div class="calendar-panel">
+        <div class="calendar-panel-title">Schedule</div>
+        <div class="calendar-scroll" id="calendar-scroll">
+          <div class="calendar-grid" id="calendar-grid">
+            <div class="calendar-time-axis" id="calendar-time-axis"></div>
+            <div class="calendar-events" id="calendar-events"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary: next actions + dropped (shown after plan loads) -->
+      <div class="summary-panel" id="summary-panel">
+
+        <div class="summary-section">
+          <h3>&#9889; Next actions</h3>
+          <div id="summary-next-actions">
+            <span class="empty-note">No next actions listed.</span>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <h3>&#10008; Dropped / deferred</h3>
+          <div id="summary-dropped">
+            <span class="empty-note">Nothing dropped.</span>
+          </div>
+        </div>
+
+        <div class="summary-section" id="rationale-section" style="display:none;">
+          <h3>Rationale</h3>
+          <p class="empty-note" id="summary-rationale"></p>
+        </div>
+
+      </div>
+    </div><!-- /calendar-column -->
+
+    <!-- Right: Sidebar -->
+    <aside class="sidebar">
+
+      <!-- Error banner -->
+      <div class="error-banner" id="error-banner"></div>
+
+      <!-- Initial plan form -->
+      <div class="sidebar-section">
+        <label for="context">What&rsquo;s on today?</label>
+        <textarea
+          id="context"
+          name="context"
+          placeholder="e.g. I need to write a report, review PRs, lunch at noon, meeting 2–3."
+        ></textarea>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:120px;">
+            <label for="current_time_input" style="font-size:0.75rem;margin-bottom:4px;">Current time</label>
+            <input type="time" id="current_time_input" style="width:100%;padding:8px 10px;font-size:0.88rem;" />
+          </div>
+        </div>
+        <button class="btn btn-primary" id="plan-btn">
+          <span class="btn-icon">&#9654;</span> Plan my day
+        </button>
+        <small style="color:var(--muted);font-size:0.75rem;">Tip: press Ctrl+Enter to submit</small>
+      </div>
+
+      <!-- Advanced options (hidden by default) -->
+      <div class="sidebar-section">
+        <button class="advanced-toggle" id="advanced-toggle-btn">Show advanced options</button>
+        <div class="advanced-options" id="advanced-options">
+          <div>
+            <label for="session_label">Session label (optional)</label>
+            <input id="session_label" name="session_label" type="text" placeholder="e.g. work, personal" />
+          </div>
+          <div>
+            <label for="date_override">Date override (YYYY-MM-DD)</label>
+            <input id="date_override" name="date_override" type="text" placeholder="Leave blank for today" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow-up / Replan (shown after first plan) -->
+      <div class="followup-section" id="followup-section">
+
+        <div class="followup-label">Does this look good?</div>
+        <div class="followup-hint">Anything to adjust or add?</div>
+        <textarea
+          id="followup-context"
+          placeholder="e.g. Actually skip the report, add gym at 4pm."
+        ></textarea>
+        <button class="btn btn-secondary" id="replan-btn">
+          <span class="btn-icon">&#8635;</span> Replan
+        </button>
+
+        <!-- Confidence indicator -->
+        <div class="confidence-row">
+          <span>Feasibility:</span>
+          <span class="confidence-value" id="confidence-value">&mdash;</span>
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar-fill" id="confidence-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+      </div><!-- /followup-section -->
+
+    </aside><!-- /sidebar -->
+  </div><!-- /app-body -->
+</div><!-- /app-shell -->
+
+<script src="/static/app.js"></script>
+</body>
+</html>

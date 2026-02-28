@@ -1,0 +1,560 @@
+/* ── CSS Variables ─────────────────────────────────── */
+:root {
+  --bg: #f6f4ef;
+  --panel: #ffffff;
+  --ink: #1d1d1b;
+  --muted: #6b6b6b;
+  --accent: #0f6b6e;
+  --accent-light: #eef5f5;
+  --border: #e2ded6;
+  --amber: #c47a00;
+  --amber-light: #fff7e6;
+  --green: #5a8a6a;
+  --green-light: #eef5f0;
+  --now-line: #e53935;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Reset / Base ──────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+  background: radial-gradient(circle at top, #fdfaf4, var(--bg));
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── Layout ────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.app-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.session-badge {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.app-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  flex: 1;
+  min-height: 0; /* critical: lets flex child shrink below content size */
+  overflow: hidden;
+}
+
+/* ── Calendar Column ───────────────────────────────── */
+.calendar-column {
+  overflow-y: auto;
+  padding: 20px 20px 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.calendar-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.calendar-panel-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Calendar Inner ────────────────────────────────── */
+.calendar-scroll {
+  /* No max-height or overflow here — .calendar-column is the scroll container */
+  overflow: visible;
+}
+
+.calendar-grid {
+  display: flex;
+  position: relative;
+  min-height: 200px;
+}
+
+.calendar-time-axis {
+  width: 52px;
+  flex-shrink: 0;
+  position: relative;
+  border-right: 1px solid var(--border);
+  background: #fafaf8;
+}
+
+.hour-label {
+  position: absolute;
+  right: 8px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transform: translateY(-50%);
+  line-height: 1;
+  user-select: none;
+}
+
+.calendar-events {
+  flex: 1;
+  position: relative;
+  background: var(--panel);
+}
+
+.hour-tick {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+.hour-tick--half {
+  background: #eeebe4;
+}
+
+/* ── Calendar Blocks ───────────────────────────────── */
+.calendar-block {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 6px;
+  padding: 4px 8px;
+  overflow: hidden;
+  cursor: default;
+  transition: top 0.35s ease, height 0.35s ease, opacity 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.calendar-block--task {
+  background: var(--accent);
+  color: #fff;
+}
+
+.calendar-block--fixed {
+  background: var(--amber);
+  color: #fff;
+}
+
+.calendar-block--break {
+  background: var(--green);
+  color: #fff;
+  opacity: 0.85;
+}
+
+.block-time {
+  font-size: 0.65rem;
+  opacity: 0.85;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.block-task {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Compact blocks: < ~40px tall — hide time, shrink font */
+.calendar-block--compact .block-time {
+  display: none;
+}
+
+.calendar-block--compact .block-task {
+  font-size: 0.7rem;
+}
+
+/* Hover: expand to show full info, float above neighbors */
+.calendar-block:hover {
+  z-index: 50;
+  overflow: visible;
+  min-height: 48px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.calendar-block:hover .block-time {
+  display: block !important;
+}
+
+.calendar-block:hover .block-task {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+/* ── Now Line ──────────────────────────────────────── */
+.now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--now-line);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.now-line::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--now-line);
+}
+
+/* ── Empty / Loading States ────────────────────────── */
+.calendar-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  gap: 8px;
+  padding: 40px;
+  text-align: center;
+}
+
+.calendar-empty svg {
+  opacity: 0.3;
+}
+
+.calendar-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Summary Section ───────────────────────────────── */
+.summary-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.summary-panel.visible {
+  display: flex;
+}
+
+.summary-section h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+
+.summary-section ul {
+  margin: 0;
+  padding: 0 0 0 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.summary-section .empty-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── Sidebar ───────────────────────────────────────── */
+.sidebar {
+  border-left: 1px solid var(--border);
+  background: var(--panel);
+  overflow-y: auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-section label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  display: block;
+}
+
+textarea, input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+textarea:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #0d5c5f;
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.btn-secondary:hover {
+  background: #daeeed;
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
+
+/* ── Advanced Options (collapsible) ────────────────── */
+.advanced-toggle {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: inherit;
+  text-align: left;
+}
+
+.advanced-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.advanced-options.open {
+  display: flex;
+}
+
+.advanced-options label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+/* ── Follow-up Section ─────────────────────────────── */
+.followup-section {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.followup-section.visible {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.followup-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+}
+
+.followup-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: -4px 0 0;
+  font-style: italic;
+}
+
+/* ── Confidence Bar ────────────────────────────────── */
+.confidence-row {
+  font-size: 0.82rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.confidence-value {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.confidence-bar-wrap {
+  flex: 1;
+  min-width: 60px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.confidence-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* ── Error Banner ──────────────────────────────────── */
+.error-banner {
+  background: #fff0f0;
+  border: 1px solid #f5c6c6;
+  color: #c0392b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  display: none;
+}
+
+.error-banner.visible {
+  display: block;
+}
+
+/* ── Meta / Tags ───────────────────────────────────── */
+.meta-row {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.78rem;
+  margin: 2px 3px 2px 0;
+}
+
+/* ── Responsive ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .app-shell {
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    overflow: visible;
+    min-height: auto;
+  }
+
+  .calendar-column {
+    overflow-y: visible;
+  }
+
+  .sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    max-height: none;
+  }
+}
