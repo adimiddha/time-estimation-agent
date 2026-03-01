@@ -236,8 +236,8 @@ Return ONLY valid JSON with this exact schema:
         if not raw_text:
             return None
 
-        # Match 24h time like 14:30 or 09:00
-        m = re.search(r"\b([01]?\d|2[0-3]):([0-5]\d)\b", raw_text)
+        # Match 24h time like 14:30 or 09:00 (not followed by am/pm, so "7:23pm" falls through to 12h)
+        m = re.search(r"\b([01]?\d|2[0-3]):([0-5]\d)\b(?!\s*[ap]m)", raw_text, re.IGNORECASE)
         if m:
             hour = int(m.group(1))
             minute = int(m.group(2))

@@ -331,10 +331,17 @@ async function submitPlan(mode) {
     return;
   }
 
-  // Time validation: require a time reference for new plans
-  if (mode === 'new' && !TIME_REF_RE.test(rawContext)) {
+  // For new plans, always prepend current time so the backend has an unambiguous anchor.
+  // (Don't rely on time mentions in the text — those are usually deadlines, not current time.)
+  if (mode === 'new') {
     const timeVal = currentTimeEl ? currentTimeEl.value.trim() : '';
-    if (!timeVal) {
+    if (timeVal) {
+      const [h, m] = timeVal.split(':').map(Number);
+      const ampm = h >= 12 ? 'pm' : 'am';
+      const h12 = h % 12 || 12;
+      const timeStr = m === 0 ? `${h12}${ampm}` : `${h12}:${String(m).padStart(2,'0')}${ampm}`;
+      rawContext = `It's ${timeStr}. ${rawContext}`;
+    } else if (!TIME_REF_RE.test(rawContext)) {
       if (errBanner) {
         errBanner.textContent = 'Please set a current time — enter it in the "Current time" field or write it in your context (e.g. "It\'s 9am.").';
         errBanner.classList.add('visible');
@@ -342,12 +349,6 @@ async function submitPlan(mode) {
       }
       return;
     }
-    // Prepend the time from the field into the context
-    const [h, m] = timeVal.split(':').map(Number);
-    const ampm = h >= 12 ? 'pm' : 'am';
-    const h12 = h % 12 || 12;
-    const timeStr = m === 0 ? `${h12}${ampm}` : `${h12}:${String(m).padStart(2,'0')}${ampm}`;
-    rawContext = `It's ${timeStr}. ${rawContext}`;
   }
 
   if (errBanner) errBanner.classList.remove('visible');
