@@ -131,6 +131,16 @@ def create_app() -> Flask:
             "estimated_tasks": last_replan.get("estimated_tasks", []),
         })
 
+    @app.route("/api/health", methods=["GET"])
+    def api_health():
+        import os
+        key = os.getenv("OPENAI_API_KEY")
+        return jsonify({
+            "status": "ok",
+            "openai_key_set": bool(key),
+            "openai_key_prefix": key[:8] + "..." if key else None,
+        })
+
     @app.route("/api/plan", methods=["POST"])
     def api_plan():
         data = request.get_json(force=True) or {}
@@ -140,7 +150,12 @@ def create_app() -> Flask:
         date_override = (data.get("date_override") or "").strip() or None
         if not raw_text:
             return jsonify({"error": "No context provided."}), 400
-        result = _build_plan(raw_text, mode, session_label, date_override)
+        try:
+            result = _build_plan(raw_text, mode, session_label, date_override)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"error": f"Server error: {e}"}), 500
         if "error" in result:
             return jsonify(result), 400
         return jsonify(result)
