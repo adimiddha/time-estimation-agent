@@ -10,76 +10,36 @@
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-<div class="app-shell">
+<div class="app-shell" id="app-shell">
 
-  <header class="app-header">
-    <h1>Day Planner</h1>
-    <span class="session-badge" id="meta-row" style="display:none;"></span>
-  </header>
+  <!-- ── Welcome Screen ─────────────────────────────────── -->
+  <!-- Shown on first load when no plan exists for today     -->
+  <div class="welcome-view" id="welcome-view">
+    <div class="welcome-card">
+      <h1 class="welcome-title">Day Planner</h1>
+      <p class="welcome-subtitle">Let&rsquo;s figure out what&rsquo;s possible today.</p>
 
-  <div class="app-body">
+      <div class="error-banner" id="welcome-error"></div>
 
-    <!-- Left: Calendar (main artifact) -->
-    <div class="calendar-column">
-      <div class="calendar-panel">
-        <div class="calendar-panel-title">Schedule</div>
-        <div class="calendar-scroll" id="calendar-scroll">
-          <div class="calendar-grid" id="calendar-grid">
-            <div class="calendar-time-axis" id="calendar-time-axis"></div>
-            <div class="calendar-events" id="calendar-events"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <label for="context">What&rsquo;s on today?</label>
+      <textarea
+        id="context"
+        placeholder="e.g. I need to finish a report, lunch at noon, meeting 2–3pm, done by 6."
+      ></textarea>
 
-    <!-- Right: Compact sidebar -->
-    <aside class="sidebar">
-
-      <div class="error-banner" id="error-banner"></div>
-
-      <!-- Single prompt section (used for both plan + replan) -->
-      <div class="prompt-section">
-        <label for="context">What&rsquo;s on today?</label>
-        <textarea
-          id="context"
-          placeholder="e.g. I need to finish a report, lunch at noon, meeting 2–3pm, done by 6."
-        ></textarea>
-        <div class="time-row">
-          <span class="time-label">Now</span>
-          <input type="time" id="current_time_input" class="time-input" />
-        </div>
-        <button class="btn btn-primary" id="plan-btn">
-          <span class="btn-icon">&#9654;</span>
-          <span id="plan-btn-label">Plan my day</span>
-        </button>
-        <small class="tip-text">Ctrl/&#8984;+Enter to submit</small>
+      <div class="time-row">
+        <span class="time-label">Now</span>
+        <input type="time" id="current_time_input" class="time-input" />
       </div>
 
-      <!-- Feasibility (shown after first plan) -->
-      <div class="confidence-row" id="confidence-row" style="display:none;">
-        <span>Feasibility</span>
-        <span class="confidence-value" id="confidence-value">&mdash;</span>
-        <div class="confidence-bar-wrap">
-          <div class="confidence-bar-fill" id="confidence-bar-fill" style="width:0%"></div>
-        </div>
-      </div>
+      <button class="btn btn-primary btn-full" id="plan-btn">
+        <span class="btn-icon">&#9654;</span> Let&rsquo;s Plan
+      </button>
+      <small class="tip-text">Ctrl/&#8984;+Enter to submit</small>
 
-      <!-- Next actions + Dropped (compact, shown after plan) -->
-      <div class="sidebar-summary" id="sidebar-summary" style="display:none;">
-        <div class="summary-section">
-          <h3>&#9889; Next</h3>
-          <div id="summary-next-actions"><span class="empty-note">None listed.</span></div>
-        </div>
-        <div class="summary-section">
-          <h3>&#10008; Dropped</h3>
-          <div id="summary-dropped"><span class="empty-note">Nothing dropped.</span></div>
-        </div>
-      </div>
-
-      <!-- Advanced options (collapsed) -->
-      <div class="advanced-wrap">
-        <button class="advanced-toggle" id="advanced-toggle-btn">Show advanced options</button>
-        <div class="advanced-options" id="advanced-options">
+      <div class="advanced-wrap" style="margin-top:8px;">
+        <button class="advanced-toggle" id="welcome-advanced-btn">Advanced options</button>
+        <div class="advanced-options" id="welcome-advanced-opts">
           <div>
             <label for="session_label">Session label (optional)</label>
             <input id="session_label" name="session_label" type="text" placeholder="e.g. work, personal" />
@@ -90,11 +50,89 @@
           </div>
         </div>
       </div>
-
-    </aside>
+    </div>
   </div>
-</div>
 
+  <!-- ── Planner Screen ─────────────────────────────────── -->
+  <!-- Shown after first plan, or when returning with an    -->
+  <!-- existing session for today                           -->
+  <div class="planner-view" id="planner-view">
+
+    <header class="app-header">
+      <h1>Day Planner</h1>
+      <span class="session-badge" id="meta-row" style="display:none;"></span>
+    </header>
+
+    <div class="app-body">
+
+      <!-- Calendar: main artifact -->
+      <div class="calendar-column">
+        <div class="calendar-panel">
+          <div class="calendar-panel-title">Schedule</div>
+          <div class="calendar-scroll" id="calendar-scroll">
+            <div class="calendar-grid" id="calendar-grid">
+              <div class="calendar-time-axis" id="calendar-time-axis"></div>
+              <div class="calendar-events"    id="calendar-events"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+
+        <!-- 1. Next actions + Dropped (above the re-prompt) -->
+        <div class="sidebar-summary" id="sidebar-summary" style="display:none;">
+          <div class="summary-section">
+            <h3>&#9889; Next actions</h3>
+            <div id="summary-next-actions"><span class="empty-note">None listed.</span></div>
+          </div>
+          <div class="summary-section">
+            <h3>&#10008; Dropped</h3>
+            <div id="summary-dropped"><span class="empty-note">Nothing dropped.</span></div>
+          </div>
+        </div>
+
+        <!-- 2. Feasibility bar -->
+        <div class="confidence-row" id="confidence-row" style="display:none;">
+          <span>Feasibility</span>
+          <span class="confidence-value" id="confidence-value">&mdash;</span>
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar-fill" id="confidence-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- 3. Re-prompt -->
+        <div class="replan-section">
+          <div class="error-banner" id="planner-error"></div>
+          <label for="replan-context">Anything to adjust?</label>
+          <textarea
+            id="replan-context"
+            placeholder="e.g. Skip the report, add gym at 4pm, meeting moved to 3pm."
+          ></textarea>
+          <button class="btn btn-primary" id="replan-btn">
+            <span class="btn-icon">&#8635;</span> Re-plan
+          </button>
+          <small class="tip-text">Ctrl/&#8984;+Enter to submit</small>
+        </div>
+
+        <!-- 4. Footer: clear + advanced -->
+        <div class="sidebar-footer">
+          <button class="btn-clear" id="clear-btn" style="display:none;">&#8635; Start fresh today</button>
+          <button class="advanced-toggle" id="advanced-toggle-btn">Advanced options</button>
+          <div class="advanced-options" id="advanced-options">
+            <div>
+              <label for="planner-session-label">Session label (optional)</label>
+              <input id="planner-session-label" type="text" placeholder="e.g. work, personal" />
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+</div>
 <script src="/static/app.js"></script>
 </body>
 </html>

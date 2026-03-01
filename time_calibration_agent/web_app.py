@@ -129,6 +129,7 @@ def create_app() -> Flask:
             "current_time": last_replan.get("current_time", ""),
             "plan_output": last_replan.get("plan_output", {}),
             "estimated_tasks": last_replan.get("estimated_tasks", []),
+            "replans_count": len(session["replans"]),
         })
 
     @app.route("/api/health", methods=["GET"])

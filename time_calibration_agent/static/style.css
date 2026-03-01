@@ -68,14 +68,79 @@ body {
 
 /* ── Layout ────────────────────────────────────────── */
 .app-shell {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Welcome Screen ────────────────────────────────── */
+.welcome-view {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 24px;
+}
+
+.planner-view {
+  display: none;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
 }
 
+/* mode-planner switches the views */
+.app-shell.mode-planner .welcome-view  { display: none; }
+.app-shell.mode-planner .planner-view  { display: flex; }
+
+@keyframes welcomeIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 40px 36px 32px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: welcomeIn 0.5s var(--ease-spring) both;
+}
+
+.welcome-card label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--muted);
+  display: block;
+}
+
+.welcome-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.welcome-subtitle {
+  font-size: 0.92rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin: -4px 0 6px;
+}
+
+.btn-full {
+  width: 100%;
+}
+
 .app-header {
-  padding: 18px 28px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(130deg, var(--panel) 0%, #f7f4ff 100%);
   display: flex;
@@ -366,10 +431,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
   flex: 1;
-  min-height: 0;
+  min-height: 60px;
+  max-height: 38vh;
   overflow-y: auto;
 }
 
@@ -409,30 +473,14 @@ body {
   border-left: 1px solid var(--border);
   background: var(--panel);
   overflow: hidden;
-  padding: 16px 16px 12px;
+  padding: 14px 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-height: 0;
 }
 
-/* ── Prompt Section ────────────────────────────────── */
-.prompt-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.prompt-section > label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.9px;
-  color: var(--muted);
-  display: block;
-}
-
+/* ── Time Row (welcome + sidebar) ──────────────────── */
 .time-row {
   display: flex;
   align-items: center;
@@ -459,12 +507,62 @@ body {
   font-weight: 400;
 }
 
+/* ── Replan Section ────────────────────────────────── */
+.replan-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.replan-section label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--muted);
+  display: block;
+}
+
+/* ── Sidebar Footer ────────────────────────────────── */
+.sidebar-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Clear day button — small, subtle, destructive-leaning */
+.btn-clear {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    color       var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth),
+    background  var(--dur-fast) var(--ease-smooth);
+}
+
+.btn-clear:hover {
+  color: #c0392b;
+  border-color: #fcc;
+  background: #fff5f5;
+}
+
 /* ── Advanced wrap ─────────────────────────────────── */
 .advanced-wrap {
   flex-shrink: 0;
-  margin-top: auto;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
 }
 
 /* ── Form Elements ─────────────────────────────────── */
