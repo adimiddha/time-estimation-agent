@@ -472,7 +472,7 @@ body {
 .sidebar {
   border-left: 1px solid var(--border);
   background: var(--panel);
-  overflow: hidden;
+  overflow-y: auto;  /* scroll when zoom/small window compresses content */
   padding: 14px 16px 12px;
   display: flex;
   flex-direction: column;

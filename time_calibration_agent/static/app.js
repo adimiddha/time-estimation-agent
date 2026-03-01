@@ -98,7 +98,8 @@ function renderCalendar(timeBlocks) {
   const { startMin, endMin } = computeRange(timeBlocks);
   const totalMinutes    = Math.max(endMin - startMin, 1);
   const containerH      = getCalendarHeight();
-  const pixelsPerMinute = containerH / totalMinutes;
+  // Leave 20px at the bottom so the last tick label isn't clipped
+  const pixelsPerMinute = (containerH - 20) / totalMinutes;
 
   lastRangeStartMin = startMin;
   lastRangeEndMin   = endMin;
