@@ -112,7 +112,7 @@ function renderCalendar(timeBlocks) {
 
   // Calendar blocks (sorted by start time)
   const sorted = [...timeBlocks].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
-  sorted.forEach(block => {
+  sorted.forEach((block, idx) => {
     const startMin = timeToMinutes(block.start) - rangeStartMin;
     const endMin = timeToMinutes(block.end) - rangeStartMin;
     const durationMin = Math.max(0, endMin - startMin);
@@ -129,6 +129,7 @@ function renderCalendar(timeBlocks) {
     div.title = `${block.start}–${block.end}: ${block.task}`;
 
     const timeLabel = `${block.start}–${block.end}`;
+    div.style.animationDelay = `${idx * 0.055}s`;
     div.innerHTML = `
       <div class="block-time">${escHtml(timeLabel)}</div>
       <div class="block-task">${escHtml(block.task)}</div>
