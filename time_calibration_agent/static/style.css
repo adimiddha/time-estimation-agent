@@ -148,6 +148,10 @@ body {
   gap: 14px;
   box-shadow: var(--shadow-xs);
   flex-shrink: 0;
+  /* Stays visible while page scrolls in stacked layout */
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .app-header h1 {
@@ -810,6 +814,13 @@ input::placeholder {
     overflow: visible;
   }
 
+  /* Let the planner fill its natural height so the page can scroll */
+  .planner-view {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
   .app-body {
     grid-template-columns: 1fr;
     grid-template-rows: 60vh auto;
@@ -822,11 +833,18 @@ input::placeholder {
     padding: 12px;
   }
 
+  /* Sidebar shows all content; page scroll handles reaching it */
   .sidebar {
     border-left: none;
     border-top: 1px solid var(--border);
-    overflow-y: auto;
-    padding: 16px;
+    overflow: visible;
     height: auto;
+    max-height: none;
+    padding: 16px;
+  }
+
+  .sidebar-summary {
+    max-height: none;
+    overflow: visible;
   }
 }
