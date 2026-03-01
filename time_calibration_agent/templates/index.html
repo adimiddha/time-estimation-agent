@@ -12,19 +12,15 @@
 <body>
 <div class="app-shell">
 
-  <!-- Header -->
   <header class="app-header">
     <h1>Day Planner</h1>
     <span class="session-badge" id="meta-row" style="display:none;"></span>
   </header>
 
-  <!-- Main body: calendar + sidebar -->
   <div class="app-body">
 
-    <!-- Left: Calendar column -->
+    <!-- Left: Calendar (main artifact) -->
     <div class="calendar-column">
-
-      <!-- Calendar panel -->
       <div class="calendar-panel">
         <div class="calendar-panel-title">Schedule</div>
         <div class="calendar-scroll" id="calendar-scroll">
@@ -34,60 +30,54 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Summary: next actions + dropped (shown after plan loads) -->
-      <div class="summary-panel" id="summary-panel">
-
-        <div class="summary-section">
-          <h3>&#9889; Next actions</h3>
-          <div id="summary-next-actions">
-            <span class="empty-note">No next actions listed.</span>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <h3>&#10008; Dropped / deferred</h3>
-          <div id="summary-dropped">
-            <span class="empty-note">Nothing dropped.</span>
-          </div>
-        </div>
-
-        <div class="summary-section" id="rationale-section" style="display:none;">
-          <h3>Rationale</h3>
-          <p class="empty-note" id="summary-rationale"></p>
-        </div>
-
-      </div>
-    </div><!-- /calendar-column -->
-
-    <!-- Right: Sidebar -->
+    <!-- Right: Compact sidebar -->
     <aside class="sidebar">
 
-      <!-- Error banner -->
       <div class="error-banner" id="error-banner"></div>
 
-      <!-- Initial plan form -->
-      <div class="sidebar-section">
+      <!-- Single prompt section (used for both plan + replan) -->
+      <div class="prompt-section">
         <label for="context">What&rsquo;s on today?</label>
         <textarea
           id="context"
-          name="context"
-          placeholder="e.g. I need to write a report, review PRs, lunch at noon, meeting 2–3."
+          placeholder="e.g. I need to finish a report, lunch at noon, meeting 2–3pm, done by 6."
         ></textarea>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:120px;">
-            <label for="current_time_input" style="font-size:0.75rem;margin-bottom:4px;">Current time</label>
-            <input type="time" id="current_time_input" style="width:100%;padding:8px 10px;font-size:0.88rem;" />
-          </div>
+        <div class="time-row">
+          <span class="time-label">Now</span>
+          <input type="time" id="current_time_input" class="time-input" />
         </div>
         <button class="btn btn-primary" id="plan-btn">
-          <span class="btn-icon">&#9654;</span> Plan my day
+          <span class="btn-icon">&#9654;</span>
+          <span id="plan-btn-label">Plan my day</span>
         </button>
-        <small style="color:var(--muted);font-size:0.75rem;">Tip: Ctrl/⌘ + Enter to submit</small>
+        <small class="tip-text">Ctrl/&#8984;+Enter to submit</small>
       </div>
 
-      <!-- Advanced options (hidden by default) -->
-      <div class="sidebar-section">
+      <!-- Feasibility (shown after first plan) -->
+      <div class="confidence-row" id="confidence-row" style="display:none;">
+        <span>Feasibility</span>
+        <span class="confidence-value" id="confidence-value">&mdash;</span>
+        <div class="confidence-bar-wrap">
+          <div class="confidence-bar-fill" id="confidence-bar-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Next actions + Dropped (compact, shown after plan) -->
+      <div class="sidebar-summary" id="sidebar-summary" style="display:none;">
+        <div class="summary-section">
+          <h3>&#9889; Next</h3>
+          <div id="summary-next-actions"><span class="empty-note">None listed.</span></div>
+        </div>
+        <div class="summary-section">
+          <h3>&#10008; Dropped</h3>
+          <div id="summary-dropped"><span class="empty-note">Nothing dropped.</span></div>
+        </div>
+      </div>
+
+      <!-- Advanced options (collapsed) -->
+      <div class="advanced-wrap">
         <button class="advanced-toggle" id="advanced-toggle-btn">Show advanced options</button>
         <div class="advanced-options" id="advanced-options">
           <div>
@@ -101,33 +91,9 @@
         </div>
       </div>
 
-      <!-- Follow-up / Replan (shown after first plan) -->
-      <div class="followup-section" id="followup-section">
-
-        <div class="followup-label">Does this look good?</div>
-        <div class="followup-hint">Anything to adjust or add?</div>
-        <textarea
-          id="followup-context"
-          placeholder="e.g. Actually skip the report, add gym at 4pm."
-        ></textarea>
-        <button class="btn btn-secondary" id="replan-btn">
-          <span class="btn-icon">&#8635;</span> Replan
-        </button>
-
-        <!-- Confidence indicator -->
-        <div class="confidence-row">
-          <span>Feasibility:</span>
-          <span class="confidence-value" id="confidence-value">&mdash;</span>
-          <div class="confidence-bar-wrap">
-            <div class="confidence-bar-fill" id="confidence-bar-fill" style="width:0%"></div>
-          </div>
-        </div>
-
-      </div><!-- /followup-section -->
-
-    </aside><!-- /sidebar -->
-  </div><!-- /app-body -->
-</div><!-- /app-shell -->
+    </aside>
+  </div>
+</div>
 
 <script src="/static/app.js"></script>
 </body>

@@ -109,28 +109,23 @@ body {
 
 /* ── Calendar Column ───────────────────────────────── */
 .calendar-column {
-  overflow-y: auto;
-  padding: 24px 24px 56px;
+  overflow: hidden;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  min-height: 0;
 }
-
-.calendar-column::-webkit-scrollbar { width: 5px; }
-.calendar-column::-webkit-scrollbar-track { background: transparent; }
-.calendar-column::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 999px;
-}
-.calendar-column::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 .calendar-panel {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  overflow: visible;
-  flex-shrink: 0;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .calendar-panel-title {
@@ -145,13 +140,16 @@ body {
 
 /* ── Calendar Inner ────────────────────────────────── */
 .calendar-scroll {
-  overflow: visible;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden; /* JS scales content to fill exactly */
+  position: relative;
 }
 
 .calendar-grid {
   display: flex;
   position: relative;
-  min-height: 200px;
+  height: 100%; /* filled by JS */
 }
 
 .calendar-time-axis {
@@ -267,6 +265,12 @@ body {
   font-size: 0.72rem;
 }
 
+/* Nano: block too small to show text — just a colored strip, expand on hover */
+.calendar-block--nano .block-time,
+.calendar-block--nano .block-task {
+  display: none;
+}
+
 .calendar-block:hover {
   z-index: 50;
   overflow: visible;
@@ -357,48 +361,44 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ── Summary Section ───────────────────────────────── */
-@keyframes panelIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.summary-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 20px;
-  display: none;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.summary-panel.visible {
+/* ── Summary (compact, in sidebar) ────────────────── */
+.sidebar-summary {
   display: flex;
-  animation: panelIn 0.4s var(--ease-out) both;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.sidebar-summary::-webkit-scrollbar { width: 3px; }
+.sidebar-summary::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
 }
 
 .summary-section h3 {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.9px;
   color: var(--muted);
-  margin: 0 0 8px;
+  margin: 0 0 5px;
 }
 
 .summary-section ul {
   margin: 0;
-  padding: 0 0 0 20px;
-  font-size: 0.88rem;
+  padding: 0 0 0 16px;
+  font-size: 0.8rem;
   font-weight: 500;
-  line-height: 1.75;
+  line-height: 1.6;
   color: var(--ink);
 }
 
 .summary-section .empty-note {
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   color: var(--muted);
   font-style: italic;
   font-weight: 400;
@@ -408,33 +408,63 @@ body {
 .sidebar {
   border-left: 1px solid var(--border);
   background: var(--panel);
-  overflow-y: auto;
-  padding: 24px 20px;
+  overflow: hidden;
+  padding: 16px 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
+  min-height: 0;
 }
 
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-track { background: transparent; }
-.sidebar::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 999px;
-}
-
-.sidebar-section {
+/* ── Prompt Section ────────────────────────────────── */
+.prompt-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-.sidebar-section label {
+.prompt-section > label {
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.9px;
   color: var(--muted);
   display: block;
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.time-input {
+  flex: 1;
+}
+
+.tip-text {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ── Advanced wrap ─────────────────────────────────── */
+.advanced-wrap {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
 }
 
 /* ── Form Elements ─────────────────────────────────── */
@@ -468,7 +498,8 @@ input[type="time"]:focus {
 }
 
 textarea {
-  min-height: 108px;
+  min-height: 72px;
+  max-height: 140px;
 }
 
 textarea::placeholder,
@@ -592,40 +623,8 @@ input::placeholder {
   color: var(--muted);
 }
 
-/* ── Follow-up Section ─────────────────────────────── */
-.followup-section {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-  border-top: 1px solid var(--border);
-  padding-top: 22px;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.followup-section.visible {
-  display: flex;
-  animation: slideUp 0.45s var(--ease-spring) both;
-}
-
-.followup-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.9px;
-  color: var(--muted);
-}
-
-.followup-hint {
-  font-size: 0.84rem;
-  font-weight: 500;
-  color: var(--muted);
-  margin: -6px 0 0;
-  font-style: italic;
-}
+/* ── Confidence Row ──────────────────────────────────
+   (kept inline in sidebar, not the full-width card below) */
 
 /* ── Confidence Bar ────────────────────────────────── */
 .confidence-row {
@@ -709,25 +708,27 @@ input::placeholder {
 @media (max-width: 768px) {
   .app-shell {
     height: auto;
+    min-height: 100vh;
     overflow: visible;
   }
 
   .app-body {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: 60vh auto;
     overflow: visible;
     min-height: auto;
   }
 
   .calendar-column {
-    overflow-y: visible;
-    padding: 16px;
+    overflow: hidden;
+    padding: 12px;
   }
 
   .sidebar {
     border-left: none;
     border-top: 1px solid var(--border);
-    max-height: none;
-    padding: 20px 16px;
+    overflow-y: auto;
+    padding: 16px;
+    height: auto;
   }
 }
