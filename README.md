@@ -1,282 +1,128 @@
 # Time Calibration Agent
 
-An AI agent that helps users become better calibrated at estimating how long tasks take. The agent predicts task durations, learns from actual time logged, and improves its estimates over time using user-specific context.
+An AI-powered day planner for people who get overwhelmed when their day stops going according to plan.
 
-## Product Goal
+**Try it live:** [time-estimation-agent-production.up.railway.app](https://time-estimation-agent-production.up.railway.app/)
 
-This is **not a todo list**. It's a **prediction + learning system** that:
-- Predicts how long tasks will take before execution
-- Learns from actual time logged
-- Improves estimates over time using user-specific context
+---
 
-## Core User Flow (V1)
+## The Problem
 
-1. **User describes tasks** in natural language
-2. **Agent outputs**:
-   - Estimated duration per task
-   - A range (optimistic / realistic / pessimistic)
-   - A brief explanation of assumptions
-   - Task category and ambiguity level
-3. **User logs actual time** spent later
-4. **Agent updates** its understanding:
-   - User's personal estimation bias
-   - Task-type-specific patterns
-   - Ambiguity effects
+Most productivity tools assume your day goes as planned. They don't. A meeting runs long, a task takes twice as expected, something urgent lands in your inbox — and suddenly the plan you made at 9am is useless by noon. For people with ADHD, this is especially painful: time blindness and executive function difficulties make it hard to re-orient mid-day, re-assess what's realistic, and decide what to actually do next.
+
+The common advice is "just re-prioritize." That's not nothing — but doing it well requires holding your whole day in your head, estimating how long everything remaining will take, and making trade-offs quickly under stress. Most people don't do this well, and most tools don't help them do it at all.
+
+---
+
+## How It Started (and Where It Went)
+
+This project started as a **time calibration agent**: a CLI tool that tried to answer "how long will this vague task take?" You'd describe a task, get an estimate with a confidence range and reasoning, then log the actual time afterward. The agent would learn your personal bias — "you consistently underestimate writing tasks by 25%" — and adjust future estimates accordingly.
+
+That was a real problem worth solving. But through using it and talking about it, a bigger and more urgent problem kept surfacing: *I don't just need to estimate one task — I need help planning my whole day, and especially recovering when it all falls apart.*
+
+So the project pivoted. The time estimation engine stayed (it's now embedded inside the planner), but the primary product became a **replanning assistant**: describe your day and constraints in plain language, get a visual block schedule, and return to it throughout the day with updates. The calendar adjusts. The plan stays alive.
+
+---
+
+## The Solution
+
+**Two modes, one workflow:**
+
+**1. Plan your day**
+
+Open the web app, type everything on your plate in plain language — tasks, meetings, hard stops, energy levels, whatever context is relevant. Set the current time. The assistant figures out what's realistic, estimates durations, prioritizes, and generates a visual time-block calendar fitted to your available hours.
+
+**2. Replan when things change**
+
+When the day breaks down, you don't start over. Type what happened ("the standup ran 45 minutes, I didn't get to the report") and hit Replan. The assistant re-reads your original constraints, incorporates the new context, and regenerates the calendar from the current time forward — surfacing what got dropped, what can still fit, and what to do next.
+
+The design is intentionally ADHD-friendly: a clean two-screen flow (input → calendar), rounded Nunito font to reduce visual noise, spring animations to make state changes trackable, and time blocks color-coded by type (tasks, fixed events, breaks).
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/adimiddha/time-estimation-agent.git
+cd time-estimation-agent
+pip install -r requirements.txt
+echo "OPENAI_API_KEY=sk-..." > .env
+
+# Run the web app
+PORT=5001 python3 -m time_calibration_agent.web_app
+# Open http://127.0.0.1:5001
+```
+
+> macOS note: port 5000 is reserved by AirPlay Receiver. Use `PORT=5001`.
+
+**Or use the CLI directly:**
+
+```bash
+python3 -m time_calibration_agent.cli estimate "Write API documentation"
+python3 -m time_calibration_agent.cli log <task_id> 120   # log actual minutes
+python3 -m time_calibration_agent.cli status              # see your calibration
+```
+
+---
+
+## Key Decisions
+
+### Pivoting from time calibration to day replanning
+
+The original agent was technically interesting: learn user-specific estimation bias, apply multiplicative adjustments, get more accurate over time. But the feedback was consistent — the felt need wasn't "help me estimate one task better," it was "help me survive a day that's gone sideways."
+
+Competitive alternatives exist (Todoist, Reclaim, Motion) but they all share the same limitation: they help you *plan*, not *recover*. The replanning loop — "here's what happened, what do I do now?" — was the gap worth filling. The time estimation engine didn't go away; it now runs under the hood to estimate each task when building the schedule.
+
+### Binary (0/1) vs 5-point (1–5) scoring for AI evaluation
+
+Before the pivot, significant time went into evaluating how good the time estimation agent actually was — without ground-truth actuals to measure against, which is the hard case. The solution was an LLM-as-judge evaluator, with parallel human evaluations for validation.
+
+The first instinct was a 1–5 scale: more granularity should mean richer signal. In practice, neither the LLM nor human raters could agree with themselves across runs at that resolution. What was a 3 vs a 4? The distinction was too soft to be consistent. Human raters also found the 5-point form slower and more cognitively taxing.
+
+Switching to binary (0 = poor, 1 = good) with an explicit quality threshold changed things. Disagreements became legible: when the human said 1 and the model said 0, there was a clear, investigable failure. We ran both scoring methods on the same dataset and found binary AI scores tracked human judgment more reliably than 5-point AI scores did.
+
+**The lesson:** LLM-as-judge works better with fewer score levels. Granularity implies precision the model doesn't actually have.
+
+### gpt-4o-mini for estimation, gpt-4.1 for replanning
+
+Estimation is structured and narrow: produce a JSON object with a number, a category, and a rationale. gpt-4o-mini handles it reliably and cheaply. Replanning is a different kind of task — it requires reading an unstructured brain dump, inferring implicit constraints ("dinner at 7" means hard stop at ~6:30), performing time arithmetic across a full day, and producing a coherent schedule. We upgraded the replanning model to gpt-4.1 and kept the estimator on gpt-4o-mini. The cost delta is worth it at the replanning step; it's not worth it for estimation.
+
+---
+
+## What We Learned
+
+**AI evals: fewer levels, more signal.** The 1–5 scoring experiment was genuinely useful even though we dropped it — running it in parallel with binary on the same dataset made the instability visible. The 5-point scores had higher variance across runs and showed less agreement with human raters. If we'd only tried binary, we'd have assumed it was the obvious choice; running the comparison made the *why* concrete.
+
+**The original product was a solution looking for a sharper problem.** Time calibration as a concept is real — people are genuinely miscalibrated — but the pain wasn't acute enough to drive repeat use. "I need to re-estimate all my tasks after a meeting blew up my afternoon" is a problem people feel viscerally and repeatedly. The pivot came from sitting with the question: what problem would make someone open this app without being reminded to?
+
+**Estimation context matters more than model quality.** The biggest source of estimation errors wasn't the model being wrong — it was missing scope. "Write a blog post" can be 30 minutes or 3 hours depending on whether research is in scope, who's reviewing, and whether you're blocked waiting on someone. Structured prompting (asking for category, ambiguity level, and explicit assumptions) had more impact on accuracy than model selection or calibration tuning.
+
+---
 
 ## Architecture
 
-### Components
+```
+CLI (cli.py)
+  ├── EstimationAgent (agent.py)      ← gpt-4o-mini, structured JSON estimates
+  ├── CalibrationLearner (learning.py) ← EMA multiplicative bias correction
+  ├── Storage (storage.py)            ← JSON persistence
+  └── ReplanningAgent (replanner.py)  ← gpt-4.1 day scheduling
+        └── DaySessionStore           ← per-user session files
 
-1. **Storage Layer** (`storage.py`)
-   - JSON-based persistence (simple for V1)
-   - Stores tasks, estimates, actuals, and calibration data
-   - No database required
-
-2. **Estimation Agent** (`agent.py`)
-   - Uses OpenAI API to generate initial estimates
-   - Considers historical patterns and similar tasks
-   - Returns structured estimates with explanations
-
-3. **Learning System** (`learning.py`)
-   - Heuristic-based calibration (V1 approach)
-   - Tracks overall user bias
-   - Learns category-specific patterns
-   - Learns ambiguity effects
-   - Applies adjustments to future estimates
-
-4. **CLI Interface** (`cli.py`)
-   - Simple command-line interface
-   - Estimate tasks
-   - Log actual time
-   - View status and history
-
-### Data Schema
-
-```json
-{
-  "tasks": [
-    {
-      "id": "task_1_1234567890",
-      "description": "Write blog post",
-      "estimated_minutes": 60,
-      "estimate_range": {
-        "optimistic": 45,
-        "realistic": 60,
-        "pessimistic": 90
-      },
-      "explanation": "...",
-      "category": "writing",
-      "ambiguity": "moderate",
-      "actual_minutes": 75,
-      "created_at": "2024-01-01T10:00:00",
-      "completed_at": "2024-01-01T11:15:00"
-    }
-  ],
-  "calibration": {
-    "user_bias": 0.15,
-    "category_patterns": {
-      "writing": 1.25,
-      "coding": 0.9
-    },
-    "ambiguity_patterns": {
-      "fuzzy": 1.3,
-      "clear": 0.95
-    },
-    "total_tasks": 10,
-    "total_discrepancy": 150.0
-  }
-}
+Web app (web_app.py)
+  └── Same ReplanningAgent + DaySessionStore, per-user via Flask session cookie
 ```
 
-## How Learning Happens
+Calibration applies three multiplicative factors updated via exponential moving average (α ≈ 0.3):
 
-### 1. Initial Estimation
-
-When a user describes a task, the agent:
-- Analyzes the task description
-- Considers historical patterns (if available)
-- Looks at similar past tasks
-- Generates an estimate with range and explanation
-
-### 2. Calibration Application
-
-Before returning the estimate, the learning system applies adjustments:
-- **User bias**: If user consistently over/underestimates, adjust baseline
-- **Category patterns**: If "coding" tasks always take 20% longer, apply that
-- **Ambiguity effects**: If "fuzzy" tasks are underestimated, adjust upward
-
-### 3. Learning from Outcomes
-
-When actual time is logged:
-- Calculate error percentage
-- Update overall user bias (exponential moving average)
-- Update category-specific patterns
-- Update ambiguity patterns
-- Store insights for future estimates
-
-### Learning Strategy (V1)
-
-The V1 learning system uses **heuristics** rather than complex ML:
-
-1. **Bias Calculation**: Weighted average of estimation errors
-2. **Pattern Detection**: Track errors by category and ambiguity
-3. **Smoothing**: Exponential moving average to avoid overreacting to outliers
-4. **Adjustment Application**: Multiplicative factors applied to future estimates
-
-This approach is:
-- ✅ Simple and inspectable
-- ✅ Fast and doesn't require training
-- ✅ Works with small datasets
-- ✅ Easy to debug and improve
-
-## Installation
-
-1. **Clone or download** this repository
-
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up OpenAI API key**:
-   Create a `.env` file:
-   ```
-   OPENAI_API_KEY=your_api_key_here
-   ```
-   Or export it:
-   ```bash
-   export OPENAI_API_KEY=your_api_key_here
-   ```
-
-## Usage
-
-### Estimate Tasks
-
-```bash
-python -m time_calibration_agent.cli estimate "Write blog post about time estimation"
-python -m time_calibration_agent.cli estimate "Code review PR #123" "Update documentation"
+```
+adjusted = base × category_factor × ambiguity_factor × bias_factor
 ```
 
-### Log Actual Time
+This is intentionally simple — with 10–50 tasks, any regression model overfits. EMA has one hyperparameter, is inspectable, and works with as few as 3 data points.
 
-```bash
-python -m time_calibration_agent.cli log task_1_1234567890 45
-```
-
-### View Status
-
-```bash
-python -m time_calibration_agent.cli status
-```
-
-### View History
-
-```bash
-python -m time_calibration_agent.cli history
-python -m time_calibration_agent.cli history 20  # Show last 20 tasks
-```
-
-## Example Session
-
-```bash
-# Estimate some tasks
-$ python -m time_calibration_agent.cli estimate "Write API documentation" "Fix bug in auth system"
-
-Task 1: Write API documentation
-------------------------------------------------------------
-📊 Estimate: 90 minutes
-   Range: 60 - 120 minutes
-   Category: writing
-   Ambiguity: moderate
-   Explanation: Documentation typically requires research, writing, and review...
-   Task ID: task_1_1704110400
-
-Task 2: Fix bug in auth system
-------------------------------------------------------------
-📊 Estimate: 45 minutes
-   Range: 30 - 60 minutes
-   Category: coding
-   Ambiguity: clear
-   Explanation: Bug fixes can vary, but auth issues are usually straightforward...
-   Task ID: task_2_1704110401
-
-# Later, log actual time
-$ python -m time_calibration_agent.cli log task_1_1704110400 120
-✅ Time logged for task: Write API documentation
-   Estimated: 90 minutes
-   Actual: 120 minutes
-   Error: +33.3%
-
-📈 Calibration updated based on this outcome.
-
-# Check status
-$ python -m time_calibration_agent.cli status
-============================================================
-CALIBRATION STATUS
-============================================================
-
-Total tasks: 5
-Pending: 1
-Completed: 4
-
-📊 Overall pattern: You tend to UNDERESTIMATE by ~12.5%
-
-Category patterns:
-  - writing: +18.2% adjustment
-  - coding: -5.0% adjustment
-```
-
-## Key Concepts Tracked
-
-- **Task Category**: e.g., deep work, admin, social, errands, coding, writing
-- **Task Ambiguity**: clear, moderate, or fuzzy
-- **User Bias**: Overall tendency to over/underestimate
-- **Contextual Patterns**: Category and ambiguity-specific adjustments
-
-## Known Limitations (V1)
-
-1. **No user authentication**: Single-user only, data stored locally
-2. **Simple learning**: Heuristic-based, not ML-powered
-3. **No context awareness**: Doesn't consider time of day, energy levels, etc. (mentioned but not implemented)
-4. **No task dependencies**: Doesn't account for task ordering or dependencies
-5. **Limited pattern detection**: Only tracks category and ambiguity, not more nuanced patterns
-6. **No confidence intervals**: Range is provided but not used in learning
-7. **JSON storage**: Not suitable for large datasets or concurrent access
-
-## What Would Be Improved in V2
-
-### Learning Improvements
-- **ML-based calibration**: Use regression models or simple neural networks
-- **Feature engineering**: Extract more features from task descriptions
-- **Confidence tracking**: Learn when estimates are more/less reliable
-- **Temporal patterns**: Learn from time of day, day of week effects
-- **Context awareness**: Consider energy levels, interruptions, etc.
-
-### Product Improvements
-- **Web interface**: Better UX than CLI
-- **Voice input**: Natural language task entry
-- **Task templates**: Recurring task patterns
-- **Visualizations**: Charts showing calibration improvement over time
-- **Export/import**: Backup and share calibration data
-- **Multi-user support**: Auth and user-specific models
-
-### Technical Improvements
-- **Database**: SQLite or PostgreSQL for better data management
-- **API**: REST API for integration with other tools
-- **Caching**: Reduce API calls for similar tasks
-- **Batch processing**: Learn from multiple outcomes at once
-- **A/B testing**: Test different learning strategies
-
-## Design Decisions
-
-1. **Heuristics over ML (V1)**: Faster to implement, easier to debug, works with small data
-2. **JSON storage**: No setup required, easy to inspect and modify
-3. **CLI first**: Fastest way to validate the core learning loop
-4. **Exponential moving average**: Smooth learning that doesn't overreact
-5. **Multiplicative adjustments**: Preserves relative differences between tasks
-6. **Category + Ambiguity**: Two key dimensions that affect estimation accuracy
+---
 
 ## License
 
 MIT
-
