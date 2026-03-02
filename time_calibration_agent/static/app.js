@@ -5,7 +5,6 @@ const PIXELS_PER_HOUR = 64;
 const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
 const MIN_BLOCK_HEIGHT = 28;
 const COMPACT_THRESHOLD_PX = 40;
-const MIN_VISIBLE_PX = 20; // minimum pixels a block must show before the next block can start
 
 // ── State ──────────────────────────────────────────────────────
 let currentPlanTime = null;
@@ -200,7 +199,7 @@ function renderCalendar(timeBlocks) {
     const naturalTop = startMin * PIXELS_PER_MINUTE;
     const top = Math.max(naturalTop, stickyBottom);
     const height = Math.max(MIN_BLOCK_HEIGHT, durationMin * PIXELS_PER_MINUTE);
-    stickyBottom = top + MIN_VISIBLE_PX;
+    stickyBottom = top + height;
     visualBottom = Math.max(visualBottom, top + height);
     const kind = block.kind || 'task';
 
@@ -209,7 +208,6 @@ function renderCalendar(timeBlocks) {
     div.className = `calendar-block calendar-block--${kind}${isCompact ? ' calendar-block--compact' : ''}`;
     div.style.top = top + 'px';
     div.style.height = height + 'px';
-    div.style.zIndex = sorted.length - idx;
     div.title = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}: ${block.task}`;
 
     const timeLabel = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}`;
