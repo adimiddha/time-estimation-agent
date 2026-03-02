@@ -66,7 +66,7 @@ function animateProgressBar(onComplete) {
   if (!bar || !label) return;
 
   const stages = [
-    { pct: 20,  dur: 1000,  text: 'Reading your day\u2026' },
+    { pct: 20,  dur: 1000,  text: 'Untangling your day\u2026' },
     { pct: 70,  dur: 8000,  text: 'Estimating task durations\u2026' },
     { pct: 95,  dur: 4000,  text: 'Building your schedule\u2026' },
   ];
@@ -428,11 +428,11 @@ async function submitPlan() {
     clarifyResult = await res.json();
   } catch (e) {
     showError('error-banner', 'Network error. Is the server running?');
-    if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Plan my day'; }
+    if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Untangle my day'; }
     return;
   }
 
-  if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Plan my day'; }
+  if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Untangle my day'; }
 
   if (clarifyResult.follow_up_question) {
     // Store type and end time for submitFollowUp()

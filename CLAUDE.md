@@ -71,7 +71,7 @@ All persistent state lives in `calibration_data.json`. The CLI is the only state
 ```
 CLI (cli.py)
   ├── Storage (storage.py)              ← JSON persistence, single source of truth
-  ├── Agent (agent.py)                  ← Stateless OpenAI calls for estimation (gpt-4o-mini)
+  ├── Agent (agent.py)                  ← Stateless OpenAI calls for estimation (gpt-4.1)
   ├── CalibrationLearner (learning.py)  ← Stateless heuristic calibration
   ├── ReplanningAgent (replanner.py)    ← Day scheduling via OpenAI (gpt-4.1)
   └── DaySessionStore (session_store.py) ← Reads/writes day_sessions/*.json
@@ -105,7 +105,7 @@ Session IDs default to `YYYY-MM-DD`; optional label produces `YYYY-MM-DD__<label
 
 | Component | Model |
 |---|---|
-| `EstimationAgent` | `gpt-4o-mini` |
+| `EstimationAgent` | `gpt-4.1` |
 | `QualityEvaluator` | `gpt-4o` |
 | `ReplanningAgent` | `gpt-4.1` |
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Day Planner</title>
+  <title>Untangle</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
   <!-- Screen 1: Brain dump -->
   <div id="brain-dump-screen" class="welcome-card">
     <div id="live-clock" class="live-clock"><span class="clock-its">it&rsquo;s </span><span id="live-clock-time"></span></div>
-    <h2 class="welcome-heading">Tell me what you need to do:</h2>
+    <h2 class="welcome-heading">What do you need to untangle today?</h2>
     <textarea
       id="brain-dump"
       class="welcome-textarea"
@@ -25,7 +25,7 @@
       rows="5"
     ></textarea>
     <button class="btn btn-primary welcome-btn" id="plan-btn">
-      <span class="btn-icon">&#9654;</span> Plan my day
+      <span class="btn-icon">&#9654;</span> Untangle my day
     </button>
     <div class="error-banner" id="error-banner"></div>
     <details class="advanced-details">
@@ -56,7 +56,7 @@
   <!-- Screen 3: Loading (hidden initially) -->
   <div id="loading-screen" class="welcome-card loading-card" style="display:none;">
     <div class="spinner loading-spinner"></div>
-    <div class="loading-label" id="progress-label">Reading your day&hellip;</div>
+    <div class="loading-label" id="progress-label">Untangling your day&hellip;</div>
     <div class="progress-bar-wrap">
       <div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div>
     </div>
@@ -69,7 +69,7 @@
 
   <!-- Header -->
   <header class="app-header">
-    <h1>Day Planner</h1>
+    <h1>Untangle</h1>
     <span class="session-badge" id="meta-row" style="display:none;"></span>
   </header>
 
@@ -82,7 +82,7 @@
       <!-- Inline replan loading overlay (covers calendar + summary) -->
       <div id="replan-loading-overlay" class="replan-loading-overlay" style="display:none;">
         <div class="spinner replan-spinner"></div>
-        <div class="replan-loading-label" id="replan-progress-label">Replanning your day&hellip;</div>
+        <div class="replan-loading-label" id="replan-progress-label">Untangling again&hellip;</div>
         <div class="replan-progress-wrap">
           <div id="replan-progress-bar" class="replan-progress-fill" style="width:0%"></div>
         </div>

@@ -1,6 +1,6 @@
-# Time Calibration Agent
+# Untangle
 
-An AI-powered day planner for people who get overwhelmed when their day stops going according to plan.
+AI that helps you untangle your day when it all falls apart.
 
 **Try it live:** [time-estimation-agent-production.up.railway.app](https://time-estimation-agent-production.up.railway.app/)
 
