@@ -550,6 +550,7 @@ async function runPlanCall(context, sessionEndTime) {
       body: JSON.stringify({
         context: fullContext,
         mode: 'new',
+        current_time: currentTimeHHMM || nowHHMM(),
         session_label: sessionLabelEl ? sessionLabelEl.value.trim() : '',
         date_override: dateOverrideEl ? dateOverrideEl.value.trim() : '',
         session_end_time: sessionEndTime,

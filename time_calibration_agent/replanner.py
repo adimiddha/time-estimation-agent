@@ -335,19 +335,19 @@ Return ONLY valid JSON with this exact schema:
         if not raw_text:
             return None
 
-        # Match 24h time like 14:30 or 09:00 (not followed by am/pm, so "7:23pm" falls through to 12h)
-        m = re.search(r"\b([01]?\d|2[0-3]):([0-5]\d)\b(?!\s*[ap]m)", raw_text, re.IGNORECASE)
+        # Match 24h time like 14:30 or 09:00 (not followed by am/pm or a.m./p.m.)
+        m = re.search(r"\b([01]?\d|2[0-3]):([0-5]\d)\b(?!\s*[ap]\.?m)", raw_text, re.IGNORECASE)
         if m:
             hour = int(m.group(1))
             minute = int(m.group(2))
             return f"{hour:02d}:{minute:02d}"
 
-        # Match 12h time like 2pm, 2:15 PM
-        m = re.search(r"\b([1-9]|1[0-2])(?::([0-5]\d))?\s*([ap]m)\b", raw_text, re.IGNORECASE)
+        # Match 12h time like 2pm, 2:15 PM, 2 p.m.
+        m = re.search(r"\b([1-9]|1[0-2])(?::([0-5]\d))?\s*([ap]\.?m)\b", raw_text, re.IGNORECASE)
         if m:
             hour = int(m.group(1))
             minute = int(m.group(2) or "00")
-            meridiem = m.group(3).lower()
+            meridiem = m.group(3).lower().replace('.', '')
             if meridiem == "pm" and hour != 12:
                 hour += 12
             if meridiem == "am" and hour == 12:
