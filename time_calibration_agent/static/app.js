@@ -1,9 +1,9 @@
 'use strict';
 
 // ── Constants ──────────────────────────────────────────────────
-const PIXELS_PER_HOUR = 64;
+const PIXELS_PER_HOUR = 120;
 const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
-const MIN_BLOCK_HEIGHT = 28;
+const MIN_BLOCK_HEIGHT = 20;
 const COMPACT_THRESHOLD_PX = 40;
 
 // ── State ──────────────────────────────────────────────────────
