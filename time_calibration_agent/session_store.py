@@ -55,6 +55,12 @@ class DaySessionStore:
             value = f.read().strip()
             return value or None
 
+    def get_session_end_time(self, session_id: str) -> Optional[str]:
+        session = self.load_session(session_id)
+        if not session:
+            return None
+        return session.get("session_end_time")
+
     def append_replan(
         self,
         session_id: str,
@@ -63,6 +69,7 @@ class DaySessionStore:
         current_time: str,
         extra: Optional[Dict[str, Any]] = None,
         overwrite: bool = False,
+        session_end_time: Optional[str] = None,
     ) -> Dict[str, Any]:
         session = None if overwrite else self.load_session(session_id)
         if not session:
@@ -71,6 +78,10 @@ class DaySessionStore:
                 created_at=datetime.now().isoformat(timespec="seconds"),
             )
             session = session_obj.to_dict()
+
+        # Store/update session_end_time at top-level if provided
+        if session_end_time is not None:
+            session["session_end_time"] = session_end_time
 
         session.setdefault("replans", [])
         replan_entry = {

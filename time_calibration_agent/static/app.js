@@ -1,169 +1,215 @@
 'use strict';
 
 // ── Constants ──────────────────────────────────────────────────
-const MIN_BLOCK_HEIGHT = 4;
-const TIME_REF_RE = /\b\d{1,2}(:\d{2})?\s*(am|pm)\b|\b\d{1,2}:\d{2}\b/i;
+const PIXELS_PER_HOUR = 64;
+const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
+const MIN_BLOCK_HEIGHT = 28;
+const COMPACT_THRESHOLD_PX = 40;
 
 // ── State ──────────────────────────────────────────────────────
-let nowLineInterval   = null;
-let lastRangeStartMin = null;
-let lastRangeEndMin   = null;
-let lastTimeBlocks    = null;
-let hasReplanned      = false; // show "Start fresh" after first replan
+let currentPlanTime = null;
+let nowLineInterval = null;
+let currentTimeHHMM = null;  // live clock value, updated every 30s
+let brainDumpText = '';       // saved between screens
+let currentFollowUpType = null;   // "end_time" | "ordering" | null
+let currentFollowUpEndTime = null; // HH:MM from first clarify call, for "ordering" path
 
-// ── Time Formatting ────────────────────────────────────────────
-function padTwo(n) { return String(n).padStart(2, '0'); }
-
-// Convert "HH:MM" to 12-hour display, with "Noon" / "Midnight" specials
-function fmt12(hhmm) {
-  const parts = hhmm.split(':');
-  const h = parseInt(parts[0], 10);
-  const m = parseInt(parts[1] || '0', 10);
-  if (h === 0  && m === 0) return 'Midnight';
-  if (h === 12 && m === 0) return 'Noon';
-  const period = h < 12 ? 'am' : 'pm';
-  const h12    = h % 12 || 12;
-  const mStr   = m === 0 ? '' : `:${padTwo(m)}`;
-  return `${h12}${mStr}${period}`;
-}
-
+// ── Utilities ──────────────────────────────────────────────────
 function timeToMinutes(t) {
   const [h, m] = t.split(':').map(Number);
   return h * 60 + (m || 0);
 }
 
 function nowMinutes() {
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
+  const now = new Date();
+  return now.getHours() * 60 + now.getMinutes();
 }
 
-function todayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${padTwo(d.getMonth() + 1)}-${padTwo(d.getDate())}`;
+function padTwo(n) {
+  return String(n).padStart(2, '0');
 }
 
-function isTodaySession(sessionId) {
-  return sessionId && sessionId.startsWith(todayStr());
+function fmt12(totalMinutes) {
+  const h = Math.floor(totalMinutes / 60) % 24;
+  const m = totalMinutes % 60;
+  if (h === 0 && m === 0) return 'Midnight';
+  if (h === 12 && m === 0) return 'Noon';
+  const period = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 || 12;
+  return m === 0 ? `${h12}${period}` : `${h12}:${padTwo(m)}${period}`;
 }
 
-// ── Screen Switching ───────────────────────────────────────────
-function setMode(mode) {
+function nowHHMM() {
+  const now = new Date();
+  return `${padTwo(now.getHours())}:${padTwo(now.getMinutes())}`;
+}
+
+// ── Live Clock ─────────────────────────────────────────────────
+function initClock() {
+  const el = document.getElementById('live-clock-time');
+  if (!el) return;
+  function tick() {
+    const now = new Date();
+    currentTimeHHMM = `${padTwo(now.getHours())}:${padTwo(now.getMinutes())}`;
+    el.textContent = fmt12(now.getHours() * 60 + now.getMinutes());
+  }
+  tick();
+  setInterval(tick, 30_000);
+}
+
+// ── Progress Bar ───────────────────────────────────────────────
+let progressTimer = null;
+
+function animateProgressBar(onComplete) {
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  if (!bar || !label) return;
+
+  const stages = [
+    { pct: 20,  dur: 1000,  text: 'Reading your day\u2026' },
+    { pct: 70,  dur: 8000,  text: 'Estimating task durations\u2026' },
+    { pct: 95,  dur: 4000,  text: 'Building your schedule\u2026' },
+  ];
+
+  let stageIdx = 0;
+
+  function runStage() {
+    if (stageIdx >= stages.length) return;
+    const { pct, dur, text } = stages[stageIdx];
+    bar.style.transition = `width ${dur}ms ease-in-out`;
+    bar.style.width = pct + '%';
+    label.textContent = text;
+    stageIdx++;
+    progressTimer = setTimeout(runStage, dur);
+  }
+
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+  // Tiny delay so the 0% reset renders before animation starts
+  requestAnimationFrame(() => requestAnimationFrame(runStage));
+
+  // Return a function to snap to 100% when done
+  return function snapDone() {
+    if (progressTimer) clearTimeout(progressTimer);
+    bar.style.transition = 'width 0.4s ease-in-out';
+    bar.style.width = '100%';
+    if (label) label.textContent = 'Done!';
+    if (onComplete) setTimeout(onComplete, 450);
+  };
+}
+
+// ── Welcome Overlay Transitions ────────────────────────────────
+function showScreen(id) {
+  ['brain-dump-screen', 'followup-clarify-screen', 'loading-screen'].forEach(sid => {
+    const el = document.getElementById(sid);
+    if (el) el.style.display = sid === id ? '' : 'none';
+  });
+}
+
+function hideOverlay() {
+  const overlay = document.getElementById('welcome-overlay');
   const shell = document.getElementById('app-shell');
-  if (!shell) return;
-  if (mode === 'planner') {
-    shell.classList.add('mode-planner');
-  } else {
-    shell.classList.remove('mode-planner');
+  if (overlay) {
+    overlay.style.transition = 'opacity 0.4s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.style.display = 'none'; }, 400);
   }
-}
-
-// ── Adaptive Calendar ──────────────────────────────────────────
-function computeRange(timeBlocks) {
-  if (!timeBlocks || timeBlocks.length === 0) {
-    const now = nowMinutes();
-    return { startMin: now, endMin: now + 120 };
-  }
-  const starts = timeBlocks.map(b => timeToMinutes(b.start));
-  const ends   = timeBlocks.map(b => timeToMinutes(b.end));
-  return { startMin: Math.min(...starts), endMin: Math.max(...ends) };
-}
-
-function computeTickInterval(pixelsPerMinute) {
-  for (const interval of [15, 30, 60, 120, 180, 240]) {
-    if (interval * pixelsPerMinute >= 24) return interval;
-  }
-  return 240;
-}
-
-function getCalendarHeight() {
-  const el = document.getElementById('calendar-scroll');
-  return el ? Math.max(el.clientHeight, 100) : 400;
+  if (shell) shell.style.display = '';
 }
 
 // ── Calendar Rendering ─────────────────────────────────────────
+function computeRange(timeBlocks) {
+  if (!timeBlocks || timeBlocks.length === 0) {
+    const now = nowMinutes();
+    const startH = Math.max(0, Math.floor((now - 60) / 60));
+    const endH = Math.min(23, startH + 10);
+    return { startHour: startH, endHour: endH };
+  }
+
+  const starts = timeBlocks.map(b => timeToMinutes(b.start));
+  const ends = timeBlocks.map(b => timeToMinutes(b.end));
+  let minMin = Math.min(...starts);
+  let maxMin = Math.max(...ends);
+
+  const now = nowMinutes();
+  if (now >= minMin - 120 && now <= maxMin + 120) {
+    minMin = Math.min(minMin, now);
+    maxMin = Math.max(maxMin, now);
+  }
+
+  const startHour = Math.max(0, Math.floor(minMin / 60));
+  const endHour = Math.min(24, Math.ceil(maxMin / 60));
+  return { startHour, endHour };
+}
+
 function renderCalendar(timeBlocks) {
   const eventsEl = document.getElementById('calendar-events');
-  const axisEl   = document.getElementById('calendar-time-axis');
-  const gridEl   = document.getElementById('calendar-grid');
+  const axisEl = document.getElementById('calendar-time-axis');
+
   if (!eventsEl || !axisEl) return;
 
   eventsEl.innerHTML = '';
-  axisEl.innerHTML   = '';
+  axisEl.innerHTML = '';
 
   if (!timeBlocks || timeBlocks.length === 0) {
     showCalendarEmpty();
     return;
   }
 
-  const { startMin, endMin } = computeRange(timeBlocks);
-  const totalMinutes    = Math.max(endMin - startMin, 1);
-  const containerH      = getCalendarHeight();
-  // Leave 20px at the bottom so the last tick label isn't clipped
-  const pixelsPerMinute = (containerH - 20) / totalMinutes;
+  const { startHour, endHour } = computeRange(timeBlocks);
+  const rangeStartMin = startHour * 60;
+  const totalMinutes = (endHour - startHour) * 60;
+  // Height is set after block layout so we can expand if push-down moves blocks past the end tick
+  const endTickTop = totalMinutes * PIXELS_PER_MINUTE;
 
-  lastRangeStartMin = startMin;
-  lastRangeEndMin   = endMin;
-  lastTimeBlocks    = timeBlocks;
+  eventsEl.dataset.rangeStart = rangeStartMin;
+  eventsEl.dataset.rangeMinutes = totalMinutes;
 
-  eventsEl.style.height = containerH + 'px';
-  axisEl.style.height   = containerH + 'px';
-  if (gridEl) gridEl.style.height = containerH + 'px';
-
-  const tickInterval = computeTickInterval(pixelsPerMinute);
-
-  // Ticks + axis labels — snapped to tick boundaries
-  const firstTick = Math.ceil(startMin / tickInterval) * tickInterval;
-  for (let t = firstTick; t <= endMin; t += tickInterval) {
-    const topPx = (t - startMin) * pixelsPerMinute;
+  for (let h = startHour; h <= endHour; h++) {
+    const topPx = (h * 60 - rangeStartMin) * PIXELS_PER_MINUTE;
 
     const tick = document.createElement('div');
     tick.className = 'hour-tick';
     tick.style.top = topPx + 'px';
     eventsEl.appendChild(tick);
 
-    // Minor half-tick
-    if (tickInterval > 15) {
-      const halfTop = topPx + (tickInterval / 2) * pixelsPerMinute;
-      if (halfTop < containerH) {
-        const half = document.createElement('div');
-        half.className = 'hour-tick hour-tick--half';
-        half.style.top = halfTop + 'px';
-        eventsEl.appendChild(half);
-      }
+    if (h < endHour) {
+      const halfTick = document.createElement('div');
+      halfTick.className = 'hour-tick hour-tick--half';
+      halfTick.style.top = (topPx + PIXELS_PER_HOUR / 2) + 'px';
+      eventsEl.appendChild(halfTick);
     }
 
-    // Axis label in 12h format
-    const h = Math.floor(t / 60) % 24;
-    const m = t % 60;
+    // Always label every hour including the end hour
     const label = document.createElement('div');
-    label.className  = 'hour-label';
-    label.style.top  = topPx + 'px';
-    label.textContent = fmt12(`${padTwo(h)}:${padTwo(m)}`);
+    label.className = 'hour-label';
+    label.style.top = topPx + 'px';
+    label.textContent = fmt12(h * 60);
     axisEl.appendChild(label);
   }
 
-  // Blocks
   const sorted = [...timeBlocks].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+  let visualBottom = 0;
   sorted.forEach((block, idx) => {
-    const blockStartMin = timeToMinutes(block.start);
-    const blockEndMin   = timeToMinutes(block.end);
-    const durationMin   = Math.max(1, blockEndMin - blockStartMin);
-    const top    = (blockStartMin - startMin) * pixelsPerMinute;
-    const height = Math.max(MIN_BLOCK_HEIGHT, durationMin * pixelsPerMinute);
-    const kind   = block.kind || 'task';
+    const startMin = timeToMinutes(block.start) - rangeStartMin;
+    const endMin = timeToMinutes(block.end) - rangeStartMin;
+    const durationMin = Math.max(0, endMin - startMin);
 
-    let sizeClass = '';
-    if (height < 16) sizeClass = 'calendar-block--nano';
-    else if (height < 32) sizeClass = 'calendar-block--compact';
+    const naturalTop = startMin * PIXELS_PER_MINUTE;
+    const top = Math.max(naturalTop, visualBottom);
+    const height = Math.max(MIN_BLOCK_HEIGHT, durationMin * PIXELS_PER_MINUTE);
+    visualBottom = top + height;
+    const kind = block.kind || 'task';
 
-    const timeLabel = `${fmt12(block.start)}–${fmt12(block.end)}`;
-
+    const isCompact = height < COMPACT_THRESHOLD_PX;
     const div = document.createElement('div');
-    div.className = `calendar-block calendar-block--${kind} ${sizeClass}`;
-    div.style.top    = top + 'px';
+    div.className = `calendar-block calendar-block--${kind}${isCompact ? ' calendar-block--compact' : ''}`;
+    div.style.top = top + 'px';
     div.style.height = height + 'px';
-    div.title = `${timeLabel}: ${block.task}`;
-    div.style.animationDelay = `${idx * 0.045}s`;
+    div.title = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}: ${block.task}`;
+
+    const timeLabel = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}`;
+    div.style.animationDelay = `${idx * 0.055}s`;
     div.innerHTML = `
       <div class="block-time">${escHtml(timeLabel)}</div>
       <div class="block-task">${escHtml(block.task)}</div>
@@ -171,35 +217,55 @@ function renderCalendar(timeBlocks) {
     eventsEl.appendChild(div);
   });
 
-  drawNowLine(startMin, endMin, containerH, pixelsPerMinute);
+  // Expand to fit actual visual bottom (push-down may exceed end tick) + 48px breathing room
+  const totalHeight = Math.max(endTickTop, visualBottom) + 48;
+  eventsEl.style.height = totalHeight + 'px';
+  axisEl.style.height = totalHeight + 'px';
+
+  drawNowLine(rangeStartMin, totalHeight, totalMinutes);
+
+  const scrollEl = document.getElementById('calendar-scroll');
+  if (scrollEl) {
+    const now = nowMinutes();
+    if (now >= rangeStartMin && now <= rangeStartMin + totalMinutes) {
+      const nowTop = (now - rangeStartMin) * PIXELS_PER_MINUTE;
+      scrollEl.scrollTop = Math.max(0, nowTop - 80);
+    }
+  }
 }
 
-function drawNowLine(startMin, endMin, totalHeight, ppm) {
+function drawNowLine(rangeStartMin, totalHeight, totalMinutes) {
   const eventsEl = document.getElementById('calendar-events');
   if (!eventsEl) return;
+
   const existing = document.getElementById('now-line');
   if (existing) existing.remove();
+
   const now = nowMinutes();
-  if (now < startMin || now > endMin) return;
+  const offsetMin = now - rangeStartMin;
+  if (offsetMin < 0 || offsetMin > totalMinutes) return;
+
+  const top = offsetMin * PIXELS_PER_MINUTE;
   const line = document.createElement('div');
   line.className = 'now-line';
-  line.id        = 'now-line';
-  line.style.top = ((now - startMin) * ppm) + 'px';
+  line.id = 'now-line';
+  line.style.top = top + 'px';
   eventsEl.appendChild(line);
 }
 
 function refreshNowLine() {
-  if (lastRangeStartMin === null) return;
-  const containerH   = getCalendarHeight();
-  const totalMinutes = Math.max(lastRangeEndMin - lastRangeStartMin, 1);
-  drawNowLine(lastRangeStartMin, lastRangeEndMin, containerH, containerH / totalMinutes);
+  const eventsEl = document.getElementById('calendar-events');
+  if (!eventsEl || eventsEl.style.height === '') return;
+  const totalHeight = parseInt(eventsEl.style.height, 10);
+  const rangeStartMin = parseInt(eventsEl.dataset.rangeStart || '480', 10);
+  const totalMinutes = parseInt(eventsEl.dataset.rangeMinutes || '600', 10);
+  drawNowLine(rangeStartMin, totalHeight, totalMinutes);
 }
 
 // ── Calendar State Helpers ─────────────────────────────────────
 function showCalendarEmpty() {
   const eventsEl = document.getElementById('calendar-events');
-  const axisEl   = document.getElementById('calendar-time-axis');
-  const gridEl   = document.getElementById('calendar-grid');
+  const axisEl = document.getElementById('calendar-time-axis');
   if (eventsEl) {
     eventsEl.style.height = '';
     eventsEl.innerHTML = `
@@ -207,79 +273,101 @@ function showCalendarEmpty() {
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8"  y1="2" x2="8"  y2="6"></line>
-          <line x1="3"  y1="10" x2="21" y2="10"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
         </svg>
-        <div>Planning…</div>
+        <div>Enter your plan to get started</div>
       </div>`;
   }
-  if (axisEl) { axisEl.style.height = ''; axisEl.innerHTML = ''; }
-  if (gridEl) gridEl.style.height = '';
+  if (axisEl) {
+    axisEl.style.height = '';
+    axisEl.innerHTML = '';
+  }
 }
 
 function showCalendarLoading() {
   const eventsEl = document.getElementById('calendar-events');
-  if (!eventsEl) return;
-  eventsEl.querySelectorAll('.calendar-block').forEach(b => b.style.opacity = '0.3');
-  if (!document.getElementById('calendar-overlay')) {
-    const overlay = document.createElement('div');
-    overlay.id = 'calendar-overlay';
-    overlay.className = 'calendar-loading';
-    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(255,255,255,0.7);z-index:20;';
-    overlay.innerHTML = '<div class="spinner"></div><span>Planning…</span>';
-    eventsEl.style.position = 'relative';
-    eventsEl.appendChild(overlay);
+  if (eventsEl) {
+    eventsEl.querySelectorAll('.calendar-block').forEach(b => {
+      b.style.opacity = '0.3';
+    });
+    let overlay = document.getElementById('calendar-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'calendar-overlay';
+      overlay.className = 'calendar-loading';
+      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(255,255,255,0.7);z-index:20;';
+      overlay.innerHTML = '<div class="spinner"></div><span>Replanning\u2026</span>';
+      eventsEl.style.position = 'relative';
+      eventsEl.appendChild(overlay);
+    }
   }
 }
 
 function removeCalendarOverlay() {
-  const o = document.getElementById('calendar-overlay');
-  if (o) o.remove();
+  const overlay = document.getElementById('calendar-overlay');
+  if (overlay) overlay.remove();
+}
+
+// ── Summary Section ────────────────────────────────────────────
+function renderSummary(planOutput) {
+  const panel = document.getElementById('summary-panel');
+  if (!panel) return;
+
+  const nextActions = planOutput.next_actions || [];
+  const dropDefer = planOutput.drop_or_defer || [];
+  const rationale = planOutput.rationale || '';
+
+  const nextEl = document.getElementById('summary-next-actions');
+  const dropEl = document.getElementById('summary-dropped');
+  const rationaleEl = document.getElementById('summary-rationale');
+
+  if (nextEl) {
+    nextEl.innerHTML = nextActions.length
+      ? '<ul>' + nextActions.map(a => `<li>${escHtml(a)}</li>`).join('') + '</ul>'
+      : '<span class="empty-note">No next actions listed.</span>';
+  }
+
+  if (dropEl) {
+    dropEl.innerHTML = dropDefer.length
+      ? '<ul>' + dropDefer.map(d => `<li>${escHtml(d)}</li>`).join('') + '</ul>'
+      : '<span class="empty-note">Nothing dropped.</span>';
+  }
+
+  if (rationaleEl) {
+    rationaleEl.textContent = rationale;
+    rationaleEl.closest('.summary-section').style.display = rationale ? '' : 'none';
+  }
+
+  panel.classList.add('visible');
 }
 
 // ── Sidebar Updates ────────────────────────────────────────────
 function updateSidebar(sessionId, currentTime, planOutput) {
   const metaRow = document.getElementById('meta-row');
   if (metaRow && sessionId) {
-    metaRow.textContent = `${sessionId}  ·  ${fmt12(currentTime)}`;
+    metaRow.textContent = `Session: ${sessionId}  ·  As of: ${fmt12(timeToMinutes(currentTime))}`;
     metaRow.style.display = '';
   }
 
-  const conf    = planOutput.confidence || {};
-  const low     = conf.low  != null ? Math.round(conf.low  * 100) : null;
-  const high    = conf.high != null ? Math.round(conf.high * 100) : null;
-  const confRow = document.getElementById('confidence-row');
-  const confEl  = document.getElementById('confidence-value');
+  const conf = planOutput.confidence || {};
+  const low = conf.low != null ? Math.round(conf.low * 100) : null;
+  const high = conf.high != null ? Math.round(conf.high * 100) : null;
+  const confEl = document.getElementById('confidence-value');
   const confBar = document.getElementById('confidence-bar-fill');
-  if (low != null) {
-    if (confRow) confRow.style.display = '';
-    if (confEl)  confEl.textContent = `${low}–${high}%`;
+  if (confEl && low != null) {
+    confEl.textContent = `${low}\u2013${high}%`;
     if (confBar) confBar.style.width = ((low + high) / 2) + '%';
   }
-
-  const summaryEl   = document.getElementById('sidebar-summary');
-  const nextEl      = document.getElementById('summary-next-actions');
-  const dropEl      = document.getElementById('summary-dropped');
-  const nextActions = planOutput.next_actions  || [];
-  const dropDefer   = planOutput.drop_or_defer || [];
-
-  if (nextEl) {
-    nextEl.innerHTML = nextActions.length
-      ? '<ul>' + nextActions.map(a => `<li>${escHtml(a)}</li>`).join('') + '</ul>'
-      : '<span class="empty-note">None listed.</span>';
-  }
-  if (dropEl) {
-    dropEl.innerHTML = dropDefer.length
-      ? '<ul>' + dropDefer.map(d => `<li>${escHtml(d)}</li>`).join('') + '</ul>'
-      : '<span class="empty-note">Nothing dropped.</span>';
-  }
-  if (summaryEl) summaryEl.style.display = '';
 }
 
-// ── Error Banners ──────────────────────────────────────────────
+// ── Error display helpers ──────────────────────────────────────
 function showError(bannerId, msg) {
   const el = document.getElementById(bannerId);
-  if (el) { el.textContent = msg; el.classList.add('visible'); }
+  if (el) {
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
 }
 
 function clearError(bannerId) {
@@ -287,157 +375,264 @@ function clearError(bannerId) {
   if (el) el.classList.remove('visible');
 }
 
-// ── API: core submit ───────────────────────────────────────────
-async function doSubmit({ rawContext, mode, sessionLabel, dateOverride, bannerId, submitBtn }) {
-  clearError(bannerId);
-  if (submitBtn) submitBtn.disabled = true;
-  showCalendarLoading();
+// ── Follow-up screen helper ────────────────────────────────────
+function showFollowUpScreen(question, type) {
+  const qEl = document.getElementById('followup-question-text');
+  if (qEl) qEl.textContent = question;
 
-  const body = {
-    context:       rawContext,
-    mode:          mode,
-    session_label: sessionLabel || '',
-    date_override: dateOverride  || '',
-  };
+  const inp = document.getElementById('followup-clarify-input');
+  if (inp) {
+    if (type === 'end_time') {
+      inp.rows = 2;
+      inp.classList.add('followup-textarea--small');
+      inp.placeholder = 'e.g. 6pm, around 5, whenever';
+    } else {
+      inp.rows = 3;
+      inp.classList.remove('followup-textarea--small');
+      inp.placeholder = 'e.g. Standup at 2pm, gym before dinner';
+    }
+    inp.value = '';
+  }
 
+  showScreen('followup-clarify-screen');
+  if (inp) inp.focus();
+}
+
+// ── New-plan flow ──────────────────────────────────────────────
+async function submitPlan() {
+  const brainDumpEl = document.getElementById('brain-dump');
+  const rawText = brainDumpEl ? brainDumpEl.value.trim() : '';
+
+  if (!rawText) {
+    showError('error-banner', 'Please describe what you need to do today.');
+    return;
+  }
+  clearError('error-banner');
+
+  // Save for combining with follow-up answer
+  brainDumpText = rawText;
+
+  // Disable plan button
+  const planBtn = document.getElementById('plan-btn');
+  if (planBtn) { planBtn.disabled = true; planBtn.textContent = 'Checking\u2026'; }
+
+  let clarifyResult;
   try {
-    const res  = await fetch('/api/plan', {
-      method:  'POST',
+    const res = await fetch('/api/clarify', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(body),
+      body: JSON.stringify({ context: rawText, current_time: currentTimeHHMM || nowHHMM() }),
     });
-    const data = await res.json();
-    removeCalendarOverlay();
-
-    if (!res.ok || data.error) {
-      showError(bannerId, data.error || 'Planning failed. Please try again.');
-      return null;
-    }
-    return data;
+    clarifyResult = await res.json();
   } catch (e) {
-    removeCalendarOverlay();
-    showError(bannerId, 'Network error. Is the server running?');
-    return null;
-  } finally {
-    if (submitBtn) submitBtn.disabled = false;
-  }
-}
-
-// ── Welcome screen submit ("Let's Plan") ──────────────────────
-async function submitWelcomePlan() {
-  const contextEl     = document.getElementById('context');
-  const timeEl        = document.getElementById('current_time_input');
-  const sessionLblEl  = document.getElementById('session_label');
-  const dateOverEl    = document.getElementById('date_override');
-  const planBtn       = document.getElementById('plan-btn');
-
-  let rawContext = contextEl ? contextEl.value.trim() : '';
-  if (!rawContext) {
-    showError('welcome-error', 'Please enter what\'s on today.');
+    showError('error-banner', 'Network error. Is the server running?');
+    if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Plan my day'; }
     return;
   }
 
-  // Prepend current time so backend doesn't confuse deadline times with "now"
-  const timeVal = timeEl ? timeEl.value.trim() : '';
-  if (timeVal) {
-    const [h, m] = timeVal.split(':').map(Number);
-    const ampm   = h >= 12 ? 'pm' : 'am';
-    const h12    = h % 12 || 12;
-    const mStr   = m === 0 ? '' : `:${padTwo(m)}`;
-    rawContext = `It's ${h12}${mStr}${ampm}. ${rawContext}`;
-  } else if (!TIME_REF_RE.test(rawContext)) {
-    showError('welcome-error', 'Please set your current time in the "Now" field or write it in your context.');
-    if (timeEl) timeEl.focus();
-    return;
-  }
+  if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Plan my day'; }
 
-  const data = await doSubmit({
-    rawContext,
-    mode:          'new',
-    sessionLabel:  sessionLblEl  ? sessionLblEl.value.trim()  : '',
-    dateOverride:  dateOverEl    ? dateOverEl.value.trim()    : '',
-    bannerId:      'welcome-error',
-    submitBtn:     planBtn,
-  });
-
-  if (data) {
-    setMode('planner');
-    renderCalendar(data.plan_output.time_blocks);
-    updateSidebar(data.session_id, data.current_time, data.plan_output);
-    if (contextEl) contextEl.value = '';
+  if (clarifyResult.follow_up_question) {
+    // Store type and end time for submitFollowUp()
+    currentFollowUpType = clarifyResult.follow_up_type || null;
+    currentFollowUpEndTime = clarifyResult.session_end_time || null;
+    showFollowUpScreen(clarifyResult.follow_up_question, currentFollowUpType);
+  } else {
+    // No follow-up needed — go straight to planning
+    await runPlanCall(brainDumpText, clarifyResult.session_end_time || null);
   }
 }
 
-// ── Planner sidebar replan ─────────────────────────────────────
-async function submitReplan() {
-  const contextEl  = document.getElementById('replan-context');
-  const replanBtn  = document.getElementById('replan-btn');
-  const sessionEl  = document.getElementById('planner-session-label');
+async function submitFollowUp(skipped) {
+  const inp = document.getElementById('followup-clarify-input');
+  const answerText = skipped ? '' : (inp ? inp.value.trim() : '');
 
-  const rawContext = contextEl ? contextEl.value.trim() : '';
-  if (!rawContext) {
-    showError('planner-error', 'Please describe what to adjust.');
-    return;
-  }
+  let finalEndTime = null;
+  let combinedContext;
 
-  const data = await doSubmit({
-    rawContext,
-    mode:         'replan',
-    sessionLabel: sessionEl ? sessionEl.value.trim() : '',
-    dateOverride: '',
-    bannerId:     'planner-error',
-    submitBtn:    replanBtn,
-  });
-
-  if (data) {
-    renderCalendar(data.plan_output.time_blocks);
-    updateSidebar(data.session_id, data.current_time, data.plan_output);
-    if (contextEl) contextEl.value = '';
-    // Show "Start fresh" after first successful replan
-    if (!hasReplanned) {
-      hasReplanned = true;
-      const clearBtn = document.getElementById('clear-btn');
-      if (clearBtn) clearBtn.style.display = '';
-    }
-  }
-}
-
-// ── Clear / Start fresh ────────────────────────────────────────
-function clearDay() {
-  if (!confirm('Start fresh? This will let you create a new plan for today.')) return;
-  hasReplanned = false;
-  const clearBtn = document.getElementById('clear-btn');
-  if (clearBtn) clearBtn.style.display = 'none';
-  setMode('welcome');
-  // Pre-fill the time field again
-  const timeInput = document.getElementById('current_time_input');
-  if (timeInput) {
-    const now = new Date();
-    timeInput.value = `${padTwo(now.getHours())}:${padTwo(now.getMinutes())}`;
-  }
-}
-
-// ── Session Load ───────────────────────────────────────────────
-async function loadSession() {
-  try {
-    const res  = await fetch('/api/session');
-    const data = await res.json();
-    if (data.plan_output && data.plan_output.time_blocks && data.plan_output.time_blocks.length
-        && isTodaySession(data.session_id)) {
-      setMode('planner');
-      renderCalendar(data.plan_output.time_blocks);
-      updateSidebar(data.session_id, data.current_time, data.plan_output);
-      // Show clear if multiple replans already exist
-      const replans = (data.replans_count || 0);
-      if (replans >= 2) {
-        hasReplanned = true;
-        const clearBtn = document.getElementById('clear-btn');
-        if (clearBtn) clearBtn.style.display = '';
+  if (currentFollowUpType === 'ordering') {
+    // End time was already extracted; user answered with ordering constraints
+    finalEndTime = currentFollowUpEndTime;
+    combinedContext = answerText
+      ? `${brainDumpText}\n${answerText}`
+      : brainDumpText;
+  } else {
+    // end_time type: re-parse the answer for a session end time
+    if (!skipped && answerText) {
+      try {
+        const res = await fetch('/api/clarify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context: answerText, current_time: currentTimeHHMM || nowHHMM() }),
+        });
+        const clarify2 = await res.json();
+        finalEndTime = clarify2.session_end_time || null;
+      } catch (e) {
+        // ignore; proceed without end time
       }
     }
-    // else: stay in welcome mode
+    combinedContext = answerText
+      ? `${brainDumpText}\n${answerText}`
+      : brainDumpText;
+  }
+
+  await runPlanCall(combinedContext, finalEndTime);
+}
+
+async function runPlanCall(context, sessionEndTime) {
+  const sessionLabelEl = document.getElementById('session_label');
+  const dateOverrideEl = document.getElementById('date_override');
+
+  // Prepend current time so backend has unambiguous anchor
+  const timeStr = fmt12(timeToMinutes(currentTimeHHMM || nowHHMM()));
+  const fullContext = `It's ${timeStr}. ${context}`;
+
+  // Show loading screen
+  showScreen('loading-screen');
+  const snapDone = animateProgressBar();
+
+  let data;
+  try {
+    const res = await fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        context: fullContext,
+        mode: 'new',
+        session_label: sessionLabelEl ? sessionLabelEl.value.trim() : '',
+        date_override: dateOverrideEl ? dateOverrideEl.value.trim() : '',
+        session_end_time: sessionEndTime,
+      }),
+    });
+    data = await res.json();
   } catch (e) {
-    // Stay in welcome mode on error
+    // Network error — go back to brain dump screen
+    showScreen('brain-dump-screen');
+    showError('error-banner', 'Network error. Is the server running?');
+    return;
+  }
+
+  if (data.error) {
+    showScreen('brain-dump-screen');
+    showError('error-banner', data.error);
+    return;
+  }
+
+  snapDone();
+
+  setTimeout(() => {
+    hideOverlay();
+    currentPlanTime = data.current_time;
+    renderCalendar(data.plan_output.time_blocks);
+    renderSummary(data.plan_output);
+    updateSidebar(data.session_id, data.current_time, data.plan_output);
+  }, 500);
+}
+
+// ── Replan flow ────────────────────────────────────────────────
+async function handleReplan() {
+  const followupEl = document.getElementById('followup-context');
+  const replanBtn = document.getElementById('replan-btn');
+  const errBanner = document.getElementById('replan-error-banner');
+
+  const rawContext = followupEl ? followupEl.value.trim() : '';
+  if (!rawContext) {
+    if (errBanner) {
+      errBanner.textContent = 'Please describe what changed.';
+      errBanner.classList.add('visible');
+    }
+    return;
+  }
+  if (errBanner) errBanner.classList.remove('visible');
+
+  if (replanBtn) replanBtn.disabled = true;
+
+  // Show inline overlay over calendar+summary; header and sidebar remain visible
+  const replanOverlay = document.getElementById('replan-loading-overlay');
+  const replanBar = document.getElementById('replan-progress-bar');
+  const replanLabel = document.getElementById('replan-progress-label');
+  if (replanOverlay) replanOverlay.style.display = '';
+
+  // Animate progress bar inline
+  const replanStages = [
+    { pct: 25, dur: 1000, text: 'Reading your changes\u2026' },
+    { pct: 75, dur: 8000, text: 'Estimating tasks\u2026' },
+    { pct: 95, dur: 4000, text: 'Building new schedule\u2026' },
+  ];
+  let replanTimer = null;
+  let stageIdx = 0;
+  function runReplanStage() {
+    if (stageIdx >= replanStages.length) return;
+    const { pct, dur, text } = replanStages[stageIdx];
+    if (replanBar) { replanBar.style.transition = `width ${dur}ms ease-in-out`; replanBar.style.width = pct + '%'; }
+    if (replanLabel) replanLabel.textContent = text;
+    stageIdx++;
+    replanTimer = setTimeout(runReplanStage, dur);
+  }
+  if (replanBar) { replanBar.style.transition = 'none'; replanBar.style.width = '0%'; }
+  requestAnimationFrame(() => requestAnimationFrame(runReplanStage));
+
+  function snapReplanDone() {
+    if (replanTimer) clearTimeout(replanTimer);
+    if (replanBar) { replanBar.style.transition = 'width 0.4s ease-in-out'; replanBar.style.width = '100%'; }
+    if (replanLabel) replanLabel.textContent = 'Done!';
+  }
+
+  let data;
+  try {
+    const res = await fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ context: rawContext, mode: 'replan' }),
+    });
+    data = await res.json();
+
+    if (!res.ok || data.error) {
+      if (replanOverlay) replanOverlay.style.display = 'none';
+      if (errBanner) {
+        errBanner.textContent = data.error || 'Replanning failed. Please try again.';
+        errBanner.classList.add('visible');
+      }
+      return;
+    }
+  } catch (e) {
+    if (replanOverlay) replanOverlay.style.display = 'none';
+    if (errBanner) {
+      errBanner.textContent = 'Network error. Is the server running?';
+      errBanner.classList.add('visible');
+    }
+    return;
+  } finally {
+    if (replanBtn) replanBtn.disabled = false;
+  }
+
+  snapReplanDone();
+  setTimeout(() => {
+    if (replanOverlay) replanOverlay.style.display = 'none';
+    currentPlanTime = data.current_time;
+    renderCalendar(data.plan_output.time_blocks);
+    renderSummary(data.plan_output);
+    updateSidebar(data.session_id, data.current_time, data.plan_output);
+    if (followupEl) followupEl.value = '';
+  }, 450);
+}
+
+// ── Load existing session on page load ────────────────────────
+async function loadSession() {
+  try {
+    const res = await fetch('/api/session');
+    const data = await res.json();
+    if (data.plan_output && data.plan_output.time_blocks && data.plan_output.time_blocks.length) {
+      // Existing session — skip welcome overlay
+      hideOverlay();
+      currentPlanTime = data.current_time;
+      renderCalendar(data.plan_output.time_blocks);
+      renderSummary(data.plan_output);
+      updateSidebar(data.session_id, data.current_time, data.plan_output);
+    }
+    // If no session, overlay stays visible
+  } catch (e) {
+    // No session — overlay stays visible
   }
 }
 
@@ -450,63 +645,86 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Advanced Options Toggle ────────────────────────────────────
-function makeAdvancedToggle(btnId, optsId) {
-  const btn  = document.getElementById(btnId);
-  const opts = document.getElementById(optsId);
-  if (!btn || !opts) return;
-  btn.addEventListener('click', () => {
-    const open = opts.classList.toggle('open');
-    btn.textContent = open ? 'Hide advanced options' : 'Advanced options';
-  });
-}
-
 // ── Init ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Pre-fill current time
-  const timeInput = document.getElementById('current_time_input');
-  if (timeInput && !timeInput.value) {
-    const now = new Date();
-    timeInput.value = `${padTwo(now.getHours())}:${padTwo(now.getMinutes())}`;
-  }
+  initClock();
+  currentTimeHHMM = nowHHMM();
 
-  // Load existing session (switches to planner mode if found)
   loadSession();
 
-  // Refresh now-line every minute
   nowLineInterval = setInterval(refreshNowLine, 60_000);
 
-  // Re-render on resize
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      if (lastTimeBlocks && lastTimeBlocks.length) renderCalendar(lastTimeBlocks);
-    }, 150);
-  });
-
-  // Welcome screen
+  // Plan button (brain dump screen)
   const planBtn = document.getElementById('plan-btn');
-  if (planBtn) planBtn.addEventListener('click', submitWelcomePlan);
+  if (planBtn) planBtn.addEventListener('click', submitPlan);
 
-  const ctxEl = document.getElementById('context');
-  if (ctxEl) ctxEl.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submitWelcomePlan(); }
-  });
+  // Ctrl/Cmd+Enter in brain dump
+  const brainDump = document.getElementById('brain-dump');
+  if (brainDump) {
+    brainDump.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        submitPlan();
+      }
+    });
+  }
 
-  makeAdvancedToggle('welcome-advanced-btn', 'welcome-advanced-opts');
+  // Follow-up continue button
+  const continueBtn = document.getElementById('followup-continue-btn');
+  if (continueBtn) continueBtn.addEventListener('click', () => submitFollowUp(false));
 
-  // Planner screen
+  // Follow-up Ctrl/Cmd+Enter
+  const followupInput = document.getElementById('followup-clarify-input');
+  if (followupInput) {
+    followupInput.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        submitFollowUp(false);
+      }
+    });
+  }
+
+  // Follow-up skip link
+  const skipLink = document.getElementById('followup-skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', e => {
+      e.preventDefault();
+      submitFollowUp(true);
+    });
+  }
+
+  // Replan button
   const replanBtn = document.getElementById('replan-btn');
-  if (replanBtn) replanBtn.addEventListener('click', submitReplan);
+  if (replanBtn) replanBtn.addEventListener('click', handleReplan);
 
-  const replanCtx = document.getElementById('replan-context');
-  if (replanCtx) replanCtx.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submitReplan(); }
-  });
+  // Ctrl/Cmd+Enter in replan textarea
+  const followupContext = document.getElementById('followup-context');
+  if (followupContext) {
+    followupContext.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleReplan();
+      }
+    });
+  }
 
-  const clearBtn = document.getElementById('clear-btn');
-  if (clearBtn) clearBtn.addEventListener('click', clearDay);
+  // Start fresh button
+  const freshBtn = document.getElementById('start-fresh-btn');
+  if (freshBtn) {
+    freshBtn.addEventListener('click', () => {
+      // Reset brain dump screen and show overlay
+      const brainDumpEl = document.getElementById('brain-dump');
+      if (brainDumpEl) brainDumpEl.value = '';
+      brainDumpText = '';
 
-  makeAdvancedToggle('advanced-toggle-btn', 'advanced-options');
+      const overlay = document.getElementById('welcome-overlay');
+      const shell = document.getElementById('app-shell');
+      if (overlay) { overlay.style.display = ''; overlay.style.opacity = '1'; }
+      if (shell) shell.style.display = 'none';
+
+      showScreen('brain-dump-screen');
+      clearError('error-banner');
+      if (brainDumpEl) brainDumpEl.focus();
+    });
+  }
 });

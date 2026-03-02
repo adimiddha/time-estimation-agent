@@ -68,79 +68,14 @@ body {
 
 /* ── Layout ────────────────────────────────────────── */
 .app-shell {
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-}
-
-/* ── Welcome Screen ────────────────────────────────── */
-.welcome-view {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  padding: 24px;
-}
-
-.planner-view {
-  display: none;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-}
-
-/* mode-planner switches the views */
-.app-shell.mode-planner .welcome-view  { display: none; }
-.app-shell.mode-planner .planner-view  { display: flex; }
-
-@keyframes welcomeIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.welcome-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  padding: 40px 36px 32px;
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: welcomeIn 0.5s var(--ease-spring) both;
-}
-
-.welcome-card label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.9px;
-  color: var(--muted);
-  display: block;
-}
-
-.welcome-title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  margin: 0;
-}
-
-.welcome-subtitle {
-  font-size: 0.92rem;
-  color: var(--muted);
-  font-weight: 500;
-  margin: -4px 0 6px;
-}
-
-.btn-full {
-  width: 100%;
 }
 
 .app-header {
-  padding: 12px 20px;
+  padding: 18px 28px;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(130deg, var(--panel) 0%, #f7f4ff 100%);
   display: flex;
@@ -148,10 +83,6 @@ body {
   gap: 14px;
   box-shadow: var(--shadow-xs);
   flex-shrink: 0;
-  /* Stays visible while page scrolls in stacked layout */
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .app-header h1 {
@@ -178,12 +109,21 @@ body {
 
 /* ── Calendar Column ───────────────────────────────── */
 .calendar-column {
-  overflow: hidden;
-  padding: 16px;
+  position: relative;
+  overflow-y: auto;
+  padding: 24px 24px 56px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  gap: 20px;
 }
+
+.calendar-column::-webkit-scrollbar { width: 5px; }
+.calendar-column::-webkit-scrollbar-track { background: transparent; }
+.calendar-column::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+.calendar-column::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 .calendar-panel {
   background: var(--panel);
@@ -191,10 +131,7 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   overflow: hidden;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .calendar-panel-title {
@@ -209,16 +146,13 @@ body {
 
 /* ── Calendar Inner ────────────────────────────────── */
 .calendar-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden; /* JS scales content to fill exactly */
-  position: relative;
+  overflow: visible;
 }
 
 .calendar-grid {
   display: flex;
   position: relative;
-  height: 100%; /* filled by JS */
+  min-height: 200px;
 }
 
 .calendar-time-axis {
@@ -334,12 +268,6 @@ body {
   font-size: 0.72rem;
 }
 
-/* Nano: block too small to show text — just a colored strip, expand on hover */
-.calendar-block--nano .block-time,
-.calendar-block--nano .block-task {
-  display: none;
-}
-
 .calendar-block:hover {
   z-index: 50;
   overflow: visible;
@@ -430,43 +358,48 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ── Summary (compact, in sidebar) ────────────────── */
-.sidebar-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1;
-  min-height: 60px;
-  max-height: 38vh;
-  overflow-y: auto;
+/* ── Summary Section ───────────────────────────────── */
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.sidebar-summary::-webkit-scrollbar { width: 3px; }
-.sidebar-summary::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 999px;
+.summary-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.summary-panel.visible {
+  display: flex;
+  animation: panelIn 0.4s var(--ease-out) both;
 }
 
 .summary-section h3 {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.9px;
   color: var(--muted);
-  margin: 0 0 5px;
+  margin: 0 0 8px;
 }
 
 .summary-section ul {
   margin: 0;
-  padding: 0 0 0 16px;
-  font-size: 0.8rem;
+  padding: 0 0 0 20px;
+  font-size: 0.88rem;
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.75;
   color: var(--ink);
 }
 
 .summary-section .empty-note {
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   color: var(--muted);
   font-style: italic;
   font-weight: 400;
@@ -476,97 +409,33 @@ body {
 .sidebar {
   border-left: 1px solid var(--border);
   background: var(--panel);
-  overflow-y: auto;  /* scroll when zoom/small window compresses content */
-  padding: 14px 16px 12px;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.sidebar-section {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 0;
 }
 
-/* ── Time Row (welcome + sidebar) ──────────────────── */
-.time-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.time-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  color: var(--muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.time-input {
-  flex: 1;
-}
-
-.tip-text {
-  font-size: 0.7rem;
-  color: var(--muted);
-  font-weight: 400;
-}
-
-/* ── Replan Section ────────────────────────────────── */
-.replan-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
-}
-
-.replan-section label {
+.sidebar-section label {
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.9px;
   color: var(--muted);
   display: block;
-}
-
-/* ── Sidebar Footer ────────────────────────────────── */
-.sidebar-footer {
-  flex-shrink: 0;
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* Clear day button — small, subtle, destructive-leaning */
-.btn-clear {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  font-family: inherit;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  text-align: left;
-  transition:
-    color       var(--dur-fast) var(--ease-smooth),
-    border-color var(--dur-fast) var(--ease-smooth),
-    background  var(--dur-fast) var(--ease-smooth);
-}
-
-.btn-clear:hover {
-  color: #c0392b;
-  border-color: #fcc;
-  background: #fff5f5;
-}
-
-/* ── Advanced wrap ─────────────────────────────────── */
-.advanced-wrap {
-  flex-shrink: 0;
 }
 
 /* ── Form Elements ─────────────────────────────────── */
@@ -600,8 +469,7 @@ input[type="time"]:focus {
 }
 
 textarea {
-  min-height: 72px;
-  max-height: 140px;
+  min-height: 108px;
 }
 
 textarea::placeholder,
@@ -725,8 +593,40 @@ input::placeholder {
   color: var(--muted);
 }
 
-/* ── Confidence Row ──────────────────────────────────
-   (kept inline in sidebar, not the full-width card below) */
+/* ── Follow-up Section ─────────────────────────────── */
+.followup-section {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.followup-section.visible {
+  display: flex;
+  animation: slideUp 0.45s var(--ease-spring) both;
+}
+
+.followup-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--muted);
+}
+
+.followup-hint {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin: -6px 0 0;
+  font-style: italic;
+}
 
 /* ── Confidence Bar ────────────────────────────────── */
 .confidence-row {
@@ -806,45 +706,214 @@ input::placeholder {
   margin: 2px 3px 2px 0;
 }
 
+/* ── Welcome Overlay ───────────────────────────────── */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(255, 230, 200, 0.55) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 90% 100%, rgba(230, 225, 255, 0.45) 0%, transparent 65%),
+    var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.welcome-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 40px 36px 32px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: cardIn 0.4s var(--ease-spring) both;
+}
+
+.live-clock {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -1.5px;
+  line-height: 1;
+  text-align: center;
+}
+
+.clock-its { color: var(--ink); font-weight: 700; }
+#live-clock-time { color: var(--accent); }
+
+.welcome-heading {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.welcome-textarea {
+  min-height: 120px;
+}
+
+.welcome-btn {
+  width: 100%;
+}
+
+.loading-card {
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border-width: 3.5px;
+}
+
+.loading-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 8px;
+  background: rgba(123, 104, 238, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #b8adff 100%);
+  border-radius: 999px;
+  transition: width 1s ease-in-out;
+}
+
+.followup-textarea--small { min-height: 58px !important; resize: none; }
+
+/* ── Inline Replan Loading Overlay ─────────────────── */
+.replan-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 40px;
+  animation: cardIn 0.25s var(--ease-out) both;
+}
+
+.replan-spinner {
+  width: 30px;
+  height: 30px;
+  border-width: 3px;
+}
+
+.replan-loading-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.replan-progress-wrap {
+  width: 100%;
+  max-width: 300px;
+  height: 8px;
+  background: rgba(123, 104, 238, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.replan-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #b8adff 100%);
+  border-radius: 999px;
+  transition: width 1s ease-in-out;
+}
+
+.followup-skip-link {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.followup-skip-link:hover {
+  color: var(--accent);
+}
+
+.advanced-details {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.advanced-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.advanced-details summary:hover {
+  color: var(--accent);
+}
+
+.advanced-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0 4px;
+}
+
+.advanced-inner label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
 /* ── Responsive ────────────────────────────────────── */
 @media (max-width: 768px) {
   .app-shell {
     height: auto;
-    min-height: 100vh;
-    overflow: visible;
-  }
-
-  /* Let the planner fill its natural height so the page can scroll */
-  .planner-view {
-    height: auto;
-    min-height: 100vh;
     overflow: visible;
   }
 
   .app-body {
     grid-template-columns: 1fr;
-    grid-template-rows: 60vh auto;
+    grid-template-rows: auto auto;
     overflow: visible;
     min-height: auto;
   }
 
   .calendar-column {
-    overflow: hidden;
-    padding: 12px;
-  }
-
-  /* Sidebar shows all content; page scroll handles reaching it */
-  .sidebar {
-    border-left: none;
-    border-top: 1px solid var(--border);
-    overflow: visible;
-    height: auto;
-    max-height: none;
+    overflow-y: visible;
     padding: 16px;
   }
 
-  .sidebar-summary {
+  .sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border);
     max-height: none;
-    overflow: visible;
+    padding: 20px 16px;
   }
 }
