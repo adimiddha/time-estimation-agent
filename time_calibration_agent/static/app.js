@@ -195,10 +195,9 @@ function renderCalendar(timeBlocks) {
     const endMin = timeToMinutes(block.end) - rangeStartMin;
     const durationMin = Math.max(0, endMin - startMin);
 
-    const naturalTop = startMin * PIXELS_PER_MINUTE;
-    const top = Math.max(naturalTop, visualBottom);
+    const top = startMin * PIXELS_PER_MINUTE;
     const height = Math.max(MIN_BLOCK_HEIGHT, durationMin * PIXELS_PER_MINUTE);
-    visualBottom = top + height;
+    visualBottom = Math.max(visualBottom, top + height);
     const kind = block.kind || 'task';
 
     const isCompact = height < COMPACT_THRESHOLD_PX;
