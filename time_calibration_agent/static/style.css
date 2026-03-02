@@ -109,6 +109,7 @@ body {
 
 /* ── Calendar Column ───────────────────────────────── */
 .calendar-column {
+  position: relative;
   overflow-y: auto;
   padding: 24px 24px 56px;
   display: flex;
@@ -129,7 +130,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  overflow: visible;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
@@ -703,6 +704,191 @@ input::placeholder {
   font-size: 0.78rem;
   font-weight: 700;
   margin: 2px 3px 2px 0;
+}
+
+/* ── Welcome Overlay ───────────────────────────────── */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(255, 230, 200, 0.55) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 90% 100%, rgba(230, 225, 255, 0.45) 0%, transparent 65%),
+    var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.welcome-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 40px 36px 32px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: cardIn 0.4s var(--ease-spring) both;
+}
+
+.live-clock {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -1.5px;
+  line-height: 1;
+  text-align: center;
+}
+
+.clock-its { color: var(--ink); font-weight: 700; }
+#live-clock-time { color: var(--accent); }
+
+.welcome-heading {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.welcome-textarea {
+  min-height: 120px;
+}
+
+.welcome-btn {
+  width: 100%;
+}
+
+.loading-card {
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border-width: 3.5px;
+}
+
+.loading-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 8px;
+  background: rgba(123, 104, 238, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #b8adff 100%);
+  border-radius: 999px;
+  transition: width 1s ease-in-out;
+}
+
+.followup-textarea--small { min-height: 58px !important; resize: none; }
+
+/* ── Inline Replan Loading Overlay ─────────────────── */
+.replan-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 40px;
+  animation: cardIn 0.25s var(--ease-out) both;
+}
+
+.replan-spinner {
+  width: 30px;
+  height: 30px;
+  border-width: 3px;
+}
+
+.replan-loading-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.replan-progress-wrap {
+  width: 100%;
+  max-width: 300px;
+  height: 8px;
+  background: rgba(123, 104, 238, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.replan-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #b8adff 100%);
+  border-radius: 999px;
+  transition: width 1s ease-in-out;
+}
+
+.followup-skip-link {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.followup-skip-link:hover {
+  color: var(--accent);
+}
+
+.advanced-details {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.advanced-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.advanced-details summary:hover {
+  color: var(--accent);
+}
+
+.advanced-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0 4px;
+}
+
+.advanced-inner label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 4px;
 }
 
 /* ── Responsive ────────────────────────────────────── */

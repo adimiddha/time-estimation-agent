@@ -40,6 +40,7 @@ def _build_plan(
     mode: str,
     session_label: Optional[str],
     date_override: Optional[str],
+    session_end_time: Optional[str] = None,
 ) -> Dict:
     replanner = ReplanningAgent()
     session_store = DaySessionStore(root_dir=_user_sessions_dir())
@@ -72,11 +73,20 @@ def _build_plan(
         last_plan = last_replan.get("plan_output")
         last_input = last_replan.get("raw_input")
 
+    # For replans: load stored session_end_time if not provided; allow override via clarify
+    if mode == "replan" and session_end_time is None:
+        session_end_time = session_store.get_session_end_time(session_id)
+        # Check if replan text mentions a new end time
+        clarification = replanner.extract_clarification(raw_text, current_time)
+        if clarification.get("session_end_time"):
+            session_end_time = clarification["session_end_time"]
+
     plan_output, estimated_tasks, extracted_context = replanner.plan_with_estimates(
         raw_text=raw_text,
         current_time=current_time,
         last_plan=last_plan,
         last_input=last_input,
+        session_end_time=session_end_time,
     )
 
     session_store.append_replan(
@@ -89,6 +99,7 @@ def _build_plan(
             "extracted_context": extracted_context,
         },
         overwrite=overwrite,
+        session_end_time=session_end_time,
     )
 
     return {
@@ -97,6 +108,7 @@ def _build_plan(
         "plan_output": plan_output,
         "estimated_tasks": estimated_tasks,
         "extracted_context": extracted_context,
+        "session_end_time": session_end_time,
     }
 
 
@@ -129,7 +141,27 @@ def create_app() -> Flask:
             "current_time": last_replan.get("current_time", ""),
             "plan_output": last_replan.get("plan_output", {}),
             "estimated_tasks": last_replan.get("estimated_tasks", []),
+            "session_end_time": session.get("session_end_time"),
+            "replans_count": len(session["replans"]),
         })
+
+    @app.route("/api/clarify", methods=["POST"])
+    def api_clarify():
+        data = request.get_json(force=True) or {}
+        context = (data.get("context") or "").strip()
+        current_time = (data.get("current_time") or "").strip()
+        if not context:
+            return jsonify({"error": "No context provided."}), 400
+        if not current_time:
+            current_time = datetime.now().strftime("%H:%M")
+        try:
+            replanner = ReplanningAgent()
+            result = replanner.extract_clarification(context, current_time)
+            return jsonify(result)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"error": f"Server error: {e}"}), 500
 
     @app.route("/api/health", methods=["GET"])
     def api_health():
@@ -148,10 +180,11 @@ def create_app() -> Flask:
         mode = (data.get("mode") or "new").strip()
         session_label = (data.get("session_label") or "").strip() or None
         date_override = (data.get("date_override") or "").strip() or None
+        session_end_time = (data.get("session_end_time") or "").strip() or None
         if not raw_text:
             return jsonify({"error": "No context provided."}), 400
         try:
-            result = _build_plan(raw_text, mode, session_label, date_override)
+            result = _build_plan(raw_text, mode, session_label, date_override, session_end_time)
         except Exception as e:
             import traceback
             traceback.print_exc()

@@ -10,7 +10,62 @@
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-<div class="app-shell">
+
+<!-- ── Welcome Overlay (screens 1–3) ─────────────────────────── -->
+<div id="welcome-overlay" class="welcome-overlay">
+
+  <!-- Screen 1: Brain dump -->
+  <div id="brain-dump-screen" class="welcome-card">
+    <div id="live-clock" class="live-clock"><span class="clock-its">it&rsquo;s </span><span id="live-clock-time"></span></div>
+    <h2 class="welcome-heading">Tell me what you need to do:</h2>
+    <textarea
+      id="brain-dump"
+      class="welcome-textarea"
+      placeholder="Brain dump everything you need to do today."
+      rows="5"
+    ></textarea>
+    <button class="btn btn-primary welcome-btn" id="plan-btn">
+      <span class="btn-icon">&#9654;</span> Plan my day
+    </button>
+    <div class="error-banner" id="error-banner"></div>
+    <details class="advanced-details">
+      <summary>Advanced options</summary>
+      <div class="advanced-inner">
+        <label for="session_label">Session label (optional)</label>
+        <input id="session_label" name="session_label" type="text" placeholder="e.g. work, personal" />
+        <label for="date_override">Date override (YYYY-MM-DD)</label>
+        <input id="date_override" name="date_override" type="text" placeholder="Leave blank for today" />
+      </div>
+    </details>
+  </div>
+
+  <!-- Screen 2: Follow-up clarification (hidden initially) -->
+  <div id="followup-clarify-screen" class="welcome-card" style="display:none;">
+    <div class="welcome-heading" id="followup-question-text">When do you want to be done today?</div>
+    <textarea
+      id="followup-clarify-input"
+      class="welcome-textarea"
+      placeholder="e.g. 6pm, around 5, whenever"
+      rows="3"
+    ></textarea>
+    <button class="btn btn-primary welcome-btn" id="followup-continue-btn">Continue</button>
+    <a href="#" class="followup-skip-link" id="followup-skip-link">Skip &mdash; let the app decide</a>
+    <div class="error-banner" id="error-banner-followup"></div>
+  </div>
+
+  <!-- Screen 3: Loading (hidden initially) -->
+  <div id="loading-screen" class="welcome-card loading-card" style="display:none;">
+    <div class="spinner loading-spinner"></div>
+    <div class="loading-label" id="progress-label">Reading your day&hellip;</div>
+    <div class="progress-bar-wrap">
+      <div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div>
+    </div>
+  </div>
+
+</div><!-- /welcome-overlay -->
+
+<!-- ── Planner (shown after first plan) ──────────────────────── -->
+<div class="app-shell" id="app-shell" style="display:none;">
 
   <!-- Header -->
   <header class="app-header">
@@ -24,6 +79,15 @@
     <!-- Left: Calendar column -->
     <div class="calendar-column">
 
+      <!-- Inline replan loading overlay (covers calendar + summary) -->
+      <div id="replan-loading-overlay" class="replan-loading-overlay" style="display:none;">
+        <div class="spinner replan-spinner"></div>
+        <div class="replan-loading-label" id="replan-progress-label">Replanning your day&hellip;</div>
+        <div class="replan-progress-wrap">
+          <div id="replan-progress-bar" class="replan-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
       <!-- Calendar panel -->
       <div class="calendar-panel">
         <div class="calendar-panel-title">Schedule</div>
@@ -35,7 +99,7 @@
         </div>
       </div>
 
-      <!-- Summary: next actions + dropped (shown after plan loads) -->
+      <!-- Summary: next actions + dropped -->
       <div class="summary-panel" id="summary-panel">
 
         <div class="summary-section">
@@ -64,48 +128,12 @@
     <aside class="sidebar">
 
       <!-- Error banner -->
-      <div class="error-banner" id="error-banner"></div>
+      <div class="error-banner" id="replan-error-banner"></div>
 
-      <!-- Initial plan form -->
-      <div class="sidebar-section">
-        <label for="context">What&rsquo;s on today?</label>
-        <textarea
-          id="context"
-          name="context"
-          placeholder="e.g. I need to write a report, review PRs, lunch at noon, meeting 2–3."
-        ></textarea>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:120px;">
-            <label for="current_time_input" style="font-size:0.75rem;margin-bottom:4px;">Current time</label>
-            <input type="time" id="current_time_input" style="width:100%;padding:8px 10px;font-size:0.88rem;" />
-          </div>
-        </div>
-        <button class="btn btn-primary" id="plan-btn">
-          <span class="btn-icon">&#9654;</span> Plan my day
-        </button>
-        <small style="color:var(--muted);font-size:0.75rem;">Tip: Ctrl/⌘ + Enter to submit</small>
-      </div>
+      <!-- Replan section (visible once planner is active) -->
+      <div class="followup-section visible" id="followup-section">
 
-      <!-- Advanced options (hidden by default) -->
-      <div class="sidebar-section">
-        <button class="advanced-toggle" id="advanced-toggle-btn">Show advanced options</button>
-        <div class="advanced-options" id="advanced-options">
-          <div>
-            <label for="session_label">Session label (optional)</label>
-            <input id="session_label" name="session_label" type="text" placeholder="e.g. work, personal" />
-          </div>
-          <div>
-            <label for="date_override">Date override (YYYY-MM-DD)</label>
-            <input id="date_override" name="date_override" type="text" placeholder="Leave blank for today" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Follow-up / Replan (shown after first plan) -->
-      <div class="followup-section" id="followup-section">
-
-        <div class="followup-label">Does this look good?</div>
-        <div class="followup-hint">Anything to adjust or add?</div>
+        <div class="followup-label">Anything to adjust?</div>
         <textarea
           id="followup-context"
           placeholder="e.g. Actually skip the report, add gym at 4pm."
@@ -122,6 +150,11 @@
             <div class="confidence-bar-fill" id="confidence-bar-fill" style="width:0%"></div>
           </div>
         </div>
+
+        <!-- Start fresh -->
+        <button class="advanced-toggle" id="start-fresh-btn" style="margin-top:4px;">
+          Start fresh today
+        </button>
 
       </div><!-- /followup-section -->
 
