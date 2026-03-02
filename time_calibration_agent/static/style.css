@@ -75,12 +75,12 @@ body {
 }
 
 .app-header {
-  padding: 18px 28px;
+  padding: 14px 28px;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(130deg, var(--panel) 0%, #f7f4ff 100%);
   display: flex;
-  align-items: baseline;
-  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
   box-shadow: var(--shadow-xs);
   flex-shrink: 0;
   position: sticky;
@@ -95,8 +95,33 @@ body {
   margin: 0;
 }
 
-.session-badge {
-  font-size: 0.82rem;
+.session-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.session-date-select {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 2px 2px 0;
+  text-align: right;
+  appearance: auto;
+  -webkit-appearance: auto;
+}
+
+.session-date-select:focus {
+  outline: none;
+}
+
+.session-planned-at {
+  font-size: 0.76rem;
   color: var(--muted);
   font-style: italic;
   font-weight: 500;
@@ -150,6 +175,7 @@ body {
 /* ── Calendar Inner ────────────────────────────────── */
 .calendar-scroll {
   overflow: visible;
+  padding-top: 18px;  /* buffer so first hour label doesn't bleed into the Schedule title */
 }
 
 .calendar-grid {

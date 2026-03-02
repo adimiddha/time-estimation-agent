@@ -131,11 +131,10 @@ function computeRange(timeBlocks) {
   let minMin = Math.min(...starts);
   let maxMin = Math.max(...ends);
 
+  // Always include current time so the now-line is always visible
   const now = nowMinutes();
-  if (now >= minMin - 120 && now <= maxMin + 120) {
-    minMin = Math.min(minMin, now);
-    maxMin = Math.max(maxMin, now);
-  }
+  minMin = Math.min(minMin, now);
+  maxMin = Math.max(maxMin, now);
 
   const startHour = Math.max(0, Math.floor(minMin / 60));
   const endHour = Math.min(24, Math.ceil(maxMin / 60));
@@ -344,12 +343,62 @@ function renderSummary(planOutput) {
   panel.classList.add('visible');
 }
 
+// ── Date helpers ───────────────────────────────────────────────
+function formatDateHuman(dateStr) {
+  // "2026-03-02" → "March 2nd, 2026"
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const v = day % 100;
+  const suffix = (v >= 11 && v <= 13) ? 'th' : (['th','st','nd','rd'][day % 10] || 'th');
+  return `${months[month - 1]} ${day}${suffix}, ${year}`;
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${padTwo(d.getMonth() + 1)}-${padTwo(d.getDate())}`;
+}
+
+function tomorrowStr() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return `${d.getFullYear()}-${padTwo(d.getMonth() + 1)}-${padTwo(d.getDate())}`;
+}
+
 // ── Sidebar Updates ────────────────────────────────────────────
 function updateSidebar(sessionId, currentTime, planOutput) {
-  const metaRow = document.getElementById('meta-row');
-  if (metaRow && sessionId) {
-    metaRow.textContent = `Session: ${sessionId}  ·  As of: ${fmt12(timeToMinutes(currentTime))}`;
-    metaRow.style.display = '';
+  const sessionInfo = document.getElementById('session-info');
+  const sessionDateSelect = document.getElementById('session-date-select');
+  const sessionPlannedAt = document.getElementById('session-planned-at');
+
+  if (sessionInfo && sessionId) {
+    // Extract date part from session ID ("2026-03-02" or "2026-03-02__label")
+    const dateStr = sessionId.split('__')[0];
+
+    // Populate date dropdown: session date, today, tomorrow (deduplicated, ordered)
+    if (sessionDateSelect) {
+      sessionDateSelect.innerHTML = '';
+      const today = todayStr();
+      const tomorrow = tomorrowStr();
+      const dates = [];
+      if (!dates.includes(dateStr)) dates.push(dateStr);
+      if (!dates.includes(today)) dates.push(today);
+      if (!dates.includes(tomorrow)) dates.push(tomorrow);
+      dates.sort();
+
+      dates.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = formatDateHuman(d);
+        opt.selected = (d === dateStr);
+        sessionDateSelect.appendChild(opt);
+      });
+    }
+
+    if (sessionPlannedAt) {
+      sessionPlannedAt.textContent = `Last planned at ${fmt12(timeToMinutes(currentTime))}`;
+    }
+
+    sessionInfo.style.display = '';
   }
 
   const conf = planOutput.confidence || {};
@@ -585,7 +634,11 @@ async function handleReplan() {
     const res = await fetch('/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ context: rawContext, mode: 'replan' }),
+      body: JSON.stringify({
+        context: rawContext,
+        mode: 'replan',
+        current_time: currentTimeHHMM || nowHHMM(),
+      }),
     });
     data = await res.json();
 

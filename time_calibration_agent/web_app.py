@@ -41,13 +41,16 @@ def _build_plan(
     session_label: Optional[str],
     date_override: Optional[str],
     session_end_time: Optional[str] = None,
+    current_time_override: Optional[str] = None,
 ) -> Dict:
     replanner = ReplanningAgent()
     session_store = DaySessionStore(root_dir=_user_sessions_dir())
 
-    # Use inferred time from text so "current_time" in the response matches the plan
+    # Prefer explicit current_time from the client; fall back to text inference then server clock.
+    # Inference alone is unreliable for replans because deadline phrases like "before 10pm"
+    # are indistinguishable from current-time phrases by the regex.
     inferred_time = replanner._infer_time_from_text(raw_text)
-    current_time = inferred_time or datetime.now().strftime("%H:%M")
+    current_time = current_time_override or inferred_time or datetime.now().strftime("%H:%M")
 
     overwrite = mode == "new"
     session_id = _resolve_session_id(
@@ -181,10 +184,11 @@ def create_app() -> Flask:
         session_label = (data.get("session_label") or "").strip() or None
         date_override = (data.get("date_override") or "").strip() or None
         session_end_time = (data.get("session_end_time") or "").strip() or None
+        current_time_override = (data.get("current_time") or "").strip() or None
         if not raw_text:
             return jsonify({"error": "No context provided."}), 400
         try:
-            result = _build_plan(raw_text, mode, session_label, date_override, session_end_time)
+            result = _build_plan(raw_text, mode, session_label, date_override, session_end_time, current_time_override)
         except Exception as e:
             import traceback
             traceback.print_exc()
