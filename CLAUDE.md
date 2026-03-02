@@ -124,10 +124,9 @@ Session IDs default to `YYYY-MM-DD`; optional label produces `YYYY-MM-DD__<label
 - `human_evaluations.json` / `human_ai_comparison.json` — human rating results
 - `eval/` — evaluation output artifacts
 
-## Custom commands
+## Skills
 
-- **`/debug-ui`** — diagnose and fix web UI bugs. Defined in `.claude/commands/debug-ui.md`.
-  - **Auto-trigger**: when the user describes a UI issue (layout, scroll, rendering, responsive breakage, time display, calendar, sticky header), automatically follow the workflow defined in `.claude/commands/debug-ui.md` before responding. Do not use the Skill tool — read the file and execute the steps directly.
+- **`/debug-ui`** — diagnose and fix web UI bugs. Defined in `.claude/skills/debug-ui/SKILL.md`. Auto-invoked when a UI issue is described.
 
 ## Conventions
 

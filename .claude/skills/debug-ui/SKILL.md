@@ -1,3 +1,8 @@
+---
+name: debug-ui
+description: Diagnose and fix UI bugs in the time-calibration-agent web app. Invoke when the user describes any visual or layout issue — scroll, positioning, rendering, responsive breakage, time display, calendar blocks, or sticky header.
+---
+
 You are debugging a UI issue in the time-calibration-agent web app.
 
 The UI consists of exactly four files:
@@ -18,6 +23,8 @@ Ask the user ALL of these questions at once (do not ask one at a time):
 
 3. **When does it happen?**
    Examples: always, only at high zoom, only on narrow viewport, after replanning, on first load, only in stacked layout
+
+If the user has already described the bug in enough detail to answer these, skip the interview and proceed to Step 2.
 
 Wait for the user's answers before reading any files.
 
