@@ -47,11 +47,13 @@ function nowHHMM() {
 // ── Live Clock ─────────────────────────────────────────────────
 function initClock() {
   const el = document.getElementById('live-clock-time');
-  if (!el) return;
+  const headerEl = document.getElementById('header-clock-time');
   function tick() {
     const now = new Date();
     currentTimeHHMM = `${padTwo(now.getHours())}:${padTwo(now.getMinutes())}`;
-    el.textContent = fmt12(now.getHours() * 60 + now.getMinutes());
+    const timeStr = fmt12(now.getHours() * 60 + now.getMinutes());
+    if (el) el.textContent = timeStr;
+    if (headerEl) headerEl.textContent = timeStr;
   }
   tick();
   setInterval(tick, 30_000);
@@ -367,31 +369,14 @@ function tomorrowStr() {
 // ── Sidebar Updates ────────────────────────────────────────────
 function updateSidebar(sessionId, currentTime, planOutput) {
   const sessionInfo = document.getElementById('session-info');
-  const sessionDateSelect = document.getElementById('session-date-select');
+  const sessionDateLabel = document.getElementById('session-date-label');
   const sessionPlannedAt = document.getElementById('session-planned-at');
 
   if (sessionInfo && sessionId) {
-    // Extract date part from session ID ("2026-03-02" or "2026-03-02__label")
     const dateStr = sessionId.split('__')[0];
 
-    // Populate date dropdown: session date, today, tomorrow (deduplicated, ordered)
-    if (sessionDateSelect) {
-      sessionDateSelect.innerHTML = '';
-      const today = todayStr();
-      const tomorrow = tomorrowStr();
-      const dates = [];
-      if (!dates.includes(dateStr)) dates.push(dateStr);
-      if (!dates.includes(today)) dates.push(today);
-      if (!dates.includes(tomorrow)) dates.push(tomorrow);
-      dates.sort();
-
-      dates.forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = d;
-        opt.textContent = formatDateHuman(d);
-        opt.selected = (d === dateStr);
-        sessionDateSelect.appendChild(opt);
-      });
+    if (sessionDateLabel) {
+      sessionDateLabel.textContent = formatDateHuman(dateStr);
     }
 
     if (sessionPlannedAt) {
@@ -399,6 +384,16 @@ function updateSidebar(sessionId, currentTime, planOutput) {
     }
 
     sessionInfo.style.display = '';
+
+    const headerClock = document.getElementById('header-clock');
+    const headerClockTime = document.getElementById('header-clock-time');
+    if (headerClock) {
+      headerClock.style.display = '';
+      if (headerClockTime) {
+        const now = new Date();
+        headerClockTime.textContent = fmt12(now.getHours() * 60 + now.getMinutes());
+      }
+    }
   }
 
   const conf = planOutput.confidence || {};

@@ -102,22 +102,25 @@ body {
   gap: 2px;
 }
 
-.session-date-select {
+.header-clock {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.header-clock .clock-its { color: var(--ink); }
+.header-clock #header-clock-time { color: var(--accent); }
+
+.session-date-label {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--ink);
-  font-family: inherit;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 2px 2px 2px 0;
   text-align: right;
-  appearance: auto;
-  -webkit-appearance: auto;
-}
-
-.session-date-select:focus {
-  outline: none;
 }
 
 .session-planned-at {
