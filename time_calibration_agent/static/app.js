@@ -1,10 +1,10 @@
 'use strict';
 
 // ── Constants ──────────────────────────────────────────────────
-const PIXELS_PER_HOUR = 480;
-const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;  // 8px per minute
-const MIN_BLOCK_HEIGHT = 36;
+const BASE_MIN_BLOCK_HEIGHT = 84;
 const COMPACT_THRESHOLD_PX = 0; // all blocks show full content
+const MICRO_TASK_MAX_MINUTES = 10;
+const MICRO_CLUSTER_MAX_SPAN_MINUTES = 24;
 
 // ── Debug Static Data (computed at call time so blocks start from now) ─
 function makeDebugPlanData() {
@@ -87,6 +87,103 @@ function fmt12(totalMinutes) {
 function nowHHMM() {
   const now = new Date();
   return `${padTwo(now.getHours())}:${padTwo(now.getMinutes())}`;
+}
+
+function isMobileViewport() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
+function getLayoutMetrics(totalMinutes) {
+  const hours = totalMinutes / 60;
+  const mobile = isMobileViewport();
+  let pixelsPerHour;
+
+  if (mobile) {
+    if (hours <= 2) pixelsPerHour = 980;
+    else if (hours <= 3) pixelsPerHour = 820;
+    else if (hours <= 4) pixelsPerHour = 700;
+    else if (hours <= 6) pixelsPerHour = 560;
+    else pixelsPerHour = 440;
+  } else {
+    if (hours <= 2) pixelsPerHour = 760;
+    else if (hours <= 3) pixelsPerHour = 660;
+    else if (hours <= 4) pixelsPerHour = 580;
+    else if (hours <= 6) pixelsPerHour = 500;
+    else pixelsPerHour = 400;
+  }
+
+  return {
+    pixelsPerHour,
+    pixelsPerMinute: pixelsPerHour / 60,
+    minBlockHeight: mobile ? BASE_MIN_BLOCK_HEIGHT + 10 : BASE_MIN_BLOCK_HEIGHT,
+  };
+}
+
+function buildRenderBlocks(timeBlocks) {
+  const sorted = [...(timeBlocks || [])].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+  if (!sorted.length) return [];
+
+  const mobile = isMobileViewport();
+  const renderBlocks = [];
+
+  for (let i = 0; i < sorted.length; i++) {
+    const block = sorted[i];
+    const duration = Math.max(0, timeToMinutes(block.end) - timeToMinutes(block.start));
+    const next = sorted[i + 1];
+
+    const canStartCluster = next
+      && mobile
+      && block.kind !== 'fixed'
+      && next.kind === block.kind
+      && duration <= MICRO_TASK_MAX_MINUTES;
+
+    if (!canStartCluster) {
+      renderBlocks.push(block);
+      continue;
+    }
+
+    const cluster = [block];
+    let clusterStart = timeToMinutes(block.start);
+    let clusterEnd = timeToMinutes(block.end);
+    let j = i + 1;
+
+    while (j < sorted.length) {
+      const candidate = sorted[j];
+      const candidateDuration = Math.max(0, timeToMinutes(candidate.end) - timeToMinutes(candidate.start));
+      const candidateStart = timeToMinutes(candidate.start);
+      const contiguousEnough = candidate.kind === block.kind && candidateStart - clusterEnd <= 4;
+      const stillSmall = candidateDuration <= MICRO_TASK_MAX_MINUTES;
+      const clusterSpan = timeToMinutes(candidate.end) - clusterStart;
+
+      if (!contiguousEnough || !stillSmall || clusterSpan > MICRO_CLUSTER_MAX_SPAN_MINUTES) break;
+
+      cluster.push(candidate);
+      clusterEnd = timeToMinutes(candidate.end);
+      j++;
+    }
+
+    if (cluster.length === 1) {
+      renderBlocks.push(block);
+      continue;
+    }
+
+    renderBlocks.push({
+      start: cluster[0].start,
+      end: cluster[cluster.length - 1].end,
+      kind: block.kind,
+      task: cluster.map(item => item.task).join(' / '),
+      steps: cluster[0].steps || [],
+      is_cluster: true,
+      cluster_tasks: cluster.map(item => ({
+        start: item.start,
+        end: item.end,
+        task: item.task,
+      })),
+    });
+    i = j - 1;
+  }
+
+  return renderBlocks;
 }
 
 // ── Live Clock ─────────────────────────────────────────────────
@@ -298,17 +395,20 @@ function renderCalendar(timeBlocks) {
     return;
   }
 
-  const { startHour, endHour } = computeRange(timeBlocks);
+  const renderBlocks = buildRenderBlocks(timeBlocks);
+  const { startHour, endHour } = computeRange(renderBlocks);
   const rangeStartMin = startHour * 60;
   const totalMinutes = (endHour - startHour) * 60;
+  const layout = getLayoutMetrics(totalMinutes);
   // Height is set after block layout so we can expand if push-down moves blocks past the end tick
-  const endTickTop = totalMinutes * PIXELS_PER_MINUTE;
+  const endTickTop = totalMinutes * layout.pixelsPerMinute;
 
   eventsEl.dataset.rangeStart = rangeStartMin;
   eventsEl.dataset.rangeMinutes = totalMinutes;
+  eventsEl.dataset.pixelsPerMinute = String(layout.pixelsPerMinute);
 
   for (let h = startHour; h <= endHour; h++) {
-    const topPx = (h * 60 - rangeStartMin) * PIXELS_PER_MINUTE;
+    const topPx = (h * 60 - rangeStartMin) * layout.pixelsPerMinute;
 
     const tick = document.createElement('div');
     tick.className = 'hour-tick';
@@ -318,7 +418,7 @@ function renderCalendar(timeBlocks) {
     if (h < endHour) {
       const halfTick = document.createElement('div');
       halfTick.className = 'hour-tick hour-tick--half';
-      halfTick.style.top = (topPx + PIXELS_PER_HOUR / 2) + 'px';
+      halfTick.style.top = (topPx + layout.pixelsPerHour / 2) + 'px';
       eventsEl.appendChild(halfTick);
     }
 
@@ -331,7 +431,7 @@ function renderCalendar(timeBlocks) {
     axisEl.appendChild(label);
   }
 
-  const sorted = [...timeBlocks].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+  const sorted = [...renderBlocks].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
   const now = nowMinutes();
   let stickyBottom = 0;
   let visualBottom = 0;
@@ -342,9 +442,15 @@ function renderCalendar(timeBlocks) {
     const absoluteStartMin = timeToMinutes(block.start);
     const absoluteEndMin = timeToMinutes(block.end);
 
-    const naturalTop = startMin * PIXELS_PER_MINUTE;
+    const naturalTop = startMin * layout.pixelsPerMinute;
+    const naturalHeight = Math.max(layout.minBlockHeight, durationMin * layout.pixelsPerMinute);
+    const blockEndTop = endMin * layout.pixelsPerMinute;
     const top = Math.max(naturalTop, stickyBottom);
-    const height = Math.max(MIN_BLOCK_HEIGHT, durationMin * PIXELS_PER_MINUTE);
+    let height = naturalHeight;
+    if (top + height > blockEndTop) {
+      // Preserve chronological order, but never let a block render past its true end.
+      height = Math.max(durationMin * layout.pixelsPerMinute, blockEndTop - top);
+    }
     stickyBottom = top + height + 4;
     visualBottom = Math.max(visualBottom, top + height);
     const kind = block.kind || 'task';
@@ -354,6 +460,7 @@ function renderCalendar(timeBlocks) {
     div.className = `calendar-block calendar-block--${kind}${isCompact ? ' calendar-block--compact' : ''}`;
     if (height <= 58) div.classList.add('calendar-block--short');
     if (height <= 84) div.classList.add('calendar-block--medium');
+    if (block.is_cluster) div.classList.add('calendar-block--cluster');
     if (now >= absoluteStartMin && now < absoluteEndMin) {
       div.classList.add('calendar-block--current');
     } else if (absoluteStartMin > now) {
@@ -367,10 +474,24 @@ function renderCalendar(timeBlocks) {
     const timeLabel = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}`;
     div.style.animationDelay = `${idx * 0.055}s`;
     const lockIcon = kind === 'fixed' ? '<span class="block-lock">&#128274;</span>' : '';
-    div.innerHTML = `
-      <div class="block-time">${escHtml(timeLabel)}</div>
-      <div class="block-task">${lockIcon}${escHtml(block.task)}</div>
-    `;
+    if (block.is_cluster && block.cluster_tasks && block.cluster_tasks.length) {
+      div.innerHTML = `
+        <div class="block-time">${escHtml(timeLabel)}</div>
+        <div class="block-task-list">
+          ${block.cluster_tasks.map(item => `
+            <div class="block-task-row">
+              <span class="block-task-row-time">${escHtml(fmt12(timeToMinutes(item.start)))}</span>
+              <span class="block-task-row-label">${escHtml(item.task)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="block-time">${escHtml(timeLabel)}</div>
+        <div class="block-task">${lockIcon}${escHtml(block.task)}</div>
+      `;
+    }
     eventsEl.appendChild(div);
   });
 
@@ -379,7 +500,7 @@ function renderCalendar(timeBlocks) {
   eventsEl.style.height = totalHeight + 'px';
   axisEl.style.height = totalHeight + 'px';
 
-  drawNowLine(rangeStartMin, totalHeight, totalMinutes);
+  drawNowLine(rangeStartMin, totalHeight, totalMinutes, layout.pixelsPerMinute);
 
   const scrollEl = document.getElementById('calendar-scroll');
   if (scrollEl) {
@@ -394,7 +515,7 @@ function renderCalendar(timeBlocks) {
       const anchorMinutes = activeBlock
         ? Math.max(0, timeToMinutes(activeBlock.start) - rangeStartMin)
         : Math.max(0, now - rangeStartMin);
-      const anchorTop = anchorMinutes * PIXELS_PER_MINUTE;
+      const anchorTop = anchorMinutes * layout.pixelsPerMinute;
       const preferredOffset = 12;
       const maxScrollTop = Math.max(0, totalHeight - viewportHeight);
       const minScrollTop = Math.min(maxScrollTop, Math.max(0, anchorTop - preferredOffset));
@@ -420,7 +541,7 @@ function initCalendarScrollClamp() {
   scrollEl.dataset.clampBound = 'true';
 }
 
-function drawNowLine(rangeStartMin, totalHeight, totalMinutes) {
+function drawNowLine(rangeStartMin, totalHeight, totalMinutes, pixelsPerMinute) {
   const eventsEl = document.getElementById('calendar-events');
   if (!eventsEl) return;
 
@@ -431,7 +552,7 @@ function drawNowLine(rangeStartMin, totalHeight, totalMinutes) {
   const offsetMin = now - rangeStartMin;
   if (offsetMin < 0 || offsetMin > totalMinutes) return;
 
-  const top = offsetMin * PIXELS_PER_MINUTE;
+  const top = offsetMin * pixelsPerMinute;
   const line = document.createElement('div');
   line.className = 'now-line';
   line.id = 'now-line';
@@ -445,7 +566,8 @@ function refreshNowLine() {
   const totalHeight = parseInt(eventsEl.style.height, 10);
   const rangeStartMin = parseInt(eventsEl.dataset.rangeStart || '480', 10);
   const totalMinutes = parseInt(eventsEl.dataset.rangeMinutes || '600', 10);
-  drawNowLine(rangeStartMin, totalHeight, totalMinutes);
+  const pixelsPerMinute = parseFloat(eventsEl.dataset.pixelsPerMinute || '8');
+  drawNowLine(rangeStartMin, totalHeight, totalMinutes, pixelsPerMinute);
   if (!isDraftMode) updateRightNow();
 }
 
@@ -597,6 +719,8 @@ function clearError(bannerId) {
 
 // ── Drum Picker ────────────────────────────────────────────────
 const DRUM_ITEM_HEIGHT = 44;
+const END_OF_DAY_MINUTES = 24 * 60;
+const END_OF_DAY_VALUE = '23:59';
 
 function rebuildTimeDrum() {
   const col = document.getElementById('drum-time');
@@ -607,7 +731,7 @@ function rebuildTimeDrum() {
   const [nowH, nowM] = now.split(':').map(Number);
   let startMin = nowH * 60 + nowM + 30;
   startMin = Math.ceil(startMin / 30) * 30;
-  const endMin = 23 * 60 + 30; // 11:30 PM
+  const endMin = END_OF_DAY_MINUTES;
 
   const makePad = () => { const d = document.createElement('div'); d.className = 'drum-pad'; return d; };
 
@@ -616,7 +740,9 @@ function rebuildTimeDrum() {
     const d = document.createElement('div');
     d.className = 'drum-item';
     d.textContent = fmt12(min);
-    d.dataset.value = `${padTwo(Math.floor(min / 60))}:${padTwo(min % 60)}`;
+    d.dataset.value = min === END_OF_DAY_MINUTES
+      ? END_OF_DAY_VALUE
+      : `${padTwo(Math.floor(min / 60))}:${padTwo(min % 60)}`;
     col.appendChild(d);
   }
   col.appendChild(makePad());
@@ -627,7 +753,8 @@ function defaultEndTime() {
   const [h, m] = now.split(':').map(Number);
   let totalMin = h * 60 + m + 180;
   totalMin = Math.round(totalMin / 30) * 30;
-  totalMin = Math.min(totalMin, 23 * 60 + 30);
+  totalMin = Math.min(totalMin, END_OF_DAY_MINUTES);
+  if (totalMin >= END_OF_DAY_MINUTES) return END_OF_DAY_VALUE;
   return `${padTwo(Math.floor(totalMin / 60))}:${padTwo(totalMin % 60)}`;
 }
 
@@ -876,38 +1003,9 @@ async function handleReplan() {
 
   if (replanBtn) replanBtn.disabled = true;
 
-  // Close FAB panel and show inline calendar overlay
+  // Close FAB panel and keep the current calendar visible while replanning
   closeFabPanel();
-
-  const replanOverlay = document.getElementById('replan-loading-overlay');
-  const replanBar = document.getElementById('replan-progress-bar');
-  const replanLabel = document.getElementById('replan-progress-label');
-  if (replanOverlay) replanOverlay.style.display = '';
-
-  // Animate progress bar inline
-  const replanStages = [
-    { pct: 25, dur: 1000, text: 'Reading your changes\u2026' },
-    { pct: 75, dur: 8000, text: 'Estimating tasks\u2026' },
-    { pct: 95, dur: 4000, text: 'Building new schedule\u2026' },
-  ];
-  let replanTimer = null;
-  let stageIdx = 0;
-  function runReplanStage() {
-    if (stageIdx >= replanStages.length) return;
-    const { pct, dur, text } = replanStages[stageIdx];
-    if (replanBar) { replanBar.style.transition = `width ${dur}ms ease-in-out`; replanBar.style.width = pct + '%'; }
-    if (replanLabel) replanLabel.textContent = text;
-    stageIdx++;
-    replanTimer = setTimeout(runReplanStage, dur);
-  }
-  if (replanBar) { replanBar.style.transition = 'none'; replanBar.style.width = '0%'; }
-  requestAnimationFrame(() => requestAnimationFrame(runReplanStage));
-
-  function snapReplanDone() {
-    if (replanTimer) clearTimeout(replanTimer);
-    if (replanBar) { replanBar.style.transition = 'width 0.4s ease-in-out'; replanBar.style.width = '100%'; }
-    if (replanLabel) replanLabel.textContent = 'Done!';
-  }
+  showCalendarLoading();
 
   let data;
   try {
@@ -923,7 +1021,7 @@ async function handleReplan() {
     data = await res.json();
 
     if (!res.ok || data.error) {
-      if (replanOverlay) replanOverlay.style.display = 'none';
+      removeCalendarOverlay();
       if (errBanner) {
         errBanner.textContent = data.error || 'Replanning failed. Please try again.';
         errBanner.classList.add('visible');
@@ -931,7 +1029,7 @@ async function handleReplan() {
       return;
     }
   } catch (e) {
-    if (replanOverlay) replanOverlay.style.display = 'none';
+    removeCalendarOverlay();
     if (errBanner) {
       errBanner.textContent = 'Network error. Is the server running?';
       errBanner.classList.add('visible');
@@ -941,16 +1039,13 @@ async function handleReplan() {
     if (replanBtn) replanBtn.disabled = false;
   }
 
-  snapReplanDone();
-  setTimeout(() => {
-    if (replanOverlay) replanOverlay.style.display = 'none';
-    currentSessionId = data.session_id;
-    currentPlanTime = data.current_time;
-    renderCalendar(data.plan_output.time_blocks);
-    renderSummary(data.plan_output);
-    updateSidebar(data.session_id, data.current_time, data.plan_output);
-    if (followupEl) followupEl.value = '';
-  }, 450);
+  removeCalendarOverlay();
+  currentSessionId = data.session_id;
+  currentPlanTime = data.current_time;
+  renderCalendar(data.plan_output.time_blocks);
+  renderSummary(data.plan_output);
+  updateSidebar(data.session_id, data.current_time, data.plan_output);
+  if (followupEl) followupEl.value = '';
 }
 
 // ── Load existing session on page load ────────────────────────

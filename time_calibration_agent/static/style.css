@@ -2034,23 +2034,32 @@ input[type="time"]:focus {
 }
 
 .calendar-block--short {
-  padding: 7px 12px 8px;
+  padding: 12px 14px 13px;
 }
 
 .calendar-block--short .block-time {
-  font-size: 0.62rem;
-  line-height: 1.1;
+  font-size: 0.82rem;
+  line-height: 1.2;
 }
 
 .calendar-block--short .block-task {
-  margin-top: 4px;
-  font-size: 0.82rem;
-  line-height: 1.15;
+  margin-top: 7px;
+  font-size: 1rem;
+  line-height: 1.2;
 }
 
 .calendar-block--medium {
-  padding-top: 9px;
-  padding-bottom: 10px;
+  padding-top: 12px;
+  padding-bottom: 13px;
+}
+
+.calendar-block--medium .block-time {
+  font-size: 0.8rem;
+}
+
+.calendar-block--medium .block-task {
+  margin-top: 6px;
+  font-size: 0.98rem;
 }
 
 .block-time {
@@ -2066,6 +2075,41 @@ input[type="time"]:focus {
   overflow: visible;
   text-overflow: clip;
   line-height: 1.25;
+}
+
+.block-task-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.block-task-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.block-task-row-time {
+  font-size: 0.72rem;
+  font-weight: 800;
+  opacity: 0.86;
+  white-space: nowrap;
+}
+
+.block-task-row-label {
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.calendar-block--cluster {
+  padding-top: 12px;
+  padding-bottom: 14px;
+}
+
+.calendar-block--cluster .block-time {
+  font-size: 0.8rem;
 }
 
 .calendar-block:hover {
@@ -2126,6 +2170,47 @@ input[type="time"]:focus {
 .fab-replan:hover {
   background: linear-gradient(135deg, #f4fbf7 0%, #cfe5db 100%);
   color: #173f37;
+}
+
+.btn-primary,
+.btn-secondary,
+#draft-approve-btn,
+#draft-adjust-btn,
+#replan-btn {
+  box-shadow: none;
+}
+
+.btn-primary:hover:not(:disabled),
+#draft-approve-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #225a50 0%, #428973 100%);
+  box-shadow: 0 14px 28px rgba(47, 122, 106, 0.18);
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+#draft-approve-btn:focus-visible,
+#draft-adjust-btn:focus-visible,
+#replan-btn:focus-visible,
+.btn-mic:focus-visible,
+.fab-replan:focus-visible,
+.draft-more-info summary:focus-visible {
+  outline: 2px solid rgba(47, 122, 106, 0.48);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+#draft-adjust-btn {
+  background: linear-gradient(135deg, #eef2ec 0%, #e0e6dd 100%);
+  color: #2c6557;
+}
+
+#draft-adjust-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e4ebe2 0%, #d7e0d5 100%);
+  box-shadow: 0 12px 24px rgba(47, 122, 106, 0.12);
+}
+
+#draft-approve-btn {
+  box-shadow: 0 16px 30px rgba(47, 122, 106, 0.18);
 }
 
 .fab-panel {
@@ -2209,5 +2294,18 @@ input[type="time"]:focus {
     width: 64px;
     height: 64px;
     border-radius: 22px;
+  }
+
+  .block-task-row {
+    grid-template-columns: 62px 1fr;
+    gap: 8px;
+  }
+
+  .block-task-row-time {
+    font-size: 0.68rem;
+  }
+
+  .block-task-row-label {
+    font-size: 0.92rem;
   }
 }
