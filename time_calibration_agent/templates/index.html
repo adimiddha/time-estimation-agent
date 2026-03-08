@@ -18,16 +18,29 @@
   <div id="brain-dump-screen" class="welcome-card">
     <div id="live-clock" class="live-clock"><span class="clock-its">it&rsquo;s </span><span id="live-clock-time"></span></div>
     <h2 class="welcome-heading">What do you need to do today?</h2>
-    <textarea
-      id="brain-dump"
-      class="welcome-textarea"
-      placeholder="Brain dump everything you need to do today."
-      rows="5"
-    ></textarea>
+    <div class="brain-dump-wrap">
+      <button class="btn-mic btn-mic--main" id="mic-btn" type="button" title="Tap to speak">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <textarea
+        id="brain-dump"
+        class="welcome-textarea"
+        placeholder="Brain dump everything you need to do today."
+        rows="5"
+      ></textarea>
+    </div>
+    <div class="voice-status-row" id="voice-status-row" style="display:none;">
+      <span class="voice-status" id="voice-status"></span>
+    </div>
     <button class="btn btn-primary welcome-btn" id="plan-btn">
       <span class="btn-icon">&#9654;</span> Untangle my day
     </button>
-    <p class="kbd-hint">Ctrl + Return</p>
+    <p class="kbd-hint">&#x2318; + Return</p>
     <div class="error-banner" id="error-banner"></div>
   </div>
 
@@ -115,21 +128,19 @@
         </div>
       </div>
 
-      <!-- Replan controls (shown in approved mode) -->
-      <div class="followup-section visible" id="followup-section">
-        <div class="error-banner" id="replan-error-banner"></div>
-        <div class="followup-label">Anything to adjust?</div>
-        <textarea
-          id="followup-context"
-          placeholder="e.g. Actually skip the report, add gym at 4pm."
-        ></textarea>
-        <button class="btn btn-secondary" id="replan-btn">
-          <span class="btn-icon">&#8635;</span> Replan
+      <!-- Export to Calendar (approved mode, below calendar) -->
+      <div class="export-section" id="export-section">
+        <button class="btn btn-export" id="export-cal-btn">
+          <span class="btn-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </span> Export to Calendar
         </button>
-        <button class="btn btn-fresh" id="start-fresh-btn">
-          <span class="btn-icon">✦</span> Start fresh today
-        </button>
-      </div><!-- /followup-section -->
+      </div><!-- /export-section -->
 
     </div><!-- /calendar-column -->
 
@@ -171,11 +182,24 @@
           <!-- OR divider -->
           <div class="draft-or">OR</div>
 
-          <!-- Adjust textarea -->
-          <textarea
-            id="draft-adjust-input"
-            placeholder="What feels off? e.g. Move gym earlier, drop the report."
-          ></textarea>
+          <!-- Adjust textarea + mic -->
+          <div class="draft-textarea-wrap">
+            <button class="btn-mic btn-mic--draft" id="mic-btn-draft" type="button" title="Tap to speak">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </button>
+            <textarea
+              id="draft-adjust-input"
+              placeholder="What feels off? e.g. Move gym earlier, drop the report."
+            ></textarea>
+          </div>
+          <div class="voice-status-row" id="voice-status-row-draft" style="display:none;">
+            <span class="voice-status" id="voice-status-draft"></span>
+          </div>
 
           <!-- Adjust button -->
           <button class="btn btn-secondary" id="draft-adjust-btn">
@@ -190,6 +214,51 @@
 
     </aside><!-- /sidebar -->
   </div><!-- /app-body -->
+
+  <!-- ── Floating Replan Button (approved mode only) ── -->
+  <button class="fab-replan" id="fab-replan-btn" style="display:none;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"></polyline>
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+    </svg>
+    Replan
+  </button>
+
+  <!-- FAB backdrop -->
+  <div class="fab-backdrop" id="fab-backdrop"></div>
+
+  <!-- FAB slide-up panel -->
+  <div class="fab-panel" id="fab-panel">
+    <div class="fab-panel-header">
+      <div class="fab-panel-title">Change of plans?</div>
+      <button class="fab-panel-close" id="fab-panel-close" type="button">&#x2715;</button>
+    </div>
+    <div class="replan-textarea-wrap">
+      <button class="btn-mic btn-mic--replan" id="mic-btn-replan" type="button" title="Tap to speak">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <textarea
+        id="followup-context"
+        placeholder="e.g. Actually skip the report, add gym at 4pm."
+      ></textarea>
+    </div>
+    <div class="voice-status-row" id="voice-status-row-replan" style="display:none;">
+      <span class="voice-status" id="voice-status-replan"></span>
+    </div>
+    <div class="error-banner" id="replan-error-banner"></div>
+    <button class="btn btn-secondary" id="replan-btn">
+      <span class="btn-icon">&#8635;</span> Replan
+    </button>
+    <button class="btn btn-fresh" id="start-fresh-btn">
+      <span class="btn-icon">&#x2736;</span> Start fresh today
+    </button>
+  </div><!-- /fab-panel -->
+
 </div><!-- /app-shell -->
 
 <script src="/static/app.js"></script>

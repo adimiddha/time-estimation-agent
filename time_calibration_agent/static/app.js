@@ -1,10 +1,10 @@
 'use strict';
 
 // ── Constants ──────────────────────────────────────────────────
-const PIXELS_PER_HOUR = 120;
-const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
-const MIN_BLOCK_HEIGHT = 48;   // was 20 — enough for time + task label + padding
-const COMPACT_THRESHOLD_PX = 0; // was 40 — disable compact mode; all blocks show both labels
+const PIXELS_PER_HOUR = 240;
+const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;  // 4px per minute
+const MIN_BLOCK_HEIGHT = 40;   // 10-min block = 40px naturally; no expansion needed
+const COMPACT_THRESHOLD_PX = 0; // all blocks show full content
 
 // ── Debug Static Data (computed at call time so blocks start from now) ─
 function makeDebugPlanData() {
@@ -198,10 +198,9 @@ function enterDraftMode() {
   if (shell) shell.classList.add('draft-mode');
   const draftSection = document.getElementById('draft-section');
   if (draftSection) draftSection.style.display = '';
-  // Hide right-now section in draft mode (CSS also handles this, belt+suspenders)
   const rightNow = document.getElementById('right-now-section');
   if (rightNow) rightNow.classList.remove('visible');
-  // Attach scroll listener after DOM settles
+  hideFab();
   requestAnimationFrame(initDraftScrollVisibility);
 }
 
@@ -211,15 +210,13 @@ function exitDraftMode() {
   if (shell) shell.classList.remove('draft-mode');
   const draftSection = document.getElementById('draft-section');
   if (draftSection) draftSection.style.display = 'none';
-  // Restore right-now section
   const rightNow = document.getElementById('right-now-section');
   if (rightNow) rightNow.classList.add('visible');
-  // Clear draft input
   const draftInput = document.getElementById('draft-adjust-input');
   if (draftInput) draftInput.value = '';
-  // Reset scroll-reveal state so next draft starts hidden
   const scrollArea = document.querySelector('.draft-scroll-area');
   if (scrollArea) scrollArea.classList.remove('revealed');
+  showFab();
 }
 
 function showDraftScreen(data) {
@@ -702,6 +699,7 @@ async function runPlanCall(context, sessionEndTime) {
         mode: 'new',
         current_time: currentTimeHHMM || nowHHMM(),
         session_end_time: sessionEndTime,
+        date_override: todayStr(),
       }),
     });
     data = await res.json();
@@ -833,7 +831,9 @@ async function handleReplan() {
 
   if (replanBtn) replanBtn.disabled = true;
 
-  // Show inline overlay over calendar+summary; header and sidebar remain visible
+  // Close FAB panel and show inline calendar overlay
+  closeFabPanel();
+
   const replanOverlay = document.getElementById('replan-loading-overlay');
   const replanBar = document.getElementById('replan-progress-bar');
   const replanLabel = document.getElementById('replan-progress-label');
@@ -929,6 +929,7 @@ async function loadSession() {
         renderCalendar(data.plan_output.time_blocks);
         renderSummary(data.plan_output);
         updateSidebar(data.session_id, data.current_time, data.plan_output);
+        showFab();
       }
     }
     // If no session, overlay stays visible
@@ -944,6 +945,142 @@ function escHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+// ── Voice Recording ────────────────────────────────────────────
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+// Tracks which mic session is active
+let activeMicCfg = null; // { btnId, textareaId, statusRowId, statusId, errorBannerId }
+
+function _setMicRecording(cfg, recording) {
+  const btn = document.getElementById(cfg.btnId);
+  const statusRow = document.getElementById(cfg.statusRowId);
+  const status = document.getElementById(cfg.statusId);
+  if (btn) btn.classList.toggle('recording', recording);
+  if (statusRow) statusRow.style.display = recording ? '' : 'none';
+  if (status) status.textContent = recording ? 'Recording\u2026 tap to stop' : '';
+}
+
+async function startRecording(cfg) {
+  clearError(cfg.errorBannerId);
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    activeMicCfg = cfg;
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      await transcribeAudio(cfg);
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    _setMicRecording(cfg, true);
+  } catch (e) {
+    showError(cfg.errorBannerId, 'Microphone access denied. Check browser permissions.');
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    isRecording = false;
+    if (activeMicCfg) _setMicRecording(activeMicCfg, false);
+  }
+}
+
+async function transcribeAudio(cfg) {
+  const statusRow = document.getElementById(cfg.statusRowId);
+  const status = document.getElementById(cfg.statusId);
+  const micBtn = document.getElementById(cfg.btnId);
+  if (statusRow) statusRow.style.display = '';
+  if (status) status.textContent = 'Transcribing\u2026';
+  if (micBtn) micBtn.disabled = true;
+
+  const blob = new Blob(audioChunks, { type: 'audio/webm' });
+  const formData = new FormData();
+  formData.append('audio', blob, 'recording.webm');
+
+  try {
+    const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.error) {
+      showError(cfg.errorBannerId, data.error);
+    } else if (data.text) {
+      const textarea = document.getElementById(cfg.textareaId);
+      if (textarea) {
+        const existing = textarea.value.trim();
+        textarea.value = existing ? existing + ' ' + data.text : data.text;
+        textarea.focus();
+      }
+    }
+  } catch (e) {
+    showError(cfg.errorBannerId, 'Transcription failed. Please try again.');
+  } finally {
+    if (statusRow) statusRow.style.display = 'none';
+    if (status) status.textContent = '';
+    if (micBtn) micBtn.disabled = false;
+    activeMicCfg = null;
+  }
+}
+
+// Mic configurations per context
+const MIC_BRAIN_DUMP = {
+  btnId: 'mic-btn',
+  textareaId: 'brain-dump',
+  statusRowId: 'voice-status-row',
+  statusId: 'voice-status',
+  errorBannerId: 'error-banner',
+};
+const MIC_REPLAN = {
+  btnId: 'mic-btn-replan',
+  textareaId: 'followup-context',
+  statusRowId: 'voice-status-row-replan',
+  statusId: 'voice-status-replan',
+  errorBannerId: 'replan-error-banner',
+};
+const MIC_DRAFT = {
+  btnId: 'mic-btn-draft',
+  textareaId: 'draft-adjust-input',
+  statusRowId: 'voice-status-row-draft',
+  statusId: 'voice-status-draft',
+  errorBannerId: 'draft-error-banner',
+};
+
+// ── FAB (Replan) ───────────────────────────────────────────────
+function openFabPanel() {
+  const backdrop = document.getElementById('fab-backdrop');
+  const panel = document.getElementById('fab-panel');
+  if (backdrop) backdrop.classList.add('open');
+  if (panel) panel.classList.add('open');
+  const textarea = document.getElementById('followup-context');
+  if (textarea) setTimeout(() => textarea.focus(), 300);
+}
+
+function closeFabPanel() {
+  const backdrop = document.getElementById('fab-backdrop');
+  const panel = document.getElementById('fab-panel');
+  if (backdrop) backdrop.classList.remove('open');
+  if (panel) panel.classList.remove('open');
+  clearError('replan-error-banner');
+}
+
+function showFab() {
+  const btn = document.getElementById('fab-replan-btn');
+  if (btn) btn.style.display = '';
+}
+
+function hideFab() {
+  const btn = document.getElementById('fab-replan-btn');
+  if (btn) btn.style.display = 'none';
+  closeFabPanel();
+}
+
+// ── Calendar Export ────────────────────────────────────────────
+function exportCalendar() {
+  window.open('/api/export-ics', '_blank');
 }
 
 // ── Init ───────────────────────────────────────────────────────
@@ -1013,11 +1150,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const draftApproveBtn = document.getElementById('draft-approve-btn');
   if (draftApproveBtn) draftApproveBtn.addEventListener('click', submitApprove);
 
-  // Replan button
+  // Replan button (in FAB panel)
   const replanBtn = document.getElementById('replan-btn');
   if (replanBtn) replanBtn.addEventListener('click', handleReplan);
 
-  // Ctrl/Cmd+Enter in replan textarea
+  // Mic button — brain dump screen
+  const micBtn = document.getElementById('mic-btn');
+  if (micBtn) {
+    micBtn.addEventListener('click', () => {
+      if (isRecording) stopRecording();
+      else startRecording(MIC_BRAIN_DUMP);
+    });
+  }
+
+  // Mic button — replan textarea (in FAB panel)
+  const micBtnReplan = document.getElementById('mic-btn-replan');
+  if (micBtnReplan) {
+    micBtnReplan.addEventListener('click', () => {
+      if (isRecording) stopRecording();
+      else startRecording(MIC_REPLAN);
+    });
+  }
+
+  // Mic button — draft adjust textarea
+  const micBtnDraft = document.getElementById('mic-btn-draft');
+  if (micBtnDraft) {
+    micBtnDraft.addEventListener('click', () => {
+      if (isRecording) stopRecording();
+      else startRecording(MIC_DRAFT);
+    });
+  }
+
+  // FAB open/close
+  const fabBtn = document.getElementById('fab-replan-btn');
+  if (fabBtn) fabBtn.addEventListener('click', openFabPanel);
+
+  const fabClose = document.getElementById('fab-panel-close');
+  if (fabClose) fabClose.addEventListener('click', closeFabPanel);
+
+  const fabBackdrop = document.getElementById('fab-backdrop');
+  if (fabBackdrop) fabBackdrop.addEventListener('click', closeFabPanel);
+
+  // Cmd/Ctrl+Enter inside FAB panel textarea
   const followupContext = document.getElementById('followup-context');
   if (followupContext) {
     followupContext.addEventListener('keydown', e => {
@@ -1027,6 +1201,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Export to Calendar button
+  const exportCalBtn = document.getElementById('export-cal-btn');
+  if (exportCalBtn) exportCalBtn.addEventListener('click', exportCalendar);
 
   // Start fresh button
   const freshBtn = document.getElementById('start-fresh-btn');

@@ -2,12 +2,14 @@
 Minimal Flask web app for replanning.
 """
 
+import io
 import os
 import secrets
 from datetime import datetime
 from typing import Dict, Optional
 
-from flask import Flask, render_template, request, jsonify
+import openai
+from flask import Flask, render_template, request, jsonify, Response
 from flask import session as flask_session
 
 from time_calibration_agent.replanner import ReplanningAgent
@@ -224,6 +226,84 @@ def create_app() -> Flask:
         if "error" in result:
             return jsonify(result), 400
         return jsonify(result)
+
+    @app.route("/api/transcribe", methods=["POST"])
+    def api_transcribe():
+        if "audio" not in request.files:
+            return jsonify({"error": "No audio file provided."}), 400
+        audio_file = request.files["audio"]
+        audio_bytes = audio_file.read()
+        if not audio_bytes:
+            return jsonify({"error": "Empty audio file."}), 400
+        try:
+            client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            audio_obj = io.BytesIO(audio_bytes)
+            audio_obj.name = "recording.webm"
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_obj,
+            )
+            return jsonify({"text": transcript.text})
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"error": f"Transcription failed: {e}"}), 500
+
+    @app.route("/api/export-ics", methods=["GET"])
+    def api_export_ics():
+        session_store = DaySessionStore(root_dir=_user_sessions_dir())
+        session_id = session_store.load_last_session_id()
+        if not session_id:
+            return jsonify({"error": "No active session."}), 404
+        session = session_store.load_session(session_id)
+        if not session or not session.get("replans"):
+            return jsonify({"error": "No plan found."}), 404
+
+        last_replan = session["replans"][-1]
+        plan_output = last_replan.get("plan_output", {})
+        time_blocks = plan_output.get("time_blocks", [])
+
+        date_str = session_id.split("__")[0]  # e.g. "2026-03-07"
+        try:
+            year, month, day = [int(x) for x in date_str.split("-")]
+        except ValueError:
+            return jsonify({"error": "Invalid session date."}), 400
+
+        lines = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//Untangle//Time Planner//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+        ]
+
+        for idx, block in enumerate(time_blocks):
+            try:
+                sh, sm = [int(x) for x in block["start"].split(":")]
+                eh, em = [int(x) for x in block["end"].split(":")]
+            except (KeyError, ValueError):
+                continue
+            dtstart = f"{year:04d}{month:02d}{day:02d}T{sh:02d}{sm:02d}00"
+            dtend   = f"{year:04d}{month:02d}{day:02d}T{eh:02d}{em:02d}00"
+            uid = f"{session_id}-block{idx}@untangle"
+            task_name = block.get("task", "Task").replace("\r", "").replace("\n", "\\n")
+            lines += [
+                "BEGIN:VEVENT",
+                f"UID:{uid}",
+                f"DTSTART:{dtstart}",
+                f"DTEND:{dtend}",
+                f"SUMMARY:{task_name}",
+                "END:VEVENT",
+            ]
+
+        lines.append("END:VCALENDAR")
+        ics_content = "\r\n".join(lines) + "\r\n"
+
+        return Response(
+            ics_content,
+            mimetype="text/calendar",
+            headers={"Content-Disposition": f'attachment; filename="untangle-{date_str}.ics"'},
+        )
 
     return app
 
