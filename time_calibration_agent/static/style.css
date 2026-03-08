@@ -314,6 +314,42 @@ body::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   font-size: 0.72rem;
 }
 
+/* ── Micro blocks (very short tasks rendered as compact pills) ── */
+.calendar-block--micro {
+  padding: 0 10px;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.block-micro-inner {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.block-micro-time {
+  font-size: 0.6rem;
+  font-weight: 600;
+  opacity: 0.78;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.block-micro-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-block--micro:hover {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .calendar-block:hover {
   z-index: 50;
   overflow: visible;
@@ -2110,6 +2146,13 @@ input[type="time"]:focus {
     filter var(--dur-fast) var(--ease-smooth);
 }
 
+.calendar-block--micro {
+  border-radius: 10px;
+  padding: 0 12px;
+  box-shadow: 0 4px 10px rgba(35, 49, 45, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  opacity: 0.9;
+}
+
 .calendar-block--current {
   background: linear-gradient(135deg, #2f7a6a 0%, #77b79e 100%);
   color: #f7fffc;
@@ -2271,18 +2314,18 @@ input[type="time"]:focus {
   padding: 17px 28px;
   font-size: 1.08rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #2db57b 0%, #62d1aa 100%);
+  background: linear-gradient(135deg, #c8693a 0%, #d9835a 100%);
   color: #fff;
-  border: none;
-  box-shadow: 0 8px 24px rgba(45, 181, 123, 0.32);
+  border: 2.5px solid #8b4320;
+  box-shadow: 0 8px 24px rgba(168, 80, 40, 0.32);
   animation: fab-nudge 10s ease-in-out infinite;
   animation-delay: 5s;
 }
 
 .fab-replan:hover {
-  background: linear-gradient(135deg, #25a06c 0%, #52c29b 100%);
+  background: linear-gradient(135deg, #b55c30 0%, #c97248 100%);
   color: #fff;
-  box-shadow: 0 12px 28px rgba(45, 181, 123, 0.42);
+  box-shadow: 0 12px 28px rgba(168, 80, 40, 0.42);
   animation-play-state: paused;
 }
 
@@ -2329,7 +2372,18 @@ input[type="time"]:focus {
 
 .fab-panel {
   max-width: 760px;
-  padding: 24px 28px 38px;
+  padding: 14px 32px 42px;
+  border-top: 2.5px solid rgba(47, 122, 106, 0.55);
+  box-shadow: 0 -12px 48px rgba(45, 42, 38, 0.22), 0 -2px 0 rgba(47, 122, 106, 0.10);
+}
+
+.fab-handle {
+  width: 38px;
+  height: 4px;
+  background: rgba(47, 122, 106, 0.28);
+  border-radius: 999px;
+  margin: 0 auto 10px;
+  flex-shrink: 0;
 }
 
 .fab-panel-title {

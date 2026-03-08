@@ -4,6 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Untangle</title>
+  <!-- PWA / home screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Untangle" />
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png" />
+  <link rel="manifest" href="/static/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -234,6 +240,7 @@
 
   <!-- FAB slide-up panel -->
   <div class="fab-panel" id="fab-panel">
+    <div class="fab-handle" aria-hidden="true"></div>
     <div class="fab-panel-header">
       <div class="fab-panel-title">Change of plans?</div>
       <button class="fab-panel-close" id="fab-panel-close" type="button">&#x2715;</button>

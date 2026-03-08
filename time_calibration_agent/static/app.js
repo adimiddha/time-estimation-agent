@@ -5,6 +5,9 @@ const BASE_MIN_BLOCK_HEIGHT = 52;
 const COMPACT_THRESHOLD_PX = 0; // all blocks show full content
 const MICRO_TASK_MAX_MINUTES = 10;
 const MICRO_CLUSTER_MAX_SPAN_MINUTES = 24;
+// Blocks shorter than this render as compact pills (no minBlockHeight inflation)
+const MICRO_BLOCK_MINUTES = 8;
+const MICRO_BLOCK_HEIGHT = 26; // px — keeps label legible without cascade push
 
 // ── Debug Static Data (computed at call time so blocks start from now) ─
 function makeDebugPlanData() {
@@ -591,8 +594,14 @@ function renderCalendar(timeBlocks) {
     const absoluteStartMin = timeToMinutes(block.start);
     const absoluteEndMin = timeToMinutes(block.end);
 
+    // Micro blocks (very short) use a compact height to avoid cascade push-down
+    const isMicro = durationMin > 0 && durationMin <= MICRO_BLOCK_MINUTES;
+    const effectiveMinHeight = isMicro
+      ? Math.max(MICRO_BLOCK_HEIGHT, durationMin * layout.pixelsPerMinute)
+      : layout.minBlockHeight;
+
     const naturalTop = startMin * layout.pixelsPerMinute;
-    const naturalHeight = Math.max(layout.minBlockHeight, durationMin * layout.pixelsPerMinute);
+    const naturalHeight = Math.max(effectiveMinHeight, durationMin * layout.pixelsPerMinute);
     const blockEndTop = endMin * layout.pixelsPerMinute;
     const top = Math.max(naturalTop, stickyBottom);
     let height = naturalHeight;
@@ -600,15 +609,17 @@ function renderCalendar(timeBlocks) {
       // Preserve chronological order, but never let a block render past its true end.
       height = Math.max(durationMin * layout.pixelsPerMinute, blockEndTop - top);
     }
-    stickyBottom = top + height + 4;
+    // Micro blocks use a tighter gap to minimize cascade
+    stickyBottom = top + height + (isMicro ? 2 : 4);
     visualBottom = Math.max(visualBottom, top + height);
     const kind = block.kind || 'task';
 
     const isCompact = height < COMPACT_THRESHOLD_PX;
     const div = document.createElement('div');
     div.className = `calendar-block calendar-block--${kind}${isCompact ? ' calendar-block--compact' : ''}`;
-    if (height <= 58) div.classList.add('calendar-block--short');
-    if (height <= 84) div.classList.add('calendar-block--medium');
+    if (isMicro) div.classList.add('calendar-block--micro');
+    if (!isMicro && height <= 58) div.classList.add('calendar-block--short');
+    if (!isMicro && height <= 84) div.classList.add('calendar-block--medium');
     if (block.is_cluster) div.classList.add('calendar-block--cluster');
     if (now >= absoluteStartMin && now < absoluteEndMin) {
       div.classList.add('calendar-block--current');
@@ -623,7 +634,16 @@ function renderCalendar(timeBlocks) {
     const timeLabel = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}`;
     div.style.animationDelay = `${idx * 0.055}s`;
     const lockIcon = kind === 'fixed' ? '<span class="block-lock">&#128274;</span>' : '';
-    if (block.is_cluster && block.cluster_tasks && block.cluster_tasks.length) {
+
+    if (isMicro) {
+      // Compact single-line layout for tiny blocks
+      div.innerHTML = `
+        <div class="block-micro-inner">
+          <span class="block-micro-time">${escHtml(fmt12(absoluteStartMin))}</span>
+          <span class="block-micro-label">${lockIcon}${escHtml(block.task)}</span>
+        </div>
+      `;
+    } else if (block.is_cluster && block.cluster_tasks && block.cluster_tasks.length) {
       div.innerHTML = `
         <div class="block-time">${escHtml(timeLabel)}</div>
         <div class="block-task-list">
