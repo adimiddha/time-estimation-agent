@@ -3,6 +3,7 @@ Minimal Flask web app for replanning.
 """
 
 import io
+import json
 import os
 import secrets
 from datetime import datetime
@@ -17,6 +18,23 @@ from time_calibration_agent.session_store import DaySessionStore
 
 
 BASE_SESSIONS_DIR = os.getenv("SESSIONS_DIR", "day_sessions")
+STATS_FILE = os.path.join(BASE_SESSIONS_DIR, ".stats.json")
+
+
+def _read_stats() -> Dict:
+    try:
+        with open(STATS_FILE) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"plans_created": 0, "replans": 0}
+
+
+def _increment_stat(key: str) -> None:
+    stats = _read_stats()
+    stats[key] = stats.get(key, 0) + 1
+    os.makedirs(BASE_SESSIONS_DIR, exist_ok=True)
+    with open(STATS_FILE, "w") as f:
+        json.dump(stats, f)
 
 
 def _user_sessions_dir() -> str:
@@ -225,6 +243,10 @@ def create_app() -> Flask:
             return jsonify({"error": f"Server error: {e}"}), 500
         if "error" in result:
             return jsonify(result), 400
+        if mode == "replan":
+            _increment_stat("replans")
+        else:
+            _increment_stat("plans_created")
         return jsonify(result)
 
     @app.route("/api/transcribe", methods=["POST"])
@@ -304,6 +326,10 @@ def create_app() -> Flask:
             mimetype="text/calendar",
             headers={"Content-Disposition": f'attachment; filename="untangle-{date_str}.ics"'},
         )
+
+    @app.route("/api/stats", methods=["GET"])
+    def api_stats():
+        return jsonify(_read_stats())
 
     return app
 

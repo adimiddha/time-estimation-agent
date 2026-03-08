@@ -942,6 +942,11 @@ function updateSidebar(sessionId, currentTime, planOutput) {
   }
 }
 
+// ── Analytics ─────────────────────────────────────────────────
+function track(event, params = {}) {
+  if (typeof gtag === 'function') gtag('event', event, params);
+}
+
 // ── Error display helpers ──────────────────────────────────────
 function showError(bannerId, msg) {
   const el = document.getElementById(bannerId);
@@ -949,6 +954,7 @@ function showError(bannerId, msg) {
     el.textContent = msg;
     el.classList.add('visible');
   }
+  track('error_occurred', { error_message: msg, banner_id: bannerId });
 }
 
 function clearError(bannerId) {
@@ -1128,6 +1134,7 @@ async function runPlanCall(context, sessionEndTime) {
   }
 
   snapDone();
+  track('plan_created');
 
   setTimeout(() => {
     showDraftScreen(data);
@@ -1221,6 +1228,7 @@ async function submitApprove() {
     if (adjustBtn) adjustBtn.disabled = false;
   }
 
+  track('plan_approved');
   exitDraftMode();
 }
 
@@ -1278,6 +1286,7 @@ async function handleReplan() {
     if (replanBtn) replanBtn.disabled = false;
   }
 
+  track('replan_triggered');
   removeCalendarOverlay();
   currentSessionId = data.session_id;
   currentPlanTime = data.current_time;
@@ -1311,9 +1320,12 @@ async function loadSession() {
         showFab();
       }
     }
-    // If no session, overlay stays visible
+    if (!data.plan_output || !data.plan_output.time_blocks || !data.plan_output.time_blocks.length) {
+      track('welcome_screen_shown');
+    }
   } catch (e) {
     // No session — overlay stays visible
+    track('welcome_screen_shown');
   }
 }
 
@@ -1388,6 +1400,7 @@ async function transcribeAudio(cfg) {
     if (data.error) {
       showError(cfg.errorBannerId, data.error);
     } else if (data.text) {
+      track('voice_used');
       const textarea = document.getElementById(cfg.textareaId);
       if (textarea) {
         const existing = textarea.value.trim();
@@ -1459,6 +1472,7 @@ function hideFab() {
 
 // ── Calendar Export ────────────────────────────────────────────
 function exportCalendar() {
+  track('export_ics');
   window.open('/api/export-ics', '_blank');
 }
 
