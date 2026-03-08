@@ -353,9 +353,10 @@ function renderCalendar(timeBlocks) {
 
     const timeLabel = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}`;
     div.style.animationDelay = `${idx * 0.055}s`;
+    const lockIcon = kind === 'fixed' ? '<span class="block-lock">&#128274;</span>' : '';
     div.innerHTML = `
       <div class="block-time">${escHtml(timeLabel)}</div>
-      <div class="block-task">${escHtml(block.task)}</div>
+      <div class="block-task">${lockIcon}${escHtml(block.task)}</div>
     `;
     eventsEl.appendChild(div);
   });

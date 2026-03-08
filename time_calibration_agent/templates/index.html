@@ -139,26 +139,7 @@
       <!-- Draft section (shown before approve) -->
       <div class="draft-section" id="draft-section" style="display:none;">
 
-        <!-- Scrollable area: dropped, rationale -->
-        <div class="draft-scroll-area">
-
-          <!-- Dropped / deferred (collapsible) -->
-          <details class="draft-details">
-            <summary>&#10008; Dropped / deferred</summary>
-            <div id="draft-dropped">
-              <span class="empty-note">Nothing dropped.</span>
-            </div>
-          </details>
-
-          <!-- Rationale (collapsible) -->
-          <details class="draft-details">
-            <summary>Rationale</summary>
-            <p class="empty-note" id="draft-rationale">Generating&hellip;</p>
-          </details>
-
-        </div><!-- /draft-scroll-area -->
-
-        <!-- Action bar: locked to bottom -->
+        <!-- Action bar -->
         <div class="draft-action-bar">
 
           <!-- Draft header -->
@@ -166,6 +147,21 @@
             <span class="draft-badge">DRAFT</span>
             <span class="draft-hint-text">Here&rsquo;s a first pass &mdash; does this feel right?</span>
           </div>
+
+          <!-- More information collapsible (dropped + rationale) -->
+          <details class="draft-more-info">
+            <summary>More information</summary>
+            <div class="draft-more-info-content">
+              <div class="draft-more-info-section">
+                <div class="draft-more-info-label">&#10008; Dropped / deferred</div>
+                <div id="draft-dropped"><span class="empty-note">Nothing dropped.</span></div>
+              </div>
+              <div class="draft-more-info-section">
+                <div class="draft-more-info-label">Rationale</div>
+                <p class="empty-note" id="draft-rationale">Generating&hellip;</p>
+              </div>
+            </div>
+          </details>
 
           <!-- Approve -->
           <button class="btn btn-primary" id="draft-approve-btn">

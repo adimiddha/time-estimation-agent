@@ -40,21 +40,29 @@ class ReplanningAgent:
             f"You are a minimal time-parsing assistant.\n\n"
             f"Current time: {current_time}\n\n"
             f"User input:\n{raw_text}\n\n"
-            f"Your ONLY job: determine if the user has mentioned when they want to be done today "
-            f"(a session end time).\n\n"
+            f"Your ONLY job: determine if the user has a hard end-of-day time after which they have\n"
+            f"NO MORE activities scheduled.\n\n"
+            f"CRITICAL RULE: If the user says 'work until Xpm' or 'done by Xpm' but ALSO mentions\n"
+            f"specific activities or events AFTER that time (e.g. watching something, a race, calling\n"
+            f"someone, booking something, eating dinner, any leisure), the session continues past that\n"
+            f"time. In that case set session_end_time to null — the planner will handle the fixed events.\n\n"
             f"Examples:\n"
-            f'- "done by 7pm" → session_end_time: "19:00"\n'
-            f'- "finish by 5:30" → session_end_time: "17:30"\n'
-            f'- "wrap up at noon" → session_end_time: "12:00"\n'
-            f'- "done by 5" (current time is {current_time}) → if after noon, "5" = 17:00\n'
+            f'- "done by 7pm" (nothing after 7pm mentioned) → session_end_time: "19:00"\n'
+            f'- "finish by 5:30, then dinner at 7" → session_end_time: null (dinner is after 5:30)\n'
+            f'- "work until 8pm, F1 race at 8, book ticket at 9:30, call parents at 10" → session_end_time: null\n'
+            f'- "wrap up at noon" (nothing later) → session_end_time: "12:00"\n'
+            f'- "done by 5" (current time is {current_time}, nothing after) → if after noon, "5" = 17:00\n'
             f'- "whenever" / "no rush" / "flexible" → no end time, no follow-up needed\n'
             f"- No mention at all → ask the user\n\n"
             f"Return JSON with exactly these fields:\n"
             f'{{"session_end_time": "HH:MM or null", "follow_up_question": "string or null", '
             f'"follow_up_type": "end_time or ordering or null"}}\n\n'
             f"Rules:\n"
-            f"- End time found: set session_end_time to HH:MM, follow_up_question to "
-            f'"Anything locked to a specific time, or that needs to happen before something else?", '
+            f"- End time found (and no activities after it): set session_end_time to HH:MM, "
+            f'follow_up_question to "Anything locked to a specific time, or that needs to happen before something else?", '
+            f'follow_up_type to "ordering".\n'
+            f"- Activities mentioned after stated end time: session_end_time null, "
+            f'follow_up_question to "Anything locked to a specific time, or that needs to happen before something else?", '
             f'follow_up_type to "ordering".\n'
             f'- "whenever"/flexible: set all three fields to null (no follow-up).\n'
             f"- No end time mentioned: set session_end_time to null, follow_up_question to "
