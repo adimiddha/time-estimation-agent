@@ -1,9 +1,9 @@
 'use strict';
 
 // ── Constants ──────────────────────────────────────────────────
-const PIXELS_PER_HOUR = 240;
-const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;  // 4px per minute
-const MIN_BLOCK_HEIGHT = 40;   // 10-min block = 40px naturally; no expansion needed
+const PIXELS_PER_HOUR = 480;
+const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;  // 8px per minute
+const MIN_BLOCK_HEIGHT = 36;
 const COMPACT_THRESHOLD_PX = 0; // all blocks show full content
 
 // ── Debug Static Data (computed at call time so blocks start from now) ─
@@ -274,7 +274,11 @@ function updateRightNow() {
     active = upcoming[0] || null;
   }
 
-  if (!active || !active.steps || !active.steps.length) return;
+  if (!active) {
+    return;
+  }
+
+  if (!active.steps || !active.steps.length) return;
 
   nextEl.innerHTML = '<ul>' + active.steps.map(s => `<li>${escHtml(s)}</li>`).join('') + '</ul>';
 }
@@ -321,32 +325,44 @@ function renderCalendar(timeBlocks) {
     // Always label every hour including the end hour
     const label = document.createElement('div');
     label.className = 'hour-label';
+    if (h === 24) label.classList.add('hour-label--midnight');
     label.style.top = topPx + 'px';
     label.textContent = fmt12(h * 60);
     axisEl.appendChild(label);
   }
 
   const sorted = [...timeBlocks].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+  const now = nowMinutes();
   let stickyBottom = 0;
   let visualBottom = 0;
   sorted.forEach((block, idx) => {
     const startMin = timeToMinutes(block.start) - rangeStartMin;
     const endMin = timeToMinutes(block.end) - rangeStartMin;
     const durationMin = Math.max(0, endMin - startMin);
+    const absoluteStartMin = timeToMinutes(block.start);
+    const absoluteEndMin = timeToMinutes(block.end);
 
     const naturalTop = startMin * PIXELS_PER_MINUTE;
     const top = Math.max(naturalTop, stickyBottom);
     const height = Math.max(MIN_BLOCK_HEIGHT, durationMin * PIXELS_PER_MINUTE);
-    stickyBottom = top + height;
+    stickyBottom = top + height + 4;
     visualBottom = Math.max(visualBottom, top + height);
     const kind = block.kind || 'task';
 
     const isCompact = height < COMPACT_THRESHOLD_PX;
     const div = document.createElement('div');
     div.className = `calendar-block calendar-block--${kind}${isCompact ? ' calendar-block--compact' : ''}`;
+    if (height <= 58) div.classList.add('calendar-block--short');
+    if (height <= 84) div.classList.add('calendar-block--medium');
+    if (now >= absoluteStartMin && now < absoluteEndMin) {
+      div.classList.add('calendar-block--current');
+    } else if (absoluteStartMin > now) {
+      div.classList.add('calendar-block--upcoming');
+    } else {
+      div.classList.add('calendar-block--past');
+    }
     div.style.top = top + 'px';
     div.style.height = height + 'px';
-    div.title = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}: ${block.task}`;
 
     const timeLabel = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}`;
     div.style.animationDelay = `${idx * 0.055}s`;
@@ -369,10 +385,39 @@ function renderCalendar(timeBlocks) {
   if (scrollEl) {
     const now = nowMinutes();
     if (now >= rangeStartMin && now <= rangeStartMin + totalMinutes) {
-      const nowTop = (now - rangeStartMin) * PIXELS_PER_MINUTE;
-      scrollEl.scrollTop = Math.max(0, nowTop - 80);
+      const viewportHeight = scrollEl.clientHeight || 0;
+      const activeBlock = sorted.find(block => {
+        const start = timeToMinutes(block.start);
+        const end = timeToMinutes(block.end);
+        return now >= start && now < end;
+      });
+      const anchorMinutes = activeBlock
+        ? Math.max(0, timeToMinutes(activeBlock.start) - rangeStartMin)
+        : Math.max(0, now - rangeStartMin);
+      const anchorTop = anchorMinutes * PIXELS_PER_MINUTE;
+      const preferredOffset = 12;
+      const maxScrollTop = Math.max(0, totalHeight - viewportHeight);
+      const minScrollTop = Math.min(maxScrollTop, Math.max(0, anchorTop - preferredOffset));
+      scrollEl.dataset.minScrollTop = String(minScrollTop);
+      scrollEl.scrollTop = minScrollTop;
+    } else {
+      scrollEl.dataset.minScrollTop = '0';
     }
   }
+}
+
+function initCalendarScrollClamp() {
+  const scrollEl = document.getElementById('calendar-scroll');
+  if (!scrollEl || scrollEl.dataset.clampBound === 'true') return;
+
+  scrollEl.addEventListener('scroll', () => {
+    const minScrollTop = parseInt(scrollEl.dataset.minScrollTop || '0', 10);
+    if (scrollEl.scrollTop < minScrollTop) {
+      scrollEl.scrollTop = minScrollTop;
+    }
+  }, { passive: true });
+
+  scrollEl.dataset.clampBound = 'true';
 }
 
 function drawNowLine(rangeStartMin, totalHeight, totalMinutes) {
@@ -1087,6 +1132,7 @@ function exportCalendar() {
 document.addEventListener('DOMContentLoaded', () => {
   initClock();
   currentTimeHHMM = nowHHMM();
+  initCalendarScrollClamp();
 
   loadSession();
 
