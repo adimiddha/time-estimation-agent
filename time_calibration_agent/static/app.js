@@ -57,6 +57,7 @@ let brainDumpText = '';       // saved between screens
 let currentFollowUpType = null;   // "end_time" | null
 let currentSessionId = null;  // active session ID
 let isDraftMode = false;       // true while phase=draft (pre-approve)
+let currentTimeBlocks = [];   // latest rendered blocks (with steps)
 
 // ── Utilities ──────────────────────────────────────────────────
 function timeToMinutes(t) {
@@ -196,9 +197,10 @@ function enterDraftMode() {
   const shell = document.getElementById('app-shell');
   if (shell) shell.classList.add('draft-mode');
   const draftSection = document.getElementById('draft-section');
-  const replanSection = document.getElementById('followup-section');
   if (draftSection) draftSection.style.display = '';
-  if (replanSection) replanSection.style.display = 'none';
+  // Hide right-now section in draft mode (CSS also handles this, belt+suspenders)
+  const rightNow = document.getElementById('right-now-section');
+  if (rightNow) rightNow.classList.remove('visible');
   // Attach scroll listener after DOM settles
   requestAnimationFrame(initDraftScrollVisibility);
 }
@@ -208,9 +210,10 @@ function exitDraftMode() {
   const shell = document.getElementById('app-shell');
   if (shell) shell.classList.remove('draft-mode');
   const draftSection = document.getElementById('draft-section');
-  const replanSection = document.getElementById('followup-section');
   if (draftSection) draftSection.style.display = 'none';
-  if (replanSection) replanSection.style.display = '';
+  // Restore right-now section
+  const rightNow = document.getElementById('right-now-section');
+  if (rightNow) rightNow.classList.add('visible');
   // Clear draft input
   const draftInput = document.getElementById('draft-adjust-input');
   if (draftInput) draftInput.value = '';
@@ -253,7 +256,34 @@ function computeRange(timeBlocks) {
   return { startHour, endHour };
 }
 
+function updateRightNow() {
+  const nextEl = document.getElementById('summary-next-actions');
+  if (!nextEl || !currentTimeBlocks.length) return;
+
+  const now = nowMinutes();
+
+  // Find the block currently in progress
+  let active = currentTimeBlocks.find(b => {
+    const s = timeToMinutes(b.start);
+    const e = timeToMinutes(b.end);
+    return now >= s && now < e;
+  });
+
+  // Fall back to the next upcoming block
+  if (!active) {
+    const upcoming = currentTimeBlocks
+      .filter(b => timeToMinutes(b.start) > now)
+      .sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+    active = upcoming[0] || null;
+  }
+
+  if (!active || !active.steps || !active.steps.length) return;
+
+  nextEl.innerHTML = '<ul>' + active.steps.map(s => `<li>${escHtml(s)}</li>`).join('') + '</ul>';
+}
+
 function renderCalendar(timeBlocks) {
+  currentTimeBlocks = timeBlocks || [];
   const eventsEl = document.getElementById('calendar-events');
   const axisEl = document.getElementById('calendar-time-axis');
 
@@ -373,6 +403,7 @@ function refreshNowLine() {
   const rangeStartMin = parseInt(eventsEl.dataset.rangeStart || '480', 10);
   const totalMinutes = parseInt(eventsEl.dataset.rangeMinutes || '600', 10);
   drawNowLine(rangeStartMin, totalHeight, totalMinutes);
+  if (!isDraftMode) updateRightNow();
 }
 
 // ── Calendar State Helpers ─────────────────────────────────────
@@ -424,8 +455,6 @@ function removeCalendarOverlay() {
 
 // ── Summary Section ────────────────────────────────────────────
 function renderSummary(planOutput) {
-  const panel = document.getElementById('summary-panel');
-
   const nextActions = planOutput.next_actions || [];
   const dropDefer = planOutput.drop_or_defer || [];
   const rationale = planOutput.rationale || '';
@@ -434,26 +463,20 @@ function renderSummary(planOutput) {
     ? '<ul>' + dropDefer.map(d => `<li>${escHtml(d)}</li>`).join('') + '</ul>'
     : '<span class="empty-note">Nothing dropped.</span>';
 
-  // Main summary panel (shown in approved mode, below calendar)
-  if (panel) {
-    const nextEl = document.getElementById('summary-next-actions');
-    const dropEl = document.getElementById('summary-dropped');
-    const rationaleEl = document.getElementById('summary-rationale');
-
-    if (nextEl) {
-      nextEl.innerHTML = nextActions.length
-        ? '<ul>' + nextActions.map(a => `<li>${escHtml(a)}</li>`).join('') + '</ul>'
-        : '<span class="empty-note">No next actions listed.</span>';
-    }
-    if (dropEl) dropEl.innerHTML = dropHtml;
-    if (rationaleEl) {
-      rationaleEl.textContent = rationale;
-      rationaleEl.closest('.summary-section').style.display = rationale ? '' : 'none';
-    }
-    panel.classList.add('visible');
+  // Right Now section (shown in approved mode)
+  const nextEl = document.getElementById('summary-next-actions');
+  const rightNow = document.getElementById('right-now-section');
+  if (nextEl) {
+    nextEl.innerHTML = nextActions.length
+      ? '<ul>' + nextActions.map(a => `<li>${escHtml(a)}</li>`).join('') + '</ul>'
+      : '<span class="empty-note">No next actions listed.</span>';
   }
+  if (rightNow) rightNow.classList.add('visible');
 
-  // Draft sidebar panel (shown in draft mode) — always populate, never hide
+  // Update Right Now to the active block's micro-steps
+  updateRightNow();
+
+  // Draft sidebar panel (shown in draft mode) — always populate
   const draftDroppedEl = document.getElementById('draft-dropped');
   const draftRationaleEl = document.getElementById('draft-rationale');
   if (draftDroppedEl) draftDroppedEl.innerHTML = dropHtml;

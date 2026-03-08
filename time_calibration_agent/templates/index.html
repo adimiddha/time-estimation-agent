@@ -78,18 +78,26 @@
     </div>
   </header>
 
-  <!-- Main body: calendar + sidebar -->
+  <!-- Main body -->
   <div class="app-body">
 
-    <!-- Left: Calendar column -->
+    <!-- Single column (becomes left column in draft mode) -->
     <div class="calendar-column">
 
-      <!-- Inline replan loading overlay (covers calendar + summary) -->
+      <!-- Inline replan loading overlay -->
       <div id="replan-loading-overlay" class="replan-loading-overlay" style="display:none;">
         <div class="spinner replan-spinner"></div>
         <div class="replan-loading-label" id="replan-progress-label">Untangling again&hellip;</div>
         <div class="replan-progress-wrap">
           <div id="replan-progress-bar" class="replan-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- ⚡ Right Now section (shown in approved mode) -->
+      <div class="right-now-section" id="right-now-section">
+        <h2 class="right-now-heading">&#9889; Right Now</h2>
+        <div id="summary-next-actions">
+          <span class="empty-note">No next actions listed.</span>
         </div>
       </div>
 
@@ -107,41 +115,31 @@
         </div>
       </div>
 
-      <!-- Summary: next actions + dropped -->
-      <div class="summary-panel" id="summary-panel">
+      <!-- Replan controls (shown in approved mode) -->
+      <div class="followup-section visible" id="followup-section">
+        <div class="error-banner" id="replan-error-banner"></div>
+        <div class="followup-label">Anything to adjust?</div>
+        <textarea
+          id="followup-context"
+          placeholder="e.g. Actually skip the report, add gym at 4pm."
+        ></textarea>
+        <button class="btn btn-secondary" id="replan-btn">
+          <span class="btn-icon">&#8635;</span> Replan
+        </button>
+        <button class="btn btn-fresh" id="start-fresh-btn">
+          <span class="btn-icon">✦</span> Start fresh today
+        </button>
+      </div><!-- /followup-section -->
 
-        <div class="summary-section">
-          <h3>&#9889; Next actions</h3>
-          <div id="summary-next-actions">
-            <span class="empty-note">No next actions listed.</span>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <h3>&#10008; Dropped / deferred</h3>
-          <div id="summary-dropped">
-            <span class="empty-note">Nothing dropped.</span>
-          </div>
-        </div>
-
-        <div class="summary-section" id="rationale-section" style="display:none;">
-          <h3>Rationale</h3>
-          <p class="empty-note" id="summary-rationale"></p>
-        </div>
-
-      </div>
     </div><!-- /calendar-column -->
 
-    <!-- Right: Sidebar -->
+    <!-- Sidebar (draft mode only) -->
     <aside class="sidebar">
-
-      <!-- Error banner -->
-      <div class="error-banner" id="replan-error-banner"></div>
 
       <!-- Draft section (shown before approve) -->
       <div class="draft-section" id="draft-section" style="display:none;">
 
-        <!-- Scrollable area: optional context (dropped, rationale) -->
+        <!-- Scrollable area: dropped, rationale -->
         <div class="draft-scroll-area">
 
           <!-- Dropped / deferred (collapsible) -->
@@ -193,34 +191,6 @@
         </div><!-- /draft-action-bar -->
 
       </div><!-- /draft-section -->
-
-      <!-- Replan section (visible once approved) -->
-      <div class="followup-section visible" id="followup-section">
-
-        <div class="followup-label">Anything to adjust?</div>
-        <textarea
-          id="followup-context"
-          placeholder="e.g. Actually skip the report, add gym at 4pm."
-        ></textarea>
-        <button class="btn btn-secondary" id="replan-btn">
-          <span class="btn-icon">&#8635;</span> Replan
-        </button>
-
-        <!-- Confidence indicator -->
-        <div class="confidence-row">
-          <span>Feasibility:</span>
-          <span class="confidence-value" id="confidence-value">&mdash;</span>
-          <div class="confidence-bar-wrap">
-            <div class="confidence-bar-fill" id="confidence-bar-fill" style="width:0%"></div>
-          </div>
-        </div>
-
-        <!-- Start fresh -->
-        <button class="advanced-toggle" id="start-fresh-btn" style="margin-top:4px;">
-          Start fresh today
-        </button>
-
-      </div><!-- /followup-section -->
 
     </aside><!-- /sidebar -->
   </div><!-- /app-body -->
