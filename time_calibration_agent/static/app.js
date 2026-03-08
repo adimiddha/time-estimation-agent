@@ -3,8 +3,51 @@
 // ── Constants ──────────────────────────────────────────────────
 const PIXELS_PER_HOUR = 120;
 const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
-const MIN_BLOCK_HEIGHT = 20;
-const COMPACT_THRESHOLD_PX = 40;
+const MIN_BLOCK_HEIGHT = 48;   // was 20 — enough for time + task label + padding
+const COMPACT_THRESHOLD_PX = 0; // was 40 — disable compact mode; all blocks show both labels
+
+// ── Debug Static Data (computed at call time so blocks start from now) ─
+function makeDebugPlanData() {
+  const p = n => String(n).padStart(2, '0');
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  // Round up to next 15-min boundary for a clean start
+  const startMin = Math.ceil(nowMin / 15) * 15;
+  const t = delta => {
+    const m = startMin + delta;
+    return `${p(Math.floor(m / 60) % 24)}:${p(m % 60)}`;
+  };
+  const dateStr = `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
+  return {
+    session_id: dateStr,
+    current_time: `${p(now.getHours())}:${p(now.getMinutes())}`,
+    phase: 'draft',
+    plan_output: {
+      time_blocks: [
+        { start: t(0),   end: t(30),  task: 'Kick-off sync',                  kind: 'task'  },
+        { start: t(30),  end: t(40),  task: 'Break',                           kind: 'break' },
+        { start: t(40),  end: t(130), task: 'Write quarterly review doc',       kind: 'task'  },
+        { start: t(130), end: t(140), task: 'Short break',                      kind: 'break' },
+        { start: t(140), end: t(200), task: 'Review pull requests',             kind: 'task'  },
+        { start: t(200), end: t(260), task: 'Deep work: refactor auth module',  kind: 'task'  },
+        { start: t(260), end: t(270), task: 'Break',                            kind: 'break' },
+        { start: t(270), end: t(330), task: 'Respond to emails & Slack',        kind: 'task'  },
+        { start: t(330), end: t(360), task: 'Wrap up & plan tomorrow',          kind: 'task'  },
+      ],
+      next_actions: [
+        'Write quarterly review doc by EOD',
+        'Merge the auth module PR after review',
+        'Sync with Alex on API design',
+      ],
+      drop_or_defer: [
+        'Update team wiki (defer to next week)',
+        'Read v3 design specs (low priority today)',
+      ],
+      rationale: 'Prioritized deep work blocks with short breaks in between. Wiki update deferred — it can wait without blocking anything.',
+      confidence: { low: 0.72, high: 0.88 },
+    },
+  };
+}
 
 // ── State ──────────────────────────────────────────────────────
 let currentPlanTime = null;
@@ -13,6 +56,8 @@ let currentTimeHHMM = null;  // live clock value, updated every 30s
 let brainDumpText = '';       // saved between screens
 let currentFollowUpType = null;   // "end_time" | "ordering" | null
 let currentFollowUpEndTime = null; // HH:MM from first clarify call, for "ordering" path
+let currentSessionId = null;  // active session ID
+let isDraftMode = false;       // true while phase=draft (pre-approve)
 
 // ── Utilities ──────────────────────────────────────────────────
 function timeToMinutes(t) {
@@ -47,13 +92,14 @@ function nowHHMM() {
 // ── Live Clock ─────────────────────────────────────────────────
 function initClock() {
   const el = document.getElementById('live-clock-time');
-  const headerEl = document.getElementById('header-clock-time');
   function tick() {
     const now = new Date();
     currentTimeHHMM = `${padTwo(now.getHours())}:${padTwo(now.getMinutes())}`;
     const timeStr = fmt12(now.getHours() * 60 + now.getMinutes());
     if (el) el.textContent = timeStr;
-    if (headerEl) headerEl.textContent = timeStr;
+    // Update in-calendar time display
+    const calEl = document.getElementById('calendar-time-display');
+    if (calEl) calEl.textContent = `it\u2019s ${timeStr}`;
   }
   tick();
   setInterval(tick, 30_000);
@@ -117,6 +163,71 @@ function hideOverlay() {
     setTimeout(() => { overlay.style.display = 'none'; }, 400);
   }
   if (shell) shell.style.display = '';
+}
+
+// ── Draft Scroll-to-Reveal ─────────────────────────────────────
+function initDraftScrollVisibility() {
+  const calScroll = document.getElementById('calendar-scroll');
+  const scrollArea = document.querySelector('.draft-scroll-area');
+  if (!calScroll || !scrollArea) return;
+
+  function check() {
+    const { scrollTop, clientHeight, scrollHeight } = calScroll;
+    const atBottom = scrollTop + clientHeight >= scrollHeight - 4;
+    if (atBottom) {
+      scrollArea.classList.add('revealed');
+      // One-way latch: once revealed, stop listening to avoid resize feedback loop
+      calScroll.removeEventListener('scroll', calScroll._draftRevealHandler);
+      calScroll._draftRevealHandler = null;
+    }
+  }
+
+  // Clean up any prior listener before attaching a new one
+  if (calScroll._draftRevealHandler) {
+    calScroll.removeEventListener('scroll', calScroll._draftRevealHandler);
+  }
+  calScroll._draftRevealHandler = check;
+  calScroll.addEventListener('scroll', check);
+  check(); // reveal immediately if calendar fits without scrolling
+}
+
+// ── Draft Mode Helpers ─────────────────────────────────────────
+function enterDraftMode() {
+  isDraftMode = true;
+  const shell = document.getElementById('app-shell');
+  if (shell) shell.classList.add('draft-mode');
+  const draftSection = document.getElementById('draft-section');
+  const replanSection = document.getElementById('followup-section');
+  if (draftSection) draftSection.style.display = '';
+  if (replanSection) replanSection.style.display = 'none';
+  // Attach scroll listener after DOM settles
+  requestAnimationFrame(initDraftScrollVisibility);
+}
+
+function exitDraftMode() {
+  isDraftMode = false;
+  const shell = document.getElementById('app-shell');
+  if (shell) shell.classList.remove('draft-mode');
+  const draftSection = document.getElementById('draft-section');
+  const replanSection = document.getElementById('followup-section');
+  if (draftSection) draftSection.style.display = 'none';
+  if (replanSection) replanSection.style.display = '';
+  // Clear draft input
+  const draftInput = document.getElementById('draft-adjust-input');
+  if (draftInput) draftInput.value = '';
+  // Reset scroll-reveal state so next draft starts hidden
+  const scrollArea = document.querySelector('.draft-scroll-area');
+  if (scrollArea) scrollArea.classList.remove('revealed');
+}
+
+function showDraftScreen(data) {
+  currentSessionId = data.session_id;
+  currentPlanTime = data.current_time;
+  hideOverlay();
+  renderCalendar(data.plan_output.time_blocks);
+  renderSummary(data.plan_output);
+  updateSidebar(data.session_id, data.current_time, data.plan_output);
+  enterDraftMode();
 }
 
 // ── Calendar Rendering ─────────────────────────────────────────
@@ -315,34 +426,42 @@ function removeCalendarOverlay() {
 // ── Summary Section ────────────────────────────────────────────
 function renderSummary(planOutput) {
   const panel = document.getElementById('summary-panel');
-  if (!panel) return;
 
   const nextActions = planOutput.next_actions || [];
   const dropDefer = planOutput.drop_or_defer || [];
   const rationale = planOutput.rationale || '';
 
-  const nextEl = document.getElementById('summary-next-actions');
-  const dropEl = document.getElementById('summary-dropped');
-  const rationaleEl = document.getElementById('summary-rationale');
+  const dropHtml = dropDefer.length
+    ? '<ul>' + dropDefer.map(d => `<li>${escHtml(d)}</li>`).join('') + '</ul>'
+    : '<span class="empty-note">Nothing dropped.</span>';
 
-  if (nextEl) {
-    nextEl.innerHTML = nextActions.length
-      ? '<ul>' + nextActions.map(a => `<li>${escHtml(a)}</li>`).join('') + '</ul>'
-      : '<span class="empty-note">No next actions listed.</span>';
+  // Main summary panel (shown in approved mode, below calendar)
+  if (panel) {
+    const nextEl = document.getElementById('summary-next-actions');
+    const dropEl = document.getElementById('summary-dropped');
+    const rationaleEl = document.getElementById('summary-rationale');
+
+    if (nextEl) {
+      nextEl.innerHTML = nextActions.length
+        ? '<ul>' + nextActions.map(a => `<li>${escHtml(a)}</li>`).join('') + '</ul>'
+        : '<span class="empty-note">No next actions listed.</span>';
+    }
+    if (dropEl) dropEl.innerHTML = dropHtml;
+    if (rationaleEl) {
+      rationaleEl.textContent = rationale;
+      rationaleEl.closest('.summary-section').style.display = rationale ? '' : 'none';
+    }
+    panel.classList.add('visible');
   }
 
-  if (dropEl) {
-    dropEl.innerHTML = dropDefer.length
-      ? '<ul>' + dropDefer.map(d => `<li>${escHtml(d)}</li>`).join('') + '</ul>'
-      : '<span class="empty-note">Nothing dropped.</span>';
+  // Draft sidebar panel (shown in draft mode) — always populate, never hide
+  const draftDroppedEl = document.getElementById('draft-dropped');
+  const draftRationaleEl = document.getElementById('draft-rationale');
+  if (draftDroppedEl) draftDroppedEl.innerHTML = dropHtml;
+  if (draftRationaleEl) {
+    draftRationaleEl.textContent = rationale || 'No rationale provided.';
+    draftRationaleEl.className = 'empty-note';
   }
-
-  if (rationaleEl) {
-    rationaleEl.textContent = rationale;
-    rationaleEl.closest('.summary-section').style.display = rationale ? '' : 'none';
-  }
-
-  panel.classList.add('visible');
 }
 
 // ── Date helpers ───────────────────────────────────────────────
@@ -384,16 +503,6 @@ function updateSidebar(sessionId, currentTime, planOutput) {
     }
 
     sessionInfo.style.display = '';
-
-    const headerClock = document.getElementById('header-clock');
-    const headerClockTime = document.getElementById('header-clock-time');
-    if (headerClock) {
-      headerClock.style.display = '';
-      if (headerClockTime) {
-        const now = new Date();
-        headerClockTime.textContent = fmt12(now.getHours() * 60 + now.getMinutes());
-      }
-    }
   }
 
   const conf = planOutput.confidence || {};
@@ -568,12 +677,98 @@ async function runPlanCall(context, sessionEndTime) {
   snapDone();
 
   setTimeout(() => {
-    hideOverlay();
-    currentPlanTime = data.current_time;
-    renderCalendar(data.plan_output.time_blocks);
-    renderSummary(data.plan_output);
-    updateSidebar(data.session_id, data.current_time, data.plan_output);
+    showDraftScreen(data);
   }, 500);
+}
+
+// ── Draft Adjust flow ──────────────────────────────────────────
+async function submitAdjust() {
+  const inputEl = document.getElementById('draft-adjust-input');
+  const adjustBtn = document.getElementById('draft-adjust-btn');
+  const approveBtn = document.getElementById('draft-approve-btn');
+  const errBanner = document.getElementById('draft-error-banner');
+
+  const rawContext = inputEl ? inputEl.value.trim() : '';
+  if (!rawContext) {
+    if (errBanner) { errBanner.textContent = 'Please describe what to change.'; errBanner.classList.add('visible'); }
+    return;
+  }
+  if (errBanner) errBanner.classList.remove('visible');
+  if (adjustBtn) adjustBtn.disabled = true;
+  if (approveBtn) approveBtn.disabled = true;
+
+  // Show inline calendar loading
+  showCalendarLoading();
+
+  const timeStr = fmt12(timeToMinutes(currentTimeHHMM || nowHHMM()));
+  const fullContext = `It's ${timeStr}. ${rawContext}`;
+
+  let data;
+  try {
+    const res = await fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        context: fullContext,
+        mode: 'adjust',
+        current_time: currentTimeHHMM || nowHHMM(),
+      }),
+    });
+    data = await res.json();
+    if (!res.ok || data.error) {
+      removeCalendarOverlay();
+      if (errBanner) { errBanner.textContent = data.error || 'Adjustment failed. Please try again.'; errBanner.classList.add('visible'); }
+      return;
+    }
+  } catch (e) {
+    removeCalendarOverlay();
+    if (errBanner) { errBanner.textContent = 'Network error. Is the server running?'; errBanner.classList.add('visible'); }
+    return;
+  } finally {
+    if (adjustBtn) adjustBtn.disabled = false;
+    if (approveBtn) approveBtn.disabled = false;
+  }
+
+  removeCalendarOverlay();
+  currentSessionId = data.session_id;
+  currentPlanTime = data.current_time;
+  renderCalendar(data.plan_output.time_blocks);
+  renderSummary(data.plan_output);
+  updateSidebar(data.session_id, data.current_time, data.plan_output);
+  if (inputEl) inputEl.value = '';
+  // Remain in draft mode
+  enterDraftMode();
+}
+
+// ── Draft Approve flow ─────────────────────────────────────────
+async function submitApprove() {
+  const approveBtn = document.getElementById('draft-approve-btn');
+  const adjustBtn = document.getElementById('draft-adjust-btn');
+  const errBanner = document.getElementById('draft-error-banner');
+
+  if (approveBtn) approveBtn.disabled = true;
+  if (adjustBtn) adjustBtn.disabled = true;
+
+  try {
+    const res = await fetch('/api/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentSessionId }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      if (errBanner) { errBanner.textContent = data.error || 'Approve failed.'; errBanner.classList.add('visible'); }
+      return;
+    }
+  } catch (e) {
+    if (errBanner) { errBanner.textContent = 'Network error. Is the server running?'; errBanner.classList.add('visible'); }
+    return;
+  } finally {
+    if (approveBtn) approveBtn.disabled = false;
+    if (adjustBtn) adjustBtn.disabled = false;
+  }
+
+  exitDraftMode();
 }
 
 // ── Replan flow ────────────────────────────────────────────────
@@ -660,6 +855,7 @@ async function handleReplan() {
   snapReplanDone();
   setTimeout(() => {
     if (replanOverlay) replanOverlay.style.display = 'none';
+    currentSessionId = data.session_id;
     currentPlanTime = data.current_time;
     renderCalendar(data.plan_output.time_blocks);
     renderSummary(data.plan_output);
@@ -670,16 +866,26 @@ async function handleReplan() {
 
 // ── Load existing session on page load ────────────────────────
 async function loadSession() {
+  // ?debug — skip API and show static draft plan for UI development
+  if (new URLSearchParams(window.location.search).has('debug')) {
+    showDraftScreen(makeDebugPlanData());
+    return;
+  }
+
   try {
     const res = await fetch('/api/session');
     const data = await res.json();
     if (data.plan_output && data.plan_output.time_blocks && data.plan_output.time_blocks.length) {
-      // Existing session — skip welcome overlay
-      hideOverlay();
-      currentPlanTime = data.current_time;
-      renderCalendar(data.plan_output.time_blocks);
-      renderSummary(data.plan_output);
-      updateSidebar(data.session_id, data.current_time, data.plan_output);
+      currentSessionId = data.session_id;
+      if (data.phase === 'draft') {
+        showDraftScreen(data);
+      } else {
+        hideOverlay();
+        currentPlanTime = data.current_time;
+        renderCalendar(data.plan_output.time_blocks);
+        renderSummary(data.plan_output);
+        updateSidebar(data.session_id, data.current_time, data.plan_output);
+      }
     }
     // If no session, overlay stays visible
   } catch (e) {
@@ -743,6 +949,25 @@ document.addEventListener('DOMContentLoaded', () => {
       submitFollowUp(true);
     });
   }
+
+  // Draft adjust button
+  const draftAdjustBtn = document.getElementById('draft-adjust-btn');
+  if (draftAdjustBtn) draftAdjustBtn.addEventListener('click', submitAdjust);
+
+  // Ctrl/Cmd+Enter in draft adjust textarea
+  const draftAdjustInput = document.getElementById('draft-adjust-input');
+  if (draftAdjustInput) {
+    draftAdjustInput.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        submitAdjust();
+      }
+    });
+  }
+
+  // Draft approve button
+  const draftApproveBtn = document.getElementById('draft-approve-btn');
+  if (draftApproveBtn) draftApproveBtn.addEventListener('click', submitApprove);
 
   // Replan button
   const replanBtn = document.getElementById('replan-btn');

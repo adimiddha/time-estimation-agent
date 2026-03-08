@@ -70,9 +70,6 @@
   <!-- Header -->
   <header class="app-header">
     <h1>Untangle</h1>
-    <div class="header-clock" id="header-clock" style="display:none;">
-      <span class="clock-its">it&rsquo;s </span><span id="header-clock-time"></span>
-    </div>
     <div class="session-info" id="session-info" style="display:none;">
       <div class="session-date-label" id="session-date-label"></div>
       <div class="session-planned-at" id="session-planned-at"></div>
@@ -96,7 +93,10 @@
 
       <!-- Calendar panel -->
       <div class="calendar-panel">
-        <div class="calendar-panel-title">Schedule</div>
+        <div class="calendar-panel-title">
+          Schedule
+          <span id="calendar-time-display" class="calendar-time-display"></span>
+        </div>
         <div class="calendar-scroll" id="calendar-scroll">
           <div class="calendar-grid" id="calendar-grid">
             <div class="calendar-time-axis" id="calendar-time-axis"></div>
@@ -136,7 +136,63 @@
       <!-- Error banner -->
       <div class="error-banner" id="replan-error-banner"></div>
 
-      <!-- Replan section (visible once planner is active) -->
+      <!-- Draft section (shown before approve) -->
+      <div class="draft-section" id="draft-section" style="display:none;">
+
+        <!-- Scrollable area: optional context (dropped, rationale) -->
+        <div class="draft-scroll-area">
+
+          <!-- Dropped / deferred (collapsible) -->
+          <details class="draft-details">
+            <summary>&#10008; Dropped / deferred</summary>
+            <div id="draft-dropped">
+              <span class="empty-note">Nothing dropped.</span>
+            </div>
+          </details>
+
+          <!-- Rationale (collapsible) -->
+          <details class="draft-details">
+            <summary>Rationale</summary>
+            <p class="empty-note" id="draft-rationale">Generating&hellip;</p>
+          </details>
+
+        </div><!-- /draft-scroll-area -->
+
+        <!-- Action bar: locked to bottom -->
+        <div class="draft-action-bar">
+
+          <!-- Draft header -->
+          <div class="draft-header">
+            <span class="draft-badge">DRAFT</span>
+            <span class="draft-hint-text">Here&rsquo;s a first pass &mdash; does this feel right?</span>
+          </div>
+
+          <!-- Approve -->
+          <button class="btn btn-primary" id="draft-approve-btn">
+            <span class="btn-icon">&#10003;</span> Approve
+          </button>
+
+          <!-- OR divider -->
+          <div class="draft-or">OR</div>
+
+          <!-- Adjust textarea -->
+          <textarea
+            id="draft-adjust-input"
+            placeholder="What feels off? e.g. Move gym earlier, drop the report."
+          ></textarea>
+
+          <!-- Adjust button -->
+          <button class="btn btn-secondary" id="draft-adjust-btn">
+            <span class="btn-icon">&#9998;</span> Adjust &rarr;
+          </button>
+
+          <div class="error-banner" id="draft-error-banner"></div>
+
+        </div><!-- /draft-action-bar -->
+
+      </div><!-- /draft-section -->
+
+      <!-- Replan section (visible once approved) -->
       <div class="followup-section visible" id="followup-section">
 
         <div class="followup-label">Anything to adjust?</div>

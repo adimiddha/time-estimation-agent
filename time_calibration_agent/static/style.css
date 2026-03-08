@@ -102,19 +102,6 @@ body {
   gap: 2px;
 }
 
-.header-clock {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.header-clock .clock-its { color: var(--ink); }
-.header-clock #header-clock-time { color: var(--accent); }
 
 .session-date-label {
   font-size: 0.9rem;
@@ -173,6 +160,17 @@ body {
   color: var(--muted);
   padding: 14px 18px 10px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calendar-time-display {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
 }
 
 /* ── Calendar Inner ────────────────────────────────── */
@@ -922,6 +920,318 @@ input::placeholder {
   color: var(--muted);
   display: block;
   margin-bottom: 4px;
+}
+
+/* ── Draft Mode ────────────────────────────────────── */
+
+/* 50/50 split — overrides the fixed 330px sidebar */
+.draft-mode .app-body {
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+/* Column does NOT scroll — the panel inside does */
+.draft-mode .calendar-column {
+  overflow-y: hidden;
+  padding: 0;
+  gap: 0;
+}
+
+/* Panel fills the full column height */
+.draft-mode .calendar-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  border-right: 1px solid var(--border);
+}
+
+.draft-mode .calendar-panel-title {
+  flex-shrink: 0;
+  padding: 12px 18px 8px;
+}
+
+/* Scroll happens inside the panel */
+.draft-mode .calendar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding-top: 12px;
+}
+
+/* Ensure the grid fills the full panel width */
+.draft-mode .calendar-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+.draft-mode .calendar-events {
+  min-width: 0;
+}
+
+/* Allow block text to wrap in the narrow column; reduce sizes slightly */
+.draft-mode .block-task {
+  font-size: 0.72rem;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.draft-mode .block-time {
+  font-size: 0.58rem;
+}
+
+/* Hide the main summary panel (next-actions + dropped + rationale below calendar) */
+.draft-mode .summary-panel {
+  display: none !important;
+}
+
+/* Muted calendar blocks */
+.draft-mode .calendar-block {
+  opacity: 0.58;
+  border: 1.5px dashed rgba(255, 255, 255, 0.5);
+}
+
+.draft-mode .calendar-block:hover {
+  opacity: 1;
+}
+
+/* Sidebar in draft mode: fixed-height flex column, children handle scroll */
+.draft-mode .sidebar {
+  border-left: none;
+  overflow: hidden;
+  padding: 0;
+  gap: 0;
+}
+
+/* Draft sidebar content: fills sidebar, stacks scroll area + action bar */
+.draft-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Dropped/Rationale area — hidden until user scrolls to calendar bottom */
+.draft-scroll-area {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding: 16px 20px;
+  min-height: 0;
+  flex: 1;
+  animation: panelIn 0.3s var(--ease-out) both;
+}
+
+.draft-scroll-area.revealed {
+  display: flex;
+}
+
+.draft-scroll-area::-webkit-scrollbar { width: 4px; }
+.draft-scroll-area::-webkit-scrollbar-track { background: transparent; }
+.draft-scroll-area::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+/* Collapsible detail sections */
+.draft-details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.draft-details summary {
+  padding: 10px 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.draft-details summary::-webkit-details-marker { display: none; }
+
+.draft-details summary::after {
+  content: '▸';
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-smooth);
+}
+
+.draft-details[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.draft-details summary:hover {
+  color: var(--accent);
+}
+
+.draft-details > div,
+.draft-details > p {
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+/* Restore list indent zeroed by CSS reset */
+.draft-details ul {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.draft-details li {
+  line-height: 1.75;
+}
+
+/* Action bar: locked to bottom of sidebar */
+.draft-action-bar {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--panel);
+  box-shadow: 0 -4px 16px rgba(45, 42, 38, 0.06);
+}
+
+.draft-action-bar textarea {
+  min-height: 72px;
+  resize: none;
+}
+
+.draft-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.draft-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1.5px solid rgba(123, 104, 238, 0.25);
+  border-radius: 6px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.draft-hint-text {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.draft-or {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  position: relative;
+  line-height: 1;
+  padding: 2px 0;
+}
+
+.draft-or::before,
+.draft-or::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: var(--border);
+}
+
+.draft-or::before { left: 0; }
+.draft-or::after  { right: 0; }
+
+/* ── Mobile draft: viewport-height layout, calendar scrolls internally ── */
+@media (max-width: 768px) {
+  /* Pin to viewport — no page scroll in draft mode */
+  .app-shell.draft-mode {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Stack calendar above sidebar as flex column */
+  .draft-mode .app-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* Calendar fills remaining space, scrolls internally */
+  .draft-mode .calendar-column {
+    flex: 1;
+    overflow-y: hidden;
+    min-height: 0;
+    padding: 12px 12px 0;
+    height: auto;
+    gap: 12px;
+  }
+
+  .draft-mode .calendar-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    border-right: none;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+
+  .draft-mode .calendar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+  }
+
+  /* Sidebar sits at bottom, auto height (action bar always visible) */
+  .draft-mode .sidebar {
+    flex-shrink: 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+    padding: 0;
+    max-height: 55vh;
+  }
+
+  .draft-mode .draft-section {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .draft-mode .draft-scroll-area.revealed {
+    display: flex;
+  }
+
+  .draft-mode .draft-action-bar {
+    position: static;
+  }
 }
 
 /* ── Responsive ────────────────────────────────────── */
