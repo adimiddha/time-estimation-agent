@@ -18,27 +18,33 @@
   <div id="brain-dump-screen" class="welcome-card">
     <div id="live-clock" class="live-clock"><span class="clock-its">it&rsquo;s </span><span id="live-clock-time"></span></div>
     <h2 class="welcome-heading">What do you need to do today?</h2>
-    <div class="brain-dump-wrap">
-      <button class="btn-mic btn-mic--main" id="mic-btn" type="button" title="Tap to speak">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="mic-hero-wrap">
+      <button class="btn-mic btn-mic--hero" id="mic-btn" type="button" title="Tap to speak">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
           <line x1="12" y1="19" x2="12" y2="23"/>
           <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>
       </button>
+      <span class="mic-hero-label">Tap to speak</span>
+    </div>
+
+    <div class="or-type-divider"><span>or type instead</span></div>
+
+    <div class="brain-dump-wrap">
       <textarea
         id="brain-dump"
         class="welcome-textarea"
         placeholder="Brain dump everything you need to do today."
-        rows="5"
+        rows="4"
       ></textarea>
     </div>
     <div class="voice-status-row" id="voice-status-row" style="display:none;">
       <span class="voice-status" id="voice-status"></span>
     </div>
     <button class="btn btn-primary welcome-btn" id="plan-btn">
-      <span class="btn-icon">&#9654;</span> Untangle my day
+      Untangle my day &rarr;
     </button>
     <p class="kbd-hint">&#x2318; + Return</p>
     <div class="error-banner" id="error-banner"></div>

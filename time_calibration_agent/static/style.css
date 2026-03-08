@@ -1400,28 +1400,57 @@ input::placeholder {
 
 /* ── Voice Input ───────────────────────────────────── */
 
-/* Brain dump: mic left, textarea right */
-.brain-dump-wrap {
+/* Brain dump: mic is hero above; textarea is secondary */
+.mic-hero-wrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 10px;
+  margin: 4px 0 6px;
+}
+
+.mic-hero-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.or-type-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin: 6px 0 8px;
+}
+
+.or-type-divider::before,
+.or-type-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.brain-dump-wrap {
+  width: 100%;
 }
 
 .brain-dump-wrap textarea {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
-/* Replan textarea: mic left, textarea right */
+/* Replan textarea: mic inside textarea, bottom-right */
 .replan-textarea-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  position: relative;
 }
 
 .replan-textarea-wrap textarea {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+  padding-right: 62px;
 }
 
 /* Shared mic button base */
@@ -1452,16 +1481,22 @@ input::placeholder {
   box-shadow: 0 0 0 3px rgba(47, 122, 106, 0.13);
 }
 
-/* Main brain dump mic */
-.btn-mic--main {
-  width: 48px;
-  height: 48px;
+/* Hero mic — welcome screen primary CTA */
+.btn-mic--hero {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(35, 49, 45, 0.12);
 }
 
-/* Replan mic — smaller */
+/* Replan mic — inside textarea, bottom-right */
 .btn-mic--replan {
-  width: 38px;
-  height: 38px;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  z-index: 1;
 }
 
 @keyframes pulse-mic {
@@ -1551,22 +1586,23 @@ input::placeholder {
   vertical-align: middle;
 }
 
-/* ── Draft textarea wrap (mic + textarea) ──────────── */
+/* ── Draft textarea wrap (mic inside textarea, bottom-right) ── */
 .draft-textarea-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  position: relative;
 }
 
 .draft-textarea-wrap textarea {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+  padding-right: 62px;
 }
 
 .btn-mic--draft {
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  z-index: 1;
 }
 
 /* ── Floating Replan Button (FAB) ──────────────────── */
@@ -1799,33 +1835,30 @@ body::before {
   font-weight: 700;
 }
 
-.brain-dump-wrap {
-  gap: 16px;
-  align-items: center;
-}
-
 .btn-mic {
   background: rgba(255, 255, 255, 0.78);
   border-color: rgba(90, 109, 103, 0.16);
-  box-shadow: 0 10px 20px rgba(35, 49, 45, 0.08);
+  box-shadow: 0 4px 10px rgba(35, 49, 45, 0.08);
 }
 
-.btn-mic--main {
-  width: 74px;
-  height: 74px;
-  border-radius: 24px;
-  font-size: 1.75rem;
+.btn-mic--hero {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(234, 245, 240, 0.92));
+  color: var(--accent-dark);
+  border-color: rgba(47, 122, 106, 0.20);
+  box-shadow: 0 10px 28px rgba(35, 49, 45, 0.10);
 }
 
 .btn-mic--replan,
 .btn-mic--draft {
-  width: 72px;
-  height: 72px;
-  border-radius: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(234, 245, 240, 0.92));
   color: var(--accent-dark);
   border-color: rgba(47, 122, 106, 0.20);
-  font-size: 1.6rem;
 }
 
 textarea,
@@ -2224,11 +2257,6 @@ input[type="time"]:focus {
   line-height: 0.95;
 }
 
-.replan-textarea-wrap {
-  align-items: center;
-  gap: 16px;
-}
-
 .replan-textarea-wrap textarea {
   min-height: 150px;
 }
@@ -2285,15 +2313,15 @@ input[type="time"]:focus {
 
   .btn-mic--replan,
   .btn-mic--draft {
-    width: 60px;
-    height: 60px;
-    border-radius: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
   }
 
-  .btn-mic--main {
+  .btn-mic--hero {
     width: 64px;
     height: 64px;
-    border-radius: 22px;
+    border-radius: 18px;
   }
 
   .block-task-row {
