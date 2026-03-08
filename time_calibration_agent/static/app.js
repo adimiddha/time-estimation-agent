@@ -394,6 +394,12 @@ function stopProgressKnot() {
 }
 
 // ── Welcome Overlay Transitions ────────────────────────────────
+const SCREEN_PATHS = {
+  'brain-dump-screen': '/welcome',
+  'followup-clarify-screen': '/clarify',
+  'loading-screen': '/planning',
+};
+
 function showScreen(id) {
   ['brain-dump-screen', 'followup-clarify-screen', 'loading-screen'].forEach(sid => {
     const el = document.getElementById(sid);
@@ -401,6 +407,8 @@ function showScreen(id) {
   });
   if (id === 'loading-screen') startProgressKnot();
   else stopProgressKnot();
+  const path = SCREEN_PATHS[id];
+  if (path) trackPageView(path, id.replace('-screen', '').replace(/-/g, ' '));
 }
 
 function hideOverlay() {
@@ -465,6 +473,7 @@ function exitDraftMode() {
   if (draftInput) draftInput.value = '';
   const scrollArea = document.querySelector('.draft-scroll-area');
   if (scrollArea) scrollArea.classList.remove('revealed');
+  trackPageView('/planner', 'day planner');
   showFab();
 }
 
@@ -476,6 +485,7 @@ function showDraftScreen(data) {
   renderSummary(data.plan_output);
   updateSidebar(data.session_id, data.current_time, data.plan_output);
   enterDraftMode();
+  trackPageView('/draft', 'draft plan');
 }
 
 // ── Calendar Rendering ─────────────────────────────────────────
@@ -945,6 +955,16 @@ function updateSidebar(sessionId, currentTime, planOutput) {
 // ── Analytics ─────────────────────────────────────────────────
 function track(event, params = {}) {
   if (typeof gtag === 'function') gtag('event', event, params);
+}
+
+function trackPageView(path, title) {
+  if (typeof gtag === 'function') {
+    gtag('event', 'page_view', {
+      page_title: title,
+      page_location: window.location.origin + path,
+      page_path: path,
+    });
+  }
 }
 
 // ── Error display helpers ──────────────────────────────────────
