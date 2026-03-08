@@ -27,27 +27,29 @@
     <button class="btn btn-primary welcome-btn" id="plan-btn">
       <span class="btn-icon">&#9654;</span> Untangle my day
     </button>
+    <p class="kbd-hint">Ctrl + Return</p>
     <div class="error-banner" id="error-banner"></div>
-    <details class="advanced-details">
-      <summary>Advanced options</summary>
-      <div class="advanced-inner">
-        <label for="session_label">Session label (optional)</label>
-        <input id="session_label" name="session_label" type="text" placeholder="e.g. work, personal" />
-        <label for="date_override">Date override (YYYY-MM-DD)</label>
-        <input id="date_override" name="date_override" type="text" placeholder="Leave blank for today" />
-      </div>
-    </details>
   </div>
 
   <!-- Screen 2: Follow-up clarification (hidden initially) -->
   <div id="followup-clarify-screen" class="welcome-card" style="display:none;">
     <div class="welcome-heading" id="followup-question-text">When do you want to be done today?</div>
+
+    <!-- Text input (non-end-time follow-ups only) -->
     <textarea
       id="followup-clarify-input"
       class="welcome-textarea"
-      placeholder="e.g. 6pm, around 5, whenever"
+      placeholder="e.g. Standup at 2pm, gym before dinner"
       rows="3"
+      style="display:none;"
     ></textarea>
+
+    <!-- Drum picker (end_time follow-up) -->
+    <div id="time-drum-picker" class="drum-picker drum-picker--single">
+      <div class="drum-highlight"></div>
+      <div class="drum-col" id="drum-time"></div>
+    </div>
+
     <button class="btn btn-primary welcome-btn" id="followup-continue-btn">Continue</button>
     <a href="#" class="followup-skip-link" id="followup-skip-link">Skip &mdash; let the app decide</a>
     <div class="error-banner" id="error-banner-followup"></div>

@@ -54,8 +54,7 @@ let currentPlanTime = null;
 let nowLineInterval = null;
 let currentTimeHHMM = null;  // live clock value, updated every 30s
 let brainDumpText = '';       // saved between screens
-let currentFollowUpType = null;   // "end_time" | "ordering" | null
-let currentFollowUpEndTime = null; // HH:MM from first clarify call, for "ordering" path
+let currentFollowUpType = null;   // "end_time" | null
 let currentSessionId = null;  // active session ID
 let isDraftMode = false;       // true while phase=draft (pre-approve)
 
@@ -530,27 +529,83 @@ function clearError(bannerId) {
   if (el) el.classList.remove('visible');
 }
 
+// ── Drum Picker ────────────────────────────────────────────────
+const DRUM_ITEM_HEIGHT = 44;
+
+function rebuildTimeDrum() {
+  const col = document.getElementById('drum-time');
+  if (!col) return;
+  col.innerHTML = '';
+
+  const now = currentTimeHHMM || nowHHMM();
+  const [nowH, nowM] = now.split(':').map(Number);
+  let startMin = nowH * 60 + nowM + 30;
+  startMin = Math.ceil(startMin / 30) * 30;
+  const endMin = 23 * 60 + 30; // 11:30 PM
+
+  const makePad = () => { const d = document.createElement('div'); d.className = 'drum-pad'; return d; };
+
+  col.appendChild(makePad());
+  for (let min = startMin; min <= endMin; min += 30) {
+    const d = document.createElement('div');
+    d.className = 'drum-item';
+    d.textContent = fmt12(min);
+    d.dataset.value = `${padTwo(Math.floor(min / 60))}:${padTwo(min % 60)}`;
+    col.appendChild(d);
+  }
+  col.appendChild(makePad());
+}
+
+function defaultEndTime() {
+  const now = currentTimeHHMM || nowHHMM();
+  const [h, m] = now.split(':').map(Number);
+  let totalMin = h * 60 + m + 180;
+  totalMin = Math.round(totalMin / 30) * 30;
+  totalMin = Math.min(totalMin, 23 * 60 + 30);
+  return `${padTwo(Math.floor(totalMin / 60))}:${padTwo(totalMin % 60)}`;
+}
+
+function setDrumPickerDefault(hhMM) {
+  const col = document.getElementById('drum-time');
+  if (!col) return;
+  const [hh, mm] = hhMM.split(':').map(Number);
+  const targetMin = hh * 60 + mm;
+  const items = [...col.querySelectorAll('.drum-item')];
+  const idx = items.findIndex(item => {
+    const [ih, im] = item.dataset.value.split(':').map(Number);
+    return ih * 60 + im >= targetMin;
+  });
+  col.scrollTop = (idx >= 0 ? idx : 0) * DRUM_ITEM_HEIGHT;
+}
+
+function getDrumPickerValue() {
+  const col = document.getElementById('drum-time');
+  if (!col) return null;
+  const idx = Math.max(0, Math.round(col.scrollTop / DRUM_ITEM_HEIGHT));
+  const items = col.querySelectorAll('.drum-item');
+  return idx < items.length ? items[idx].dataset.value : null;
+}
+
 // ── Follow-up screen helper ────────────────────────────────────
 function showFollowUpScreen(question, type) {
   const qEl = document.getElementById('followup-question-text');
   if (qEl) qEl.textContent = question;
 
   const inp = document.getElementById('followup-clarify-input');
-  if (inp) {
-    if (type === 'end_time') {
-      inp.rows = 2;
-      inp.classList.add('followup-textarea--small');
-      inp.placeholder = 'e.g. 6pm, around 5, whenever';
-    } else {
-      inp.rows = 3;
-      inp.classList.remove('followup-textarea--small');
-      inp.placeholder = 'e.g. Standup at 2pm, gym before dinner';
-    }
-    inp.value = '';
-  }
+  const drum = document.getElementById('time-drum-picker');
 
-  showScreen('followup-clarify-screen');
-  if (inp) inp.focus();
+  if (type === 'end_time') {
+    if (inp) inp.style.display = 'none';
+    if (drum) drum.style.display = '';
+    rebuildTimeDrum();
+    showScreen('followup-clarify-screen');
+    requestAnimationFrame(() => setDrumPickerDefault(defaultEndTime()));
+  } else {
+    if (inp) { inp.style.display = ''; inp.value = ''; }
+    if (drum) drum.style.display = 'none';
+    showScreen('followup-clarify-screen');
+    if (inp) inp.focus();
+  }
 }
 
 // ── New-plan flow ──────────────────────────────────────────────
@@ -587,57 +642,24 @@ async function submitPlan() {
 
   if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Untangle my day'; }
 
-  if (clarifyResult.follow_up_question) {
-    // Store type and end time for submitFollowUp()
-    currentFollowUpType = clarifyResult.follow_up_type || null;
-    currentFollowUpEndTime = clarifyResult.session_end_time || null;
-    showFollowUpScreen(clarifyResult.follow_up_question, currentFollowUpType);
+  if (clarifyResult.follow_up_question && clarifyResult.follow_up_type === 'end_time') {
+    currentFollowUpType = 'end_time';
+    showFollowUpScreen(clarifyResult.follow_up_question, 'end_time');
   } else {
-    // No follow-up needed — go straight to planning
+    // ordering type or no follow-up: go straight to planning
     await runPlanCall(brainDumpText, clarifyResult.session_end_time || null);
   }
 }
 
 async function submitFollowUp(skipped) {
-  const inp = document.getElementById('followup-clarify-input');
-  const answerText = skipped ? '' : (inp ? inp.value.trim() : '');
-
   let finalEndTime = null;
-  let combinedContext;
-
-  if (currentFollowUpType === 'ordering') {
-    // End time was already extracted; user answered with ordering constraints
-    finalEndTime = currentFollowUpEndTime;
-    combinedContext = answerText
-      ? `${brainDumpText}\n${answerText}`
-      : brainDumpText;
-  } else {
-    // end_time type: re-parse the answer for a session end time
-    if (!skipped && answerText) {
-      try {
-        const res = await fetch('/api/clarify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ context: answerText, current_time: currentTimeHHMM || nowHHMM() }),
-        });
-        const clarify2 = await res.json();
-        finalEndTime = clarify2.session_end_time || null;
-      } catch (e) {
-        // ignore; proceed without end time
-      }
-    }
-    combinedContext = answerText
-      ? `${brainDumpText}\n${answerText}`
-      : brainDumpText;
+  if (currentFollowUpType === 'end_time' && !skipped) {
+    finalEndTime = getDrumPickerValue();
   }
-
-  await runPlanCall(combinedContext, finalEndTime);
+  await runPlanCall(brainDumpText, finalEndTime);
 }
 
 async function runPlanCall(context, sessionEndTime) {
-  const sessionLabelEl = document.getElementById('session_label');
-  const dateOverrideEl = document.getElementById('date_override');
-
   // Prepend current time so backend has unambiguous anchor
   const timeStr = fmt12(timeToMinutes(currentTimeHHMM || nowHHMM()));
   const fullContext = `It's ${timeStr}. ${context}`;
@@ -655,8 +677,6 @@ async function runPlanCall(context, sessionEndTime) {
         context: fullContext,
         mode: 'new',
         current_time: currentTimeHHMM || nowHHMM(),
-        session_label: sessionLabelEl ? sessionLabelEl.value.trim() : '',
-        date_override: dateOverrideEl ? dateOverrideEl.value.trim() : '',
         session_end_time: sessionEndTime,
       }),
     });
