@@ -89,6 +89,56 @@ Category patterns:
 python -m time_calibration_agent.cli history
 ```
 
+### 5. Run the web app (Replanning MVP)
+
+```bash
+python -m time_calibration_agent.web_app
+```
+
+Then open `http://127.0.0.1:5000` in your browser and use the replanning form.
+
+### 6. Start a planning session (optional)
+
+```bash
+python -m time_calibration_agent.cli new-session "It's 2pm. I finished X. Need A, B. Dinner at 7."
+python -m time_calibration_agent.cli session
+```
+
+### 7. Replan a session (optional)
+
+```bash
+python -m time_calibration_agent.cli replan "It's 3pm. I finished A. Need B."
+```
+
+## Evaluation & Testing
+
+### Evaluate accuracy on completed tasks
+
+```bash
+python -m time_calibration_agent.cli eval
+python -m time_calibration_agent.cli eval --export results.json
+```
+
+### Generate a test dataset
+
+```bash
+python -m time_calibration_agent.cli test-dataset generate --n 50 --output test_dataset.json
+```
+
+### Run quality evaluation
+
+```bash
+python -m time_calibration_agent.cli quality-eval --dataset test_dataset.json
+python -m time_calibration_agent.cli quality-eval --dataset test_dataset.json --strategy summarized
+python -m time_calibration_agent.cli quality-eval --dataset test_dataset.json --evaluator human
+```
+
+### Compare strategies
+
+```bash
+python -m time_calibration_agent.cli quality-compare --dataset test_dataset.json
+```
+
 ## How It Learns
 
 1. **First few tasks**: The agent uses general knowledge to estimate
@@ -103,4 +153,3 @@ The more tasks you complete and log, the better the estimates become!
 - **Use descriptive task names**: Helps the agent understand context
 - **Check status regularly**: See how your calibration is improving
 - **Review history**: Understand patterns in your estimation accuracy
-

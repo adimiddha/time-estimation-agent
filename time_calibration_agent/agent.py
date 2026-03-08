@@ -137,7 +137,7 @@ class EstimationAgent:
     
     def __init__(self, api_key: Optional[str] = None):
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
-        self.model = "gpt-4o-mini"  # Using mini for cost efficiency
+        self.model = "gpt-4.1"
     
     def find_category_for_task(self, task_description: str, all_tasks: List[Dict]) -> Optional[str]:
         """
@@ -907,4 +907,3 @@ Respond with JSON:
                 "suggested_bias_adjustment": 0.0,
                 "category_adjustment": {}
             }
-

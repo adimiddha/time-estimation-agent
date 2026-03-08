@@ -14,13 +14,15 @@
 <!-- ── Welcome Overlay (screens 1–3) ─────────────────────────── -->
 <div id="welcome-overlay" class="welcome-overlay">
 
+  <div class="welcome-brand" aria-hidden="true">Untangle</div>
+
   <!-- Screen 1: Brain dump -->
   <div id="brain-dump-screen" class="welcome-card">
     <div id="live-clock" class="live-clock"><span class="clock-its">it&rsquo;s </span><span id="live-clock-time"></span></div>
-    <h2 class="welcome-heading">What do you need to do today?</h2>
+    <h2 class="welcome-heading">What&rsquo;s on your plate?</h2>
     <div class="mic-hero-wrap">
       <button class="btn-mic btn-mic--hero" id="mic-btn" type="button" title="Tap to speak">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
           <line x1="12" y1="19" x2="12" y2="23"/>
@@ -36,7 +38,7 @@
       <textarea
         id="brain-dump"
         class="welcome-textarea"
-        placeholder="Brain dump everything you need to do today."
+        placeholder="Brain dump it all — tasks, what&apos;s urgent, what you can&apos;t drop."
         rows="4"
       ></textarea>
     </div>
@@ -76,11 +78,8 @@
 
   <!-- Screen 3: Loading (hidden initially) -->
   <div id="loading-screen" class="welcome-card loading-card" style="display:none;">
-    <div class="spinner loading-spinner"></div>
+    <canvas class="knot-canvas knot-canvas--wide" id="knot-canvas-main" width="560" height="240" style="width:280px;height:120px;"></canvas>
     <div class="loading-label" id="progress-label">Untangling your day&hellip;</div>
-    <div class="progress-bar-wrap">
-      <div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div>
-    </div>
   </div>
 
 </div><!-- /welcome-overlay -->
@@ -105,7 +104,7 @@
 
       <!-- Inline replan loading overlay -->
       <div id="replan-loading-overlay" class="replan-loading-overlay" style="display:none;">
-        <div class="spinner replan-spinner"></div>
+        <canvas class="knot-canvas" id="knot-canvas-replan" width="120" height="120" style="width:60px;height:60px;"></canvas>
         <div class="replan-loading-label" id="replan-progress-label">Untangling again&hellip;</div>
         <div class="replan-progress-wrap">
           <div id="replan-progress-bar" class="replan-progress-fill" style="width:0%"></div>
@@ -239,15 +238,19 @@
       <div class="fab-panel-title">Change of plans?</div>
       <button class="fab-panel-close" id="fab-panel-close" type="button">&#x2715;</button>
     </div>
-    <div class="replan-textarea-wrap">
-      <button class="btn-mic btn-mic--replan" id="mic-btn-replan" type="button" title="Tap to speak">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="mic-hero-wrap mic-hero-wrap--replan">
+      <button class="btn-mic btn-mic--hero" id="mic-btn-replan" type="button" title="Tap to speak">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
           <line x1="12" y1="19" x2="12" y2="23"/>
           <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>
       </button>
+      <span class="mic-hero-label">Tap to speak</span>
+    </div>
+    <div class="or-type-divider"><span>or type instead</span></div>
+    <div class="replan-textarea-wrap">
       <textarea
         id="followup-context"
         placeholder="e.g. Actually skip the report, add gym at 4pm."

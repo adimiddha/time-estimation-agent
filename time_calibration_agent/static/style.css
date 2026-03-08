@@ -157,6 +157,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   box-shadow: var(--shadow);
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
 }
 
 .calendar-panel-title {
@@ -401,6 +402,11 @@ body::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.knot-canvas {
+  display: block;
+  flex-shrink: 0;
 }
 
 /* ── Right Now Section ─────────────────────────────── */
@@ -1443,14 +1449,13 @@ input::placeholder {
   width: 100%;
 }
 
-/* Replan textarea: mic inside textarea, bottom-right */
+/* Replan textarea: mic is now above, textarea has no embedded mic */
 .replan-textarea-wrap {
   position: relative;
 }
 
 .replan-textarea-wrap textarea {
   width: 100%;
-  padding-right: 62px;
 }
 
 /* Shared mic button base */
@@ -1481,12 +1486,24 @@ input::placeholder {
   box-shadow: 0 0 0 3px rgba(47, 122, 106, 0.13);
 }
 
-/* Hero mic — welcome screen primary CTA */
+/* Hero mic — primary CTA, filled + idle pulse */
 .btn-mic--hero {
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(35, 49, 45, 0.12);
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #29695d 0%, #4d9983 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 10px 28px rgba(35, 49, 45, 0.18);
+  animation: mic-idle-ring 2.4s ease-out infinite;
+}
+
+.btn-mic--hero:hover:not(.recording) {
+  background: linear-gradient(145deg, #225a50 0%, #438a74 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 14px 32px rgba(35, 49, 45, 0.24);
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Replan mic — inside textarea, bottom-right */
@@ -1502,6 +1519,12 @@ input::placeholder {
 @keyframes pulse-mic {
   0%, 100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.4); }
   50%       { box-shadow: 0 0 0 7px rgba(229, 62, 62, 0); }
+}
+
+@keyframes mic-idle-ring {
+  0%   { box-shadow: 0 0 0 0px rgba(41, 105, 93, 0.30), 0 10px 28px rgba(35, 49, 45, 0.18); }
+  65%  { box-shadow: 0 0 0 18px rgba(41, 105, 93, 0.00), 0 10px 28px rgba(35, 49, 45, 0.18); }
+  100% { box-shadow: 0 0 0 0px rgba(41, 105, 93, 0.00), 0 10px 28px rgba(35, 49, 45, 0.18); }
 }
 
 .btn-mic.recording {
@@ -1606,6 +1629,13 @@ input::placeholder {
 }
 
 /* ── Floating Replan Button (FAB) ──────────────────── */
+@keyframes fab-nudge {
+  0%, 82%, 100% { transform: scale(1); }
+  86%            { transform: scale(1.07); }
+  92%            { transform: scale(0.96); }
+  97%            { transform: scale(1.03); }
+}
+
 .fab-replan {
   position: fixed;
   bottom: 28px;
@@ -1620,7 +1650,7 @@ input::placeholder {
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(47, 122, 106, 0.18);
+  box-shadow: 0 4px 16px rgba(45, 181, 123, 0.20);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1632,9 +1662,9 @@ input::placeholder {
 }
 
 .fab-replan:hover {
-  background: #dff0e8;
+  background: rgba(45, 110, 133, 0.14);
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 6px 22px rgba(47, 122, 106, 0.28);
+  box-shadow: 0 6px 22px rgba(45, 110, 133, 0.28);
 }
 
 .fab-replan:active {
@@ -1691,13 +1721,22 @@ input::placeholder {
 .fab-panel-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  position: relative;
 }
 
 .fab-panel-title {
   font-size: 1rem;
   font-weight: 700;
   color: var(--ink);
+  text-align: center;
+}
+
+.fab-panel-close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .fab-panel-close {
@@ -1718,7 +1757,7 @@ input::placeholder {
 }
 
 .fab-panel textarea {
-  min-height: 90px;
+  min-height: 72px;
 }
 
 /* Hide FAB in draft mode */
@@ -1799,6 +1838,22 @@ body::before {
   padding: 22px;
 }
 
+/* Untangle wordmark floats above the welcome card on the landing screen */
+.welcome-brand {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Fraunces', serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
 .welcome-card {
   max-width: 560px;
   padding: 40px 36px 34px;
@@ -1842,13 +1897,22 @@ body::before {
 }
 
 .btn-mic--hero {
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(234, 245, 240, 0.92));
-  color: var(--accent-dark);
-  border-color: rgba(47, 122, 106, 0.20);
-  box-shadow: 0 10px 28px rgba(35, 49, 45, 0.10);
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #29695d 0%, #4d9983 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 10px 28px rgba(35, 49, 45, 0.18);
+  animation: mic-idle-ring 2.4s ease-out infinite;
+}
+
+.mic-hero-label {
+  color: rgba(41, 105, 93, 0.75);
+}
+
+.mic-hero-wrap--replan {
+  margin: 10px 0 6px;
 }
 
 .btn-mic--replan,
@@ -1883,6 +1947,21 @@ input[type="time"]:focus {
 
 .btn-primary:hover:not(:disabled) {
   background: linear-gradient(135deg, #225a50 0%, #428973 100%);
+}
+
+/* Plan submit — solid teal, secondary visual weight to mic but clearly pressable */
+#plan-btn {
+  background: linear-gradient(135deg, #3d8a79 0%, #5aaa94 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(41, 105, 93, 0.22);
+  font-weight: 700;
+}
+
+#plan-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #347a6b 0%, #4d9985 100%);
+  box-shadow: 0 8px 22px rgba(41, 105, 93, 0.32);
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -2192,17 +2271,19 @@ input[type="time"]:focus {
   padding: 17px 28px;
   font-size: 1.08rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #edf6f1 0%, #d6e9e0 100%);
-  color: #214f45;
-  border: 1px solid rgba(47, 122, 106, 0.22);
-  box-shadow:
-    0 18px 36px rgba(35, 49, 45, 0.14),
-    0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+  background: linear-gradient(135deg, #2db57b 0%, #62d1aa 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 24px rgba(45, 181, 123, 0.32);
+  animation: fab-nudge 10s ease-in-out infinite;
+  animation-delay: 5s;
 }
 
 .fab-replan:hover {
-  background: linear-gradient(135deg, #f4fbf7 0%, #cfe5db 100%);
-  color: #173f37;
+  background: linear-gradient(135deg, #25a06c 0%, #52c29b 100%);
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(45, 181, 123, 0.42);
+  animation-play-state: paused;
 }
 
 .btn-primary,
@@ -2258,19 +2339,21 @@ input[type="time"]:focus {
 }
 
 .replan-textarea-wrap textarea {
-  min-height: 150px;
+  min-height: 80px;
 }
 
 #replan-btn {
-  background: linear-gradient(135deg, #2d7767 0%, #4f9d87 100%);
-  color: #f7fffb;
-  font-weight: 800;
-  box-shadow: 0 18px 34px rgba(47, 122, 106, 0.18);
+  background: linear-gradient(135deg, #3d8a79 0%, #5aaa94 100%);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(41, 105, 93, 0.22);
 }
 
 #replan-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #286959 0%, #468f7a 100%);
-  box-shadow: 0 20px 36px rgba(47, 122, 106, 0.22);
+  background: linear-gradient(135deg, #347a6b 0%, #4d9985 100%);
+  box-shadow: 0 8px 22px rgba(41, 105, 93, 0.32);
+  transform: translateY(-2px);
 }
 
 #start-fresh-btn {
@@ -2319,9 +2402,9 @@ input[type="time"]:focus {
   }
 
   .btn-mic--hero {
-    width: 64px;
-    height: 64px;
-    border-radius: 18px;
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
   }
 
   .block-task-row {

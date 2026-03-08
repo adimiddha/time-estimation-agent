@@ -51,7 +51,7 @@
         "category": "social",
         "ambiguity": "moderate"
       },
-      "human_score": 1,
+      "human_score": 0,
       "ai_score": 1,
       "notes": null,
       "sample_index": 2
@@ -71,7 +71,7 @@
       },
       "human_score": 0,
       "ai_score": 1,
-      "notes": null,
+      "notes": "lots of ambiguity depending on where the store is",
       "sample_index": 3
     },
     {
@@ -105,9 +105,9 @@
         "category": "writing",
         "ambiguity": "clear"
       },
-      "human_score": 0,
+      "human_score": 1,
       "ai_score": 1,
-      "notes": null,
+      "notes": "3 hours to write a couple paragraphs does seem pessimistic",
       "sample_index": 5
     },
     {
@@ -161,7 +161,7 @@
       },
       "human_score": 1,
       "ai_score": 1,
-      "notes": null,
+      "notes": "pretty unrealistic to give the actual time in the prompt",
       "sample_index": 8
     },
     {
@@ -177,11 +177,11 @@
         "category": "writing",
         "ambiguity": "clear"
       },
-      "human_score": 1,
+      "human_score": 0,
       "ai_score": 1,
-      "notes": null,
+      "notes": "if it took 3 hours pessimistic to write 500 words, 2000 should take longer",
       "sample_index": 9
     }
   ],
-  "timestamp": "2026-01-21T22:59:13.099835"
+  "timestamp": "2026-02-07T18:56:12.502542"
 }

@@ -400,7 +400,7 @@ Generate ONLY the task description, nothing else. Do not include explanations or
             
             # #region agent log
             import json
-            with open('/Users/adimiddha/time-calibration-agent/.cursor/debug.log', 'a') as f:
+            with open('/Users/adimiddha/Github/time-calibration-agent/.cursor/debug.log', 'a') as f:
                 f.write(json.dumps({
                     "sessionId": "debug-session",
                     "runId": "run1",

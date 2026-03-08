@@ -20,7 +20,7 @@ if env_path.exists():
 class QualityEvaluator:
     """Evaluates the quality of time estimates without actuals."""
     
-    def __init__(self, api_key: Optional[str] = None, evaluator_model: str = "gpt-4o-mini", scoring_mode: str = "binary"):
+    def __init__(self, api_key: Optional[str] = None, evaluator_model: str = "gpt-4o", scoring_mode: str = "binary"):
         """
         Initialize quality evaluator.
         
@@ -50,149 +50,77 @@ class QualityEvaluator:
                                 realistic: int, pessimistic: int, explanation: str, category: str,
                                 ambiguity: str, prompt_quality_instructions: str) -> str:
         """Generate binary (0-1) scoring prompt."""
-        return f"""Evaluate the quality of this time estimate for a task. Use binary scoring: 0 (poor quality) or 1 (good quality).
+        return f"""Evaluate this time estimate. Score 0 (poor) or 1 (good).
 
 {prompt_quality_instructions}
-
-⚠️ CRITICAL: If the task is IMPOSSIBLE or UNREALISTIC (e.g., "Solve world hunger", "Learn fluent Spanish in 10 minutes", "Build a skyscraper"), the estimate should be scored 0. An estimate for an impossible task is fundamentally flawed, regardless of how well it's explained.
 
 TASK: "{task_description}"
 
 ESTIMATE:
 - Estimated time: {estimated} minutes
-- Range: {optimistic} (optimistic) - {realistic} (realistic) - {pessimistic} (pessimistic) minutes
+- Range: {optimistic} (optimistic) / {realistic} (realistic) / {pessimistic} (pessimistic) minutes
 - Explanation: {explanation}
 - Category: {category}
 - Ambiguity: {ambiguity}
 
-EXAMPLES OF DIFFERENT QUALITY LEVELS:
+EXAMPLES:
 
-Example 1 (Score 1 - Good Quality):
-Task: "Write a 500-word blog post about time management"
-Estimate: 90 minutes
-Range: 60-90-120 minutes
-Explanation: "Writing a 500-word blog post typically takes 60-90 minutes for research, writing, and basic editing. The range accounts for writing speed variations and whether additional research is needed."
-Category: writing
-→ Score 1: Number is reasonable, explanation is thorough and logical, range is appropriate, category matches. All aspects are solid.
-
-Example 2 (Score 1 - Good Quality):
+Example A (Score 1):
 Task: "Review and respond to 20 emails in my inbox"
-Estimate: 45 minutes
-Range: 30-45-60 minutes
-Explanation: "Email review typically takes 2-3 minutes per email on average. Some emails may require longer responses or follow-up actions, so the range accounts for variation in email complexity and urgency. The estimate considers potential interruptions and prioritization needs."
-Category: admin
-→ Score 1: Number is well-justified, explanation is thorough and considers relevant factors, range is appropriate and explained, category matches, everything is consistent. This is GOOD quality.
+Estimate: 45 min | Range: 30-45-60 min | Category: admin
+Explanation: "Email review typically takes 2-3 minutes per email on average, totaling roughly 40-60 minutes for 20 emails. Some will be quick acknowledgments (under a minute), while others may require 5-10 minutes for detailed responses or follow-up actions. The pessimistic end accounts for emails requiring research or file attachments. Prioritization adds ~5 minutes upfront."
+→ Score 1: Specific per-unit reasoning (2-3 min/email), distinguishes between email types, explains what drives the range, and addresses the realistic workflow.
 
-Example 3 (Score 0 - Poor Quality):
+Example B (Score 0 — looks okay on the surface but is shallow):
+Task: "Plan a surprise birthday party for a close friend by coordinating with three mutual friends"
+Estimate: 120 min | Range: 90-120-180 min | Category: social
+Explanation: "Planning a surprise birthday party involves coordinating with multiple friends, which can take time to finalize details like the guest list, venue, and theme. The optimistic scenario assumes quick agreement, while the pessimistic scenario considers possible delays."
+→ Score 0: The explanation LISTS relevant factors (guest list, venue, theme) but doesn't REASON about them. How long does each sub-task take? Why 120 and not 90 or 180? "Can take time" and "possible delays" are vague hand-waving, not analysis. This is a generic template that could apply to any coordination task.
+
+Example C (Score 0 — unreasonable number):
 Task: "Write a 500-word blog post about time management"
-Estimate: 30 minutes
-Range: 25-30-35 minutes
+Estimate: 30 min | Range: 25-30-35 min | Category: writing
 Explanation: "Blog posts are quick to write, should take about 30 minutes."
-Category: writing
-→ Score 0: Number is too low (quality blog posts need research, writing, editing - typically 60-90 min), explanation is too simplistic and lacks depth, doesn't account for research/editing time, range is too narrow. This has noticeable problems - would be 3/5 in old system. Score 0.
+→ Score 0: Number is too low (research + writing + editing typically 60-90 min), explanation is one sentence with no reasoning, range is unrealistically narrow.
 
-BINARY SCORING RUBRIC:
-- Score 1 (Good Quality): The estimate is GOOD quality. ALL of the following must be STRICTLY true:
-  * The number is reasonable AND well-justified with specific reasoning
-  * The explanation is THOROUGH (not brief or superficial) - it must address multiple relevant factors, consider task complexity, and provide detailed reasoning
-  * The explanation demonstrates DEEP understanding - not just surface-level acknowledgment
-  * The range is appropriate AND the explanation clearly justifies why the range is what it is
-  * The category is correct
-  * Everything is consistent and aligned
-  * The estimate adequately addresses task ambiguity/complexity with sufficient detail
-  
-  CRITICAL: If the explanation is brief, lacks detail, doesn't address multiple factors, or feels superficial, score 0. If you find yourself saying "could be more thorough" or "lacks depth", score 0. Only score 1 if the explanation is genuinely thorough and demonstrates deep understanding.
+Example D (Score 0 — impossible/unrealistic task):
+Task: "Solve world hunger by brainstorming for an hour"
+Estimate: 60 min | Range: 45-60-90 min | Category: deep work
+Explanation: "Brainstorming on this topic would take about an hour."
+→ Score 0: The task is impossible/unrealistic. The estimate should flag this rather than treat it as a normal task.
 
-- Score 0 (Poor Quality): The estimate has problems. Score 0 if:
-  * The number is unreasonable or poorly justified
-  * The explanation is brief, superficial, or lacks sufficient detail
-  * The explanation doesn't address multiple relevant factors
-  * The explanation doesn't demonstrate deep understanding of the task
-  * The range is inappropriate (too narrow/wide) or not well-explained
-  * The category is wrong
-  * There are inconsistencies or misalignments
-  * The estimate doesn't adequately acknowledge task ambiguity/complexity with sufficient detail
-  * The explanation could be described as "lacking depth" or "could be more thorough"
-  * There are noticeable problems that affect reliability
+KEY DISTINCTION — listing vs. reasoning:
+- LISTING: "The time can vary based on traffic conditions and the efficiency of the service." (names factors but doesn't analyze them)
+- REASONING: "The 10-minute drive could stretch to 20 in rush hour traffic. Counter wait times are usually under 5 minutes but can spike to 15 if there's a queue." (quantifies, explains HOW factors affect the estimate)
+Listing factors earns a 0. Reasoning about them earns a 1.
 
-Evaluate on these criteria:
+SCORING CRITERIA:
 
-1. **Reasonableness** (0 or 1):
-   a) Is the estimate number reasonable for this task? 
-      - Consider: task complexity, typical duration for similar tasks, scope
-      - Be critical: Is 30min for "write a blog post" reasonable? (Probably not - too short)
-   b) Does the explanation provide THOROUGH, DETAILED reasoning?
-      - Does it consider MULTIPLE relevant factors? (complexity, scope, interruptions, ambiguity, etc.)
-      - Is the reasoning detailed and well-thought-out, not just brief or superficial?
-      - Does it demonstrate deep understanding, not just surface acknowledgment?
-   c) Are there logical flaws in the explanation?
-      - Contradictions, unrealistic assumptions, missing key factors?
-   
-   Score 1 only if BOTH number is reasonable AND explanation is THOROUGH and DETAILED (not brief or superficial).
-   Score 0 if the number is problematic OR if the explanation lacks depth/detail.
+1. **Reasonableness**: Is the number plausible for this task? Does the explanation provide REASONING (not just listing factors)?
 
-2. **Consistency** (0 or 1):
-   a) **Explanation-Number Alignment**: Does explanation THOROUGHLY justify the specific number?
-      - If explanation says "simple, quick task" but estimate is 2 hours, that's inconsistent (score 0)
-      - If explanation mentions complexity but estimate is very low, that's inconsistent
-      - The explanation must provide DETAILED justification, not just brief mention
-   b) **Range Alignment**: Does explanation THOROUGHLY account for the range?
-      - Does it explain in DETAIL why optimistic differs from pessimistic?
-      - If range is wide but explanation doesn't adequately explain uncertainty, that's a problem
-      - Brief mentions are not enough - need detailed explanation
-   c) **Internal Consistency**: Is explanation internally consistent?
-      - No contradictions within the explanation
-      - All parts align logically
-   
-   Score 1 only if ALL THREE aspects are consistent AND the explanation provides DETAILED justification.
-   Score 0 if any aspect has issues OR if the explanation is too brief/superficial.
+2. **Consistency**: Does the explanation justify the specific number and range? If it says "quick task" but estimates 2 hours, that's inconsistent.
 
-3. **Range Appropriateness** (0 or 1):
-   - Are optimistic < realistic < pessimistic? (If not, score 0)
-   - Is the range reasonable? 
-     * Too narrow (e.g., 29-30-31 min) suggests overconfidence (score 0)
-     * Too wide (e.g., 5-30-120 min for simple task) suggests uncertainty (score 0)
-     * Good range: accounts for uncertainty without being excessive
-   - Does range make sense for task type?
-     * Simple tasks should have narrower ranges
-     * Complex/ambiguous tasks can have wider ranges
+3. **Range**: Is optimistic < realistic < pessimistic? Is the width appropriate — not too narrow (overconfident) or too wide (uninformative)?
 
-4. **Category Appropriateness** (0 or 1):
-   - Does category match task description? (If clearly wrong, score 0)
-   - Is it an appropriate category? (If better category exists but current one is reasonable, can still score 1)
+4. **Category**: Does it match the task?
 
-5. **Overall Quality** (0 or 1):
-   - Score 1 ONLY if: ALL dimensions are GOOD quality. The number is well-justified, the explanation is thorough and thoughtful (not shallow or simplistic), the range is appropriate and well-explained, the category is correct, and everything is consistent. The estimate demonstrates good understanding and handling of the task's complexity/ambiguity. The explanation must adequately address the task's nuances and provide sufficient detail. If the explanation lacks depth, if there are noticeable problems, or if any dimension is merely "acceptable" rather than "good", score 0.
-   - Score 0 if: ANY dimension has problems. This includes: unreasonable numbers, poor or shallow explanations, inappropriate ranges, wrong categories, inconsistencies, or failure to adequately address task complexity/ambiguity. Score 0 if the explanation is too simplistic, lacks sufficient detail, or doesn't adequately address the task's complexity. Estimates that are "acceptable but have noticeable problems" should score 0.
+5. **Overall**: Score 1 ONLY if all dimensions are good. Score 0 if ANY dimension has problems.
 
-CRITICAL: 
-- Evaluate each dimension independently.
-- Assess task clarity from the task description itself - don't assume it's good or bad
-- If task is vague and estimate acknowledges this WITH SUFFICIENT DETAIL and explains HOW/WHY → score 1
-- If task is vague and estimate only briefly mentions uncertainty → score 0 (needs detail)
-- If task is clear and estimate is vague or doesn't use details → score 0
-- If task is vague and estimate is overly precise → score 0
-- Look at the ACTUAL quality: Is this GOOD (1) or does it have problems (0)?
-- Be VERY STRICT: If the explanation is brief, lacks detail, or feels superficial, score 0
-- Ask yourself: "Would I say this explanation 'lacks depth' or 'could be more thorough'?" If yes, score 0
-- Compare to the examples: Is this more like Example 1 or 2 (1), or Example 3, 4, or 5 (0)?
-- Remember: "Acceptable but has noticeable problems" = Score 0. Only "Good quality" = Score 1.
-
-Respond in JSON format:
+First, write your analysis. Then respond in JSON:
 {{
+    "reasoning": "<Your analysis: What specifically is good or bad about this estimate? Quote specific phrases from the explanation that show depth or shallowness.>",
     "overall_score": <0 or 1>,
     "reasonableness_score": <0 or 1>,
     "consistency_score": <0 or 1>,
     "range_score": <0 or 1>,
     "category_score": <0 or 1>,
-    "reasoning": "<brief explanation. Be specific: Why this score? What issues exist? What's good? If you scored 1, explain why it's fundamentally sound. If you scored 0, explain the significant problems.",
     "checks": {{
-        "reasonable_number": <true/false - is the estimate number reasonable?>,
-        "reasonable_explanation": <true/false - does explanation have sound reasoning?>,
-        "explanation_number_aligned": <true/false - does explanation support the number?>,
-        "range_aligned": <true/false - does explanation account for the range?>,
-        "internally_consistent": <true/false - is explanation internally consistent?>,
-        "range_valid": <true/false - is optimistic < realistic < pessimistic?>,
+        "reasonable_number": <true/false>,
+        "reasonable_explanation": <true/false>,
+        "explanation_number_aligned": <true/false>,
+        "range_aligned": <true/false>,
+        "internally_consistent": <true/false>,
+        "range_valid": <true/false>,
         "category_appropriate": <true/false>
     }}
 }}"""
@@ -306,7 +234,7 @@ Respond in JSON format:
         
         # #region agent log
         import json
-        with open('/Users/adimiddha/time-calibration-agent/.cursor/debug.log', 'a') as f:
+        with open('/Users/adimiddha/Github/time-calibration-agent/.cursor/debug.log', 'a') as f:
             f.write(json.dumps({
                 "sessionId": "debug-session",
                 "runId": "run1",
@@ -359,7 +287,7 @@ NOTE: The original task prompt was of GOOD quality. Standard evaluation applies.
             # #region agent log
             import json as json_module
             prompt_preview = prompt[:500] + "..." if len(prompt) > 500 else prompt
-            with open('/Users/adimiddha/time-calibration-agent/.cursor/debug.log', 'a') as f:
+            with open('/Users/adimiddha/Github/time-calibration-agent/.cursor/debug.log', 'a') as f:
                 f.write(json_module.dumps({
                     "sessionId": "debug-session",
                     "runId": "run1",
@@ -380,8 +308,8 @@ NOTE: The original task prompt was of GOOD quality. Standard evaluation applies.
             if self.scoring_mode == "five_point":
                 system_message = "You are an expert evaluator of time estimates. Use a 1-5 scale (5=excellent, 4=good, 3=acceptable, 2=poor, 1=very poor). Evaluate each estimate independently. Always respond with valid JSON."
             else:
-                system_message = "You are an expert evaluator of time estimates. Use binary scoring: 0 (poor quality) or 1 (good quality). Score 1 if the estimate is fundamentally sound. Score 0 if there are significant problems. Evaluate each estimate independently. Always respond with valid JSON."
-            
+                system_message = "You are a strict evaluator of time estimate quality. Most estimates have shallow explanations that list factors without reasoning about them — these should score 0. Only score 1 when the explanation demonstrates genuine analytical depth. Always respond with valid JSON."
+
             response = self.client.chat.completions.create(
                 model=self.evaluator_model,
                 messages=[
@@ -389,7 +317,7 @@ NOTE: The original task prompt was of GOOD quality. Standard evaluation applies.
                     {"role": "user", "content": prompt}
                 ],
                 response_format={"type": "json_object"},
-                temperature=0.6
+                temperature=0.1
             )
             
             import json
@@ -397,7 +325,7 @@ NOTE: The original task prompt was of GOOD quality. Standard evaluation applies.
             
             # #region agent log
             import json as json_module
-            with open('/Users/adimiddha/time-calibration-agent/.cursor/debug.log', 'a') as f:
+            with open('/Users/adimiddha/Github/time-calibration-agent/.cursor/debug.log', 'a') as f:
                 f.write(json_module.dumps({
                     "sessionId": "debug-session",
                     "runId": "run1",

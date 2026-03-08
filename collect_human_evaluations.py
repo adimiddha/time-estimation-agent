@@ -23,7 +23,7 @@ def load_ai_evaluations(file_path: str) -> List[Dict]:
     """Load AI binary evaluations from JSON file."""
     with open(file_path, 'r') as f:
         data = json.load(f)
-    
+
     samples = data.get('samples', [])
     return samples
 

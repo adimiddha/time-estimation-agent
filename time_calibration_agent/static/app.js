@@ -1,7 +1,7 @@
 'use strict';
 
 // ── Constants ──────────────────────────────────────────────────
-const BASE_MIN_BLOCK_HEIGHT = 84;
+const BASE_MIN_BLOCK_HEIGHT = 52;
 const COMPACT_THRESHOLD_PX = 0; // all blocks show full content
 const MICRO_TASK_MAX_MINUTES = 10;
 const MICRO_CLUSTER_MAX_SPAN_MINUTES = 24;
@@ -94,28 +94,30 @@ function isMobileViewport() {
 }
 
 function getLayoutMetrics(totalMinutes) {
-  const hours = totalMinutes / 60;
   const mobile = isMobileViewport();
-  let pixelsPerHour;
+  const minBlockHeight = mobile ? BASE_MIN_BLOCK_HEIGHT + 8 : BASE_MIN_BLOCK_HEIGHT;
 
-  if (mobile) {
-    if (hours <= 2) pixelsPerHour = 980;
-    else if (hours <= 3) pixelsPerHour = 820;
-    else if (hours <= 4) pixelsPerHour = 700;
-    else if (hours <= 6) pixelsPerHour = 560;
-    else pixelsPerHour = 440;
-  } else {
-    if (hours <= 2) pixelsPerHour = 760;
-    else if (hours <= 3) pixelsPerHour = 660;
-    else if (hours <= 4) pixelsPerHour = 580;
-    else if (hours <= 6) pixelsPerHour = 500;
-    else pixelsPerHour = 400;
-  }
+  // Target: fit the full schedule in ~85% of the scroll container height
+  // so the user rarely needs to scroll more than a small amount.
+  const scrollEl = document.getElementById('calendar-scroll');
+  const containerH = scrollEl ? scrollEl.clientHeight : 500;
+  const targetPx = containerH * 0.85;
+
+  // Natural px/min to fit everything; clamp to a sane range so blocks stay readable
+  // Min 3.5 px/min (~210px/hr) keeps labels legible; max 7 px/min (~420px/hr) caps density
+  const naturalPxPerMin = targetPx / totalMinutes;
+  const pxPerMin = Math.max(3.5, Math.min(7.0, naturalPxPerMin));
+
+  // Never let the scale be so compressed that a short block becomes illegible:
+  // if the minimum block height would be violated at this px/min, bump px/min up.
+  const worstCaseDuration = 10; // minutes (e.g. a 10-min break)
+  const minNeededPxPerMin = minBlockHeight / worstCaseDuration;
+  const finalPxPerMin = Math.max(pxPerMin, minNeededPxPerMin);
 
   return {
-    pixelsPerHour,
-    pixelsPerMinute: pixelsPerHour / 60,
-    minBlockHeight: mobile ? BASE_MIN_BLOCK_HEIGHT + 10 : BASE_MIN_BLOCK_HEIGHT,
+    pixelsPerHour: finalPxPerMin * 60,
+    pixelsPerMinute: finalPxPerMin,
+    minBlockHeight,
   };
 }
 
@@ -202,45 +204,190 @@ function initClock() {
   setInterval(tick, 30_000);
 }
 
-// ── Progress Bar ───────────────────────────────────────────────
+// ── Progress (knot-driven, no visible bar) ─────────────────────
 let progressTimer = null;
+let _knotProgress = 0;
+let _knotProgressRaf = null;
+
+function _easeInOut(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
+
+function _animKnotTo(target, dur) {
+  const startP = _knotProgress, startT = performance.now();
+  if (_knotProgressRaf) cancelAnimationFrame(_knotProgressRaf);
+  function step() {
+    const t = Math.min((performance.now() - startT) / dur, 1);
+    _knotProgress = startP + (target - startP) * _easeInOut(t);
+    if (t < 1) _knotProgressRaf = requestAnimationFrame(step);
+    else _knotProgress = target;
+  }
+  _knotProgressRaf = requestAnimationFrame(step);
+}
 
 function animateProgressBar(onComplete) {
-  const bar = document.getElementById('progress-bar');
   const label = document.getElementById('progress-label');
-  if (!bar || !label) return;
-
   const stages = [
-    { pct: 20,  dur: 1000,  text: 'Untangling your day\u2026' },
-    { pct: 70,  dur: 8000,  text: 'Estimating task durations\u2026' },
-    { pct: 95,  dur: 4000,  text: 'Building your schedule\u2026' },
+    { pct: 0.20, dur: 1000, text: 'Untangling your day\u2026' },
+    { pct: 0.70, dur: 8000, text: 'Estimating task durations\u2026' },
+    { pct: 0.95, dur: 4000, text: 'Building your schedule\u2026' },
   ];
-
   let stageIdx = 0;
+  _knotProgress = 0;
 
   function runStage() {
     if (stageIdx >= stages.length) return;
     const { pct, dur, text } = stages[stageIdx];
-    bar.style.transition = `width ${dur}ms ease-in-out`;
-    bar.style.width = pct + '%';
-    label.textContent = text;
+    if (label) label.textContent = text;
+    _animKnotTo(pct, dur);
     stageIdx++;
     progressTimer = setTimeout(runStage, dur);
   }
 
-  bar.style.transition = 'none';
-  bar.style.width = '0%';
-  // Tiny delay so the 0% reset renders before animation starts
   requestAnimationFrame(() => requestAnimationFrame(runStage));
 
-  // Return a function to snap to 100% when done
   return function snapDone() {
     if (progressTimer) clearTimeout(progressTimer);
-    bar.style.transition = 'width 0.4s ease-in-out';
-    bar.style.width = '100%';
+    if (_knotProgressRaf) cancelAnimationFrame(_knotProgressRaf);
+    _knotProgress = 1;
     if (label) label.textContent = 'Done!';
     if (onComplete) setTimeout(onComplete, 450);
   };
+}
+
+// ── Knot Untangle Animation ────────────────────────────────────
+// Core draw: thread with two free ends; complex tangled middle at progress=0,
+// straight line at progress=1. Both the progress-driven and looping versions
+// call this function.
+function drawThreadKnot(canvas, progress) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const N = 500;
+  // Rope thickness proportional to smaller dimension
+  const thick = Math.max(5, Math.min(W, H) * 0.038);
+  // Spiral knot radius: compact central knot with tails extending to edges
+  const knotR = Math.min(H * 0.38, W * 0.18);
+  const tailFrac = 0.22; // fraction of path length devoted to each straight tail
+  const loops = 3.5;    // number of full rotations in the spiral knot
+
+  ctx.clearRect(0, 0, W, H);
+
+  const pts = [];
+  for (let i = 0; i <= N; i++) {
+    const u = i / N;
+    // Straight line target: spans full canvas width at vertical center
+    const sx = W * (0.04 + u * 0.92);
+    const sy = cy;
+
+    // Knotted state: tails enter from sides, spiral knot in center
+    let kx, ky;
+    if (u <= tailFrac) {
+      // Left tail: straight line from left edge → canvas center
+      kx = W * (0.04 + (u / tailFrac) * (0.5 - 0.04));
+      ky = cy;
+    } else if (u >= 1 - tailFrac) {
+      // Right tail: canvas center → right edge
+      const t = (u - (1 - tailFrac)) / tailFrac;
+      kx = W * (0.5 + t * (0.96 - 0.5));
+      ky = cy;
+    } else {
+      // Spiral knot body: r peaks at u=0.5, is 0 at entry/exit → smooth join with tails
+      const t = (u - tailFrac) / (1 - 2 * tailFrac); // 0→1 within knot section
+      const angle = t * Math.PI * 2 * loops;
+      const r = knotR * Math.sin(t * Math.PI);
+      kx = cx + r * Math.cos(angle);
+      ky = cy + r * Math.sin(angle);
+    }
+
+    // Blend: knotted at progress=0, straight line at progress=1
+    pts.push([
+      kx + (sx - kx) * progress,
+      ky + (sy - ky) * progress
+    ]);
+  }
+
+  function strokePts(color, lw) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+
+  // Shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(20,55,47,0.20)';
+  ctx.shadowBlur = thick;
+  ctx.shadowOffsetY = thick * 0.4;
+  strokePts('#2f7a6a', thick);
+  ctx.restore();
+
+  // Main rope
+  strokePts('#2f7a6a', thick);
+
+  // Highlight sheen for cord depth
+  strokePts('rgba(190,225,215,0.45)', thick * 0.32);
+
+  // End nubs
+  const r = thick * 0.7;
+  [pts[0], pts[N]].forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], r, 0, Math.PI * 2);
+    ctx.fillStyle = '#72b59f';
+    ctx.fill();
+  });
+}
+
+// Looping version for calendar overlay (timer-driven, not progress-driven)
+const _knotRafs = {};
+
+function startKnotAnimation(canvas) {
+  const cid = canvas.id || ('knot_' + Math.random());
+  if (_knotRafs[cid]) cancelAnimationFrame(_knotRafs[cid]);
+
+  let blend = 0, phase = 'hold_knot', t0 = null;
+  function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
+
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const el = ts - t0;
+    if (phase === 'hold_knot') {
+      blend = 0;
+      if (el > 400) { phase = 'untangling'; t0 = ts; }
+    } else if (phase === 'untangling') {
+      blend = ease(Math.min(el / 2200, 1));
+      if (el > 2200) { phase = 'done'; blend = 1; }
+    }
+    drawThreadKnot(canvas, blend);
+    // Stop once fully unwound — no retangle loop
+    if (phase !== 'done') {
+      _knotRafs[cid] = requestAnimationFrame(frame);
+    }
+  }
+  _knotRafs[cid] = requestAnimationFrame(frame);
+}
+
+// Progress-driven version for main loading screen — polls actual progress bar each frame
+let _progressKnotActive = false;
+let _progressKnotRaf = null;
+
+function startProgressKnot() {
+  const canvas = document.getElementById('knot-canvas-main');
+  if (!canvas) return;
+  _progressKnotActive = true;
+  function loop() {
+    if (!_progressKnotActive) return;
+    drawThreadKnot(canvas, _knotProgress);
+    _progressKnotRaf = requestAnimationFrame(loop);
+  }
+  _progressKnotRaf = requestAnimationFrame(loop);
+}
+
+function stopProgressKnot() {
+  _progressKnotActive = false;
+  if (_progressKnotRaf) { cancelAnimationFrame(_progressKnotRaf); _progressKnotRaf = null; }
 }
 
 // ── Welcome Overlay Transitions ────────────────────────────────
@@ -249,6 +396,8 @@ function showScreen(id) {
     const el = document.getElementById(sid);
     if (el) el.style.display = sid === id ? '' : 'none';
   });
+  if (id === 'loading-screen') startProgressKnot();
+  else stopProgressKnot();
 }
 
 function hideOverlay() {
@@ -594,28 +743,98 @@ function showCalendarEmpty() {
   }
 }
 
+// ── Calendar overlay knot animation (progress-driven, mirrors main screen) ────
+let _calKnotProgress = 0;
+let _calKnotProgressRaf = null;
+let _calKnotTimer = null;
+let _calKnotLoopActive = false;
+
+function _animCalKnotTo(target, dur) {
+  const startP = _calKnotProgress, startT = performance.now();
+  if (_calKnotProgressRaf) cancelAnimationFrame(_calKnotProgressRaf);
+  function step() {
+    const t = Math.min((performance.now() - startT) / dur, 1);
+    _calKnotProgress = startP + (target - startP) * _easeInOut(t);
+    if (t < 1) _calKnotProgressRaf = requestAnimationFrame(step);
+    else _calKnotProgress = target;
+  }
+  _calKnotProgressRaf = requestAnimationFrame(step);
+}
+
+function startCalKnotAnimation(canvas) {
+  _calKnotProgress = 0;
+  _calKnotLoopActive = true;
+  const stages = [
+    { pct: 0.20, dur: 1000 },
+    { pct: 0.70, dur: 8000 },
+    { pct: 0.95, dur: 4000 },
+  ];
+  let stageIdx = 0;
+  function runStage() {
+    if (stageIdx >= stages.length) return;
+    const { pct, dur } = stages[stageIdx];
+    _animCalKnotTo(pct, dur);
+    stageIdx++;
+    _calKnotTimer = setTimeout(runStage, dur);
+  }
+  requestAnimationFrame(() => requestAnimationFrame(runStage));
+  function loop() {
+    if (!_calKnotLoopActive) return;
+    drawThreadKnot(canvas, _calKnotProgress);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+
+function stopCalKnotAnimation(canvas) {
+  _calKnotLoopActive = false;
+  if (_calKnotTimer) clearTimeout(_calKnotTimer);
+  if (_calKnotProgressRaf) cancelAnimationFrame(_calKnotProgressRaf);
+  _calKnotProgress = 1;
+  if (canvas) drawThreadKnot(canvas, 1);
+}
+
 function showCalendarLoading() {
-  const eventsEl = document.getElementById('calendar-events');
-  if (eventsEl) {
-    eventsEl.querySelectorAll('.calendar-block').forEach(b => {
-      b.style.opacity = '0.3';
-    });
-    let overlay = document.getElementById('calendar-overlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'calendar-overlay';
-      overlay.className = 'calendar-loading';
-      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(255,255,255,0.7);z-index:20;';
-      overlay.innerHTML = '<div class="spinner"></div><span>Replanning\u2026</span>';
-      eventsEl.style.position = 'relative';
-      eventsEl.appendChild(overlay);
-    }
+  // Fade out existing blocks
+  document.querySelectorAll('#calendar-events .calendar-block').forEach(b => {
+    b.style.opacity = '0.25';
+  });
+
+  // Prevent scroll during loading
+  const scrollEl = document.getElementById('calendar-scroll');
+  if (scrollEl) scrollEl.style.overflow = 'hidden';
+
+  let overlay = document.getElementById('calendar-overlay');
+  if (!overlay) {
+    const panelEl = document.querySelector('.calendar-panel');
+    if (!panelEl) return;
+    panelEl.style.position = 'relative';
+    overlay = document.createElement('div');
+    overlay.id = 'calendar-overlay';
+    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(255,255,255,0.82);z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:inherit;';
+    overlay.innerHTML = '<canvas id="knot-canvas-cal" class="knot-canvas" width="400" height="160" style="width:200px;height:80px;"></canvas><span style="font-size:0.88rem;font-weight:600;color:var(--ink)">Replanning\u2026</span>';
+    panelEl.appendChild(overlay);
+    const calCanvas = overlay.querySelector('canvas');
+    if (calCanvas) startCalKnotAnimation(calCanvas);
   }
 }
 
 function removeCalendarOverlay() {
   const overlay = document.getElementById('calendar-overlay');
-  if (overlay) overlay.remove();
+  const canvas = overlay ? overlay.querySelector('canvas') : null;
+  stopCalKnotAnimation(canvas);
+  // Restore scroll
+  const scrollEl = document.getElementById('calendar-scroll');
+  if (scrollEl) scrollEl.style.overflow = '';
+  // Brief pause to show the flat/done state before overlay disappears
+  setTimeout(() => {
+    const ov = document.getElementById('calendar-overlay');
+    if (ov) ov.remove();
+    // Restore block opacity
+    document.querySelectorAll('#calendar-events .calendar-block').forEach(b => {
+      b.style.opacity = '';
+    });
+  }, 350);
 }
 
 // ── Summary Section ────────────────────────────────────────────
@@ -1347,6 +1566,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const exportCalBtn = document.getElementById('export-cal-btn');
   if (exportCalBtn) exportCalBtn.addEventListener('click', exportCalendar);
 
+  // Init looping knot for replan overlay (dead code canvas, looping version)
+  const knotReplan = document.getElementById('knot-canvas-replan');
+  if (knotReplan) startKnotAnimation(knotReplan);
+
   // Start fresh button
   const freshBtn = document.getElementById('start-fresh-btn');
   if (freshBtn) {
@@ -1355,6 +1578,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const brainDumpEl = document.getElementById('brain-dump');
       if (brainDumpEl) brainDumpEl.value = '';
       brainDumpText = '';
+
+      // Reset plan button to original arrow state (JS may have changed it to play icon)
+      const planBtn = document.getElementById('plan-btn');
+      if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = 'Untangle my day \u2192'; }
 
       const overlay = document.getElementById('welcome-overlay');
       const shell = document.getElementById('app-shell');
