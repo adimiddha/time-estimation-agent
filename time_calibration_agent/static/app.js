@@ -957,7 +957,15 @@ function track(event, params = {}) {
   if (typeof gtag === 'function') gtag('event', event, params);
 }
 
+function updateVirtualLocation(path, title) {
+  if (!window.history || typeof window.history.replaceState !== 'function') return;
+  if (window.location.pathname === path && document.title === title) return;
+  window.history.replaceState({}, title, path);
+  if (title) document.title = title;
+}
+
 function trackPageView(path, title) {
+  updateVirtualLocation(path, title);
   if (typeof gtag === 'function') {
     gtag('event', 'page_view', {
       page_title: title,
@@ -1337,14 +1345,17 @@ async function loadSession() {
         renderCalendar(data.plan_output.time_blocks);
         renderSummary(data.plan_output);
         updateSidebar(data.session_id, data.current_time, data.plan_output);
+        trackPageView('/planner', 'day planner');
         showFab();
       }
     }
     if (!data.plan_output || !data.plan_output.time_blocks || !data.plan_output.time_blocks.length) {
+      trackPageView('/welcome', 'welcome');
       track('welcome_screen_shown');
     }
   } catch (e) {
     // No session — overlay stays visible
+    trackPageView('/welcome', 'welcome');
     track('welcome_screen_shown');
   }
 }

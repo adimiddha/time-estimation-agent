@@ -161,6 +161,11 @@ def create_app() -> Flask:
             flask_session.permanent = True
 
     @app.route("/", methods=["GET", "POST"])
+    @app.route("/welcome", methods=["GET"])
+    @app.route("/clarify", methods=["GET"])
+    @app.route("/planning", methods=["GET"])
+    @app.route("/draft", methods=["GET"])
+    @app.route("/planner", methods=["GET"])
     def index():
         return render_template("index.html")
 
