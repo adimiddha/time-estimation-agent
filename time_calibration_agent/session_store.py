@@ -78,6 +78,8 @@ class DaySessionStore:
                 created_at=datetime.now().isoformat(timespec="seconds"),
             )
             session = session_obj.to_dict()
+            if overwrite:
+                session["phase"] = "draft"
 
         # Store/update session_end_time at top-level if provided
         if session_end_time is not None:
@@ -95,5 +97,16 @@ class DaySessionStore:
 
         session["replans"].append(replan_entry)
 
+        self.save_session(session)
+        return session
+
+    def approve_session(self, session_id: str) -> Dict[str, Any]:
+        """Set phase='approved', store anchor_plan from last replan."""
+        session = self.load_session(session_id)
+        if not session:
+            return {}
+        session["phase"] = "approved"
+        if session.get("replans"):
+            session["anchor_plan"] = session["replans"][-1]["plan_output"]
         self.save_session(session)
         return session

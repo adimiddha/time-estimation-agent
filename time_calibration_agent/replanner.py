@@ -119,6 +119,8 @@ class ReplanningAgent:
         estimated_tasks: Optional[list] = None,
         extracted_context: Optional[Dict[str, Any]] = None,
         session_end_time: Optional[str] = None,
+        conversation_history: Optional[List[str]] = None,
+        adjustment_mode: bool = False,
     ) -> Dict[str, Any]:
         inferred_time = self._infer_time_from_text(raw_text)
         now = inferred_time or current_time or datetime.now().strftime("%H:%M")
@@ -132,18 +134,35 @@ class ReplanningAgent:
         estimated_tasks_json = json.dumps(estimated_tasks, indent=2)
         extracted_context_json = json.dumps(extracted_context or {}, indent=2)
 
-        prompt = f"""You are an ADHD-friendly replanning assistant.
+        if adjustment_mode:
+            preamble = (
+                "You are adjusting an existing plan. Make only the changes necessary. "
+                "If the user is making a small tweak (swap tasks, shorten a block, drop one item), "
+                "change as little as possible. If they signal a bigger shift in priorities or "
+                "schedule, restructure more significantly. Do not start from scratch."
+            )
+        else:
+            preamble = "You are an ADHD-friendly replanning assistant."
 
-Current time (authoritative): {now}
+        prompt = f"{preamble}\n\nCurrent time (authoritative): {now}\n\n"
 
-User context (latest):
-"""
-        prompt += raw_text.strip() + "\n\n"
+        if conversation_history:
+            prompt += "Full session history (oldest \u2192 newest):\n"
+            for i, h in enumerate(conversation_history, 1):
+                prompt += f"[{i}] {h}\n"
+            prompt += "\nCurrent update:\n" + raw_text.strip() + "\n\n"
+        else:
+            prompt += "User context (latest):\n"
+            prompt += raw_text.strip() + "\n\n"
+
         prompt += "Structured extraction (remaining tasks, priorities, constraints):\n"
         prompt += extracted_context_json + "\n\n"
         prompt += "Estimated remaining tasks (use these durations):\n"
         prompt += estimated_tasks_json + "\n\n"
-        prompt += "Previous session input (if any):\n" + last_input_text + "\n\n"
+
+        if not conversation_history:
+            prompt += "Previous session input (if any):\n" + last_input_text + "\n\n"
+
         prompt += "Previous plan output (if any):\n" + last_plan_json + "\n\n"
         prompt += "Task: Create a realistic plan for the rest of the day.\n\nRules:\n"
         prompt += "- Do not schedule anything before the current time.\n"
@@ -160,7 +179,12 @@ User context (latest):
         prompt += "- Do not mention ADHD in any output field.\n"
         prompt += "- Output time blocks in chronological order.\n"
         prompt += "- Use 24-hour time format HH:MM for start/end.\n"
-        prompt += "- Provide 1-3 immediate next actions.\n"
+        prompt += "- For every time block, add a 'steps' array of 2-3 tiny, concrete micro-steps.\n"
+        prompt += "  Steps must be the smallest possible physical actions (e.g. 'Open your laptop',\n"
+        prompt += "  'Find the document', 'Set a 25-minute timer', 'Pick up your phone').\n"
+        prompt += "  Break blocks get rest steps (e.g. 'Step away from your desk', 'Get a glass of water').\n"
+        prompt += "  Never write vague steps like 'work on X' or 'continue X' — always say exactly what to do first.\n"
+        prompt += "- Also provide next_actions: copy the steps from the first non-break block (as a fallback).\n"
         prompt += "- Provide a plan-level confidence range with low/high between 0 and 1.\n"
         prompt += "- Explain why each dropped/deferred item was dropped.\n"
         if session_end_time:
@@ -171,7 +195,7 @@ User context (latest):
 Return ONLY valid JSON with this exact schema:
 {
   "time_blocks": [
-    {"start": "HH:MM", "end": "HH:MM", "task": "...", "kind": "task|fixed|break"}
+    {"start": "HH:MM", "end": "HH:MM", "task": "...", "kind": "task|fixed|break", "steps": ["...", "...", "..."]}
   ],
   "next_actions": ["..."],
   "drop_or_defer": ["..."],
@@ -205,14 +229,28 @@ Return ONLY valid JSON with this exact schema:
         last_plan: Optional[Dict[str, Any]] = None,
         last_input: Optional[str] = None,
         session_end_time: Optional[str] = None,
+        conversation_history: Optional[List[str]] = None,
+        estimated_tasks: Optional[list] = None,
+        adjustment_mode: bool = False,
     ) -> Tuple[Dict[str, Any], list, Dict[str, Any]]:
         inferred_time = self._infer_time_from_text(raw_text)
         now = inferred_time or current_time or datetime.now().strftime("%H:%M")
-        # When replanning, combine previous input so previously-mentioned tasks aren't lost
-        context_for_extraction = f"{last_input}\n{raw_text}" if last_input else raw_text
+
+        # Build context string for task extraction
+        if conversation_history:
+            context_for_extraction = "\n".join(conversation_history + [raw_text])
+        elif last_input:
+            context_for_extraction = f"{last_input}\n{raw_text}"
+        else:
+            context_for_extraction = raw_text
+
         extracted_context = self._extract_context(context_for_extraction, now)
-        remaining_tasks = extracted_context.get("remaining_tasks", [])
-        estimated_tasks = self._estimate_tasks(remaining_tasks)
+
+        # Skip estimation if caller provided existing estimates (adjust/replan paths)
+        if estimated_tasks is None:
+            remaining_tasks = extracted_context.get("remaining_tasks", [])
+            estimated_tasks = self._estimate_tasks(remaining_tasks)
+
         plan_output = self.plan(
             raw_text=raw_text,
             current_time=now,
@@ -221,6 +259,8 @@ Return ONLY valid JSON with this exact schema:
             estimated_tasks=estimated_tasks,
             extracted_context=extracted_context,
             session_end_time=session_end_time,
+            conversation_history=conversation_history,
+            adjustment_mode=adjustment_mode,
         )
         return plan_output, estimated_tasks, extracted_context
 

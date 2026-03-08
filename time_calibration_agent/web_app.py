@@ -66,15 +66,21 @@ def _build_plan(
             return {"error": "No active session. Start a new session first."}
 
     session = None if overwrite else session_store.load_session(session_id)
-    if mode == "replan" and not session:
+    if mode in ("replan", "adjust") and not session:
         return {"error": f"No existing session found for {session_id}."}
 
     last_plan = None
     last_input = None
+    conversation_history = []
+    existing_estimates = None
     if session and session.get("replans") and not overwrite:
         last_replan = session["replans"][-1]
         last_plan = last_replan.get("plan_output")
         last_input = last_replan.get("raw_input")
+        conversation_history = [r["raw_input"] for r in session["replans"]]
+        existing_estimates = last_replan.get("estimated_tasks")
+
+    adjustment_mode = mode in ("adjust", "replan")
 
     # For replans: load stored session_end_time if not provided; allow override via clarify
     if mode == "replan" and session_end_time is None:
@@ -84,12 +90,19 @@ def _build_plan(
         if clarification.get("session_end_time"):
             session_end_time = clarification["session_end_time"]
 
+    # For adjust: inherit stored session_end_time without calling clarify
+    if mode == "adjust" and session_end_time is None:
+        session_end_time = session_store.get_session_end_time(session_id)
+
     plan_output, estimated_tasks, extracted_context = replanner.plan_with_estimates(
         raw_text=raw_text,
         current_time=current_time,
         last_plan=last_plan,
         last_input=last_input,
         session_end_time=session_end_time,
+        conversation_history=conversation_history if conversation_history else None,
+        estimated_tasks=existing_estimates if (adjustment_mode and existing_estimates is not None) else None,
+        adjustment_mode=adjustment_mode,
     )
 
     session_store.append_replan(
@@ -105,6 +118,7 @@ def _build_plan(
         session_end_time=session_end_time,
     )
 
+    session = session_store.load_session(session_id)
     return {
         "session_id": session_id,
         "current_time": current_time,
@@ -112,6 +126,7 @@ def _build_plan(
         "estimated_tasks": estimated_tasks,
         "extracted_context": extracted_context,
         "session_end_time": session_end_time,
+        "phase": session.get("phase", "draft") if session else "draft",
     }
 
 
@@ -146,7 +161,20 @@ def create_app() -> Flask:
             "estimated_tasks": last_replan.get("estimated_tasks", []),
             "session_end_time": session.get("session_end_time"),
             "replans_count": len(session["replans"]),
+            "phase": session.get("phase", "approved"),
         })
+
+    @app.route("/api/approve", methods=["POST"])
+    def api_approve():
+        data = request.get_json(force=True) or {}
+        session_store = DaySessionStore(root_dir=_user_sessions_dir())
+        session_id = (data.get("session_id") or "").strip() or session_store.load_last_session_id()
+        if not session_id:
+            return jsonify({"error": "No session to approve."}), 400
+        session = session_store.approve_session(session_id)
+        if not session:
+            return jsonify({"error": f"Session {session_id} not found."}), 404
+        return jsonify({"status": "approved", "session_id": session_id})
 
     @app.route("/api/clarify", methods=["POST"])
     def api_clarify():
