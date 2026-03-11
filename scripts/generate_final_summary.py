@@ -29,17 +29,17 @@ all_results = []
 for dataset in datasets:
     # Handle test_1 vs test1 naming
     dataset_name = dataset.replace('_', '')
-    bin_file = f'quality_eval_debug_0-1_{dataset_name}.json'
-    fp_file = f'quality_eval_debug_1-5_{dataset_name}.json'
-    comp_file = f'scoring_comparison_{dataset_name}.json'
-    
+    bin_file = f'eval/results/quality_eval_debug_0-1_{dataset_name}.json'
+    fp_file = f'eval/results/quality_eval_debug_1-5_{dataset_name}.json'
+    comp_file = f'eval/results/scoring_comparison_{dataset_name}.json'
+
     # Check if files exist, try alternative naming
     if not Path(bin_file).exists():
-        bin_file = f'quality_eval_debug_0-1_{dataset}.json'
+        bin_file = f'eval/results/quality_eval_debug_0-1_{dataset}.json'
     if not Path(fp_file).exists():
-        fp_file = f'quality_eval_debug_1-5_{dataset}.json'
+        fp_file = f'eval/results/quality_eval_debug_1-5_{dataset}.json'
     if not Path(comp_file).exists():
-        comp_file = f'scoring_comparison_{dataset}.json'
+        comp_file = f'eval/results/scoring_comparison_{dataset}.json'
     
     # Load binary results
     with open(bin_file) as f:
@@ -65,7 +65,7 @@ for dataset in datasets:
     disagreements = 0
     
     # Try both naming conventions
-    comp_files = [comp_file, f'scoring_comparison_{dataset}.json']
+    comp_files = [comp_file, f'eval/results/scoring_comparison_{dataset}.json']
     for cf in comp_files:
         if Path(cf).exists():
             try:

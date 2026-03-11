@@ -57,9 +57,12 @@ python -m time_calibration_agent.cli quality-compare --dataset test_dataset.json
 python -m time_calibration_agent.cli analyze-quality --file quality_eval_debug.json
 python -m time_calibration_agent.cli compare-scoring --old old_debug.json --new new_debug.json
 
-# Top-level analysis scripts (run from project root)
-python collect_human_evaluations.py
-python analyze_human_ai_comparison.py
+# Analysis scripts (run from project root)
+python3 scripts/collect_human_evaluations.py
+python3 scripts/analyze_human_ai_comparison.py
+python3 scripts/show_disagreements.py [test4]
+python3 scripts/generate_final_summary.py
+python3 scripts/run_all_evaluations.py
 ```
 
 There are no automated tests; validation is via CLI workflows and evaluation scripts.

@@ -77,8 +77,8 @@ def extract_estimate_from_reasoning(reasoning):
     return estimate_info
 
 # Load actual evaluation files to get task and estimate details
-old_file = f'quality_eval_debug_1-5_{dataset_name}.json'
-new_file = f'quality_eval_debug_0-1_{dataset_name}.json'
+old_file = f'eval/results/quality_eval_debug_1-5_{dataset_name}.json'
+new_file = f'eval/results/quality_eval_debug_0-1_{dataset_name}.json'
 
 with open(old_file, 'r') as f:
     old_data = json.load(f)
@@ -108,9 +108,9 @@ new_stricter = [d for d in all_disagreements if d.get('type') == 'old_good_new_p
 
 # Load full dataset to get all tasks
 # Try both naming conventions
-test_dataset_file = f'{dataset}_dataset.json'
+test_dataset_file = f'eval/datasets/{dataset}_dataset.json'
 if not Path(test_dataset_file).exists():
-    test_dataset_file = f'{dataset_name}_dataset.json'
+    test_dataset_file = f'eval/datasets/{dataset_name}_dataset.json'
 with open(test_dataset_file, 'r') as f:
     test_dataset = json.load(f)
     test_prompts = test_dataset.get('test_prompts', [])

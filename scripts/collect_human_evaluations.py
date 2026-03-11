@@ -399,16 +399,16 @@ def main():
         sys.exit(0)
     
     # Save evaluations
-    output_file = "human_evaluations.json"
+    output_file = "eval/results/human_evaluations.json"
     save_human_evaluations(evaluations, output_file, ai_file)
-    
+
     # Compare human vs AI
     console.print()
     comparison = compare_human_ai(evaluations)
     display_comparison_results(comparison)
-    
+
     # Save comparison results
-    comparison_file = "human_ai_comparison.json"
+    comparison_file = "eval/results/human_ai_comparison.json"
     with open(comparison_file, 'w') as f:
         json.dump(comparison, f, indent=2)
     

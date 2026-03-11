@@ -246,10 +246,10 @@ def main():
     display_comparison_results(comparison)
     
     # Save results
-    output_file = "human_ai_comparison.json"
+    output_file = "eval/results/human_ai_comparison.json"
     with open(output_file, 'w') as f:
         json.dump(comparison, f, indent=2)
-    
+
     console.print(f"[green]✅ Comparison results saved to {output_file}[/green]\n")
     
     # Summary for resume

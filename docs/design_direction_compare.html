@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Untangle Redesign Directions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@600;700&family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Bodoni+Moda:opsz,wght@6..96,600;700&family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --page-bg: #e9e0d3;
+      --page-ink: #1f1e1c;
+      --page-muted: #655f57;
+      --page-card: rgba(255, 251, 246, 0.82);
+      --page-line: rgba(34, 32, 29, 0.10);
+      --page-shadow: 0 28px 70px rgba(33, 29, 21, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--page-ink);
+      background:
+        radial-gradient(circle at top left, rgba(212, 161, 96, 0.28), transparent 22%),
+        radial-gradient(circle at 85% 12%, rgba(113, 146, 131, 0.20), transparent 18%),
+        linear-gradient(180deg, #efe7db 0%, #e5dbcd 100%);
+      font-family: "Atkinson Hyperlegible Next", sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.32;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.60), transparent 80%);
+    }
+
+    main {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 36px 0 64px;
+    }
+
+    .hero {
+      margin-bottom: 28px;
+      padding: 28px 30px;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 30px;
+      background: var(--page-card);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--page-shadow);
+    }
+
+    .eyebrow {
+      margin-bottom: 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #5c7668;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: clamp(2.5rem, 5vw, 4.6rem);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      max-width: 10ch;
+    }
+
+    .hero p {
+      max-width: 70ch;
+      margin: 16px 0 0;
+      color: var(--page-muted);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(320px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    .comparison-grid > section:last-child {
+      grid-column: 1 / -1;
+      width: min(720px, 100%);
+      justify-self: center;
+    }
+
+    .direction {
+      padding: 18px;
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      background: rgba(255, 251, 246, 0.70);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--page-shadow);
+    }
+
+    .direction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding: 4px 4px 0;
+    }
+
+    .direction-title {
+      margin: 0 0 4px;
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+
+    .direction-subtitle {
+      margin: 0;
+      color: var(--page-muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      max-width: 42ch;
+    }
+
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      color: #3e5d52;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .screen {
+      overflow: hidden;
+      min-height: 740px;
+      border-radius: 28px;
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .screen * {
+      box-sizing: border-box;
+    }
+
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-mark {
+      font-size: 1.6rem;
+      line-height: 0.9;
+    }
+
+    .brand-copy {
+      font-size: 0.78rem;
+      opacity: 0.72;
+    }
+
+    .time-pill {
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+
+    .mock-shell {
+      padding: 22px;
+    }
+
+    .mock-grid {
+      display: grid;
+      grid-template-columns: 1.04fr 0.96fr;
+      gap: 16px;
+    }
+
+    .panel {
+      border-radius: 24px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .panel h3,
+    .panel h4,
+    .panel p {
+      margin: 0;
+    }
+
+    .panel-kicker {
+      margin-bottom: 10px;
+      font-size: 0.74rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 800;
+      opacity: 0.75;
+    }
+
+    .textarea {
+      min-height: 170px;
+      border-radius: 20px;
+      padding: 16px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 14px;
+      padding: 14px 18px;
+      width: 100%;
+      border-radius: 18px;
+      font-weight: 800;
+      font-size: 0.94rem;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      padding: 14px;
+      border-radius: 18px;
+    }
+
+    .metric-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.68;
+    }
+
+    .metric-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .metric-note {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      opacity: 0.74;
+    }
+
+    .steps {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    .calendar {
+      padding: 16px;
+      border-radius: 24px;
+      min-height: 430px;
+    }
+
+    .calendar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .calendar-title {
+      font-size: 1.35rem;
+      line-height: 1;
+      margin: 4px 0 0;
+    }
+
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .legend span::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      display: block;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .block {
+      display: grid;
+      grid-template-columns: 68px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .block-time {
+      font-size: 0.74rem;
+      font-weight: 700;
+      opacity: 0.68;
+      padding-top: 10px;
+    }
+
+    .block-card {
+      padding: 12px 14px;
+      border-radius: 18px;
+      position: relative;
+    }
+
+    .block-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      opacity: 0.80;
+    }
+
+    .block-task {
+      font-size: 0.94rem;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .block-note {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      opacity: 0.80;
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    .screen-calm {
+      color: #22332f;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(229, 194, 153, 0.28), transparent 26%),
+        radial-gradient(circle at 100% 100%, rgba(122, 170, 155, 0.26), transparent 28%),
+        linear-gradient(180deg, #f4efe7 0%, #ece4d8 100%);
+      font-family: "Atkinson Hyperlegible Next", sans-serif;
+    }
+
+    .screen-calm .brand-mark,
+    .screen-calm .hero-line,
+    .screen-calm .calendar-title,
+    .screen-calm .start-title {
+      font-family: "Fraunces", serif;
+    }
+
+    .screen-calm .panel,
+    .screen-calm .calendar,
+    .screen-calm .metric,
+    .screen-calm .textarea,
+    .screen-calm .time-pill {
+      background: rgba(255, 251, 246, 0.76);
+      border: 1px solid rgba(80, 104, 96, 0.12);
+      box-shadow: 0 18px 40px rgba(30, 45, 41, 0.08);
+    }
+
+    .screen-calm .hero-line {
+      font-size: 2.35rem;
+      line-height: 0.96;
+      margin: 8px 0 12px;
+      max-width: 9ch;
+    }
+
+    .screen-calm .support-copy {
+      margin: 0;
+      color: rgba(34, 51, 47, 0.72);
+      line-height: 1.6;
+      font-size: 0.94rem;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .chip-row span {
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(80, 104, 96, 0.10);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .screen-calm .cta {
+      color: #f7f6f2;
+      background: linear-gradient(135deg, #2b7466, #4d9a84);
+    }
+
+    .screen-calm .start-card {
+      background: linear-gradient(135deg, #24584f, #4a8678);
+      color: #f6fffc;
+      box-shadow: 0 22px 46px rgba(34, 74, 66, 0.24);
+    }
+
+    .screen-calm .start-title {
+      margin: 6px 0 6px;
+      font-size: 1.9rem;
+      line-height: 0.98;
+    }
+
+    .screen-calm .legend .focus::before,
+    .screen-calm .task::before {
+      background: linear-gradient(135deg, #2f7a6a, #5aa790);
+    }
+
+    .screen-calm .legend .fixed::before,
+    .screen-calm .fixed-block .block-label::before {
+      background: linear-gradient(135deg, #c77b2e, #df9d58);
+    }
+
+    .screen-calm .legend .break::before,
+    .screen-calm .break-block .block-label::before {
+      background: linear-gradient(135deg, #7fa7b5, #a8c6d1);
+    }
+
+    .screen-calm .task-block {
+      background: linear-gradient(135deg, rgba(47, 122, 106, 0.18), rgba(90, 167, 144, 0.24));
+    }
+
+    .screen-calm .fixed-block {
+      background: linear-gradient(135deg, rgba(199, 123, 46, 0.18), rgba(223, 157, 88, 0.22));
+    }
+
+    .screen-calm .break-block {
+      background: linear-gradient(135deg, rgba(127, 167, 181, 0.20), rgba(168, 198, 209, 0.24));
+    }
+
+    .screen-dashboard {
+      color: #192527;
+      background:
+        linear-gradient(135deg, #eef4f3 0%, #e2ece9 48%, #f8f9f7 100%);
+      font-family: "Manrope", sans-serif;
+    }
+
+    .screen-dashboard .brand-mark,
+    .screen-dashboard .calendar-title,
+    .screen-dashboard .hero-line {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-weight: 700;
+    }
+
+    .screen-dashboard .panel,
+    .screen-dashboard .calendar,
+    .screen-dashboard .metric,
+    .screen-dashboard .textarea {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(25, 37, 39, 0.08);
+      box-shadow: 0 14px 28px rgba(17, 32, 34, 0.08);
+    }
+
+    .screen-dashboard .time-pill {
+      background: #163f46;
+      color: #f1fbfb;
+    }
+
+    .screen-dashboard .hero-line {
+      margin: 10px 0 0;
+      font-size: 2.3rem;
+      line-height: 1;
+      max-width: 10ch;
+    }
+
+    .screen-dashboard .helper {
+      margin-top: 10px;
+      color: rgba(25, 37, 39, 0.68);
+      font-size: 0.90rem;
+      line-height: 1.6;
+    }
+
+    .screen-dashboard .textarea {
+      border-radius: 18px;
+      white-space: normal;
+    }
+
+    .screen-dashboard .cta {
+      background: #173f45;
+      color: #f2fbfb;
+    }
+
+    .screen-dashboard .metric {
+      border-radius: 18px;
+    }
+
+    .screen-dashboard .start-card {
+      background: linear-gradient(180deg, #143c42, #255962);
+      color: #f0faf8;
+    }
+
+    .screen-dashboard .task-block {
+      background: linear-gradient(135deg, rgba(31, 93, 87, 0.16), rgba(96, 168, 160, 0.18));
+    }
+
+    .screen-dashboard .fixed-block {
+      background: linear-gradient(135deg, rgba(242, 166, 90, 0.22), rgba(248, 205, 153, 0.24));
+    }
+
+    .screen-dashboard .break-block {
+      background: linear-gradient(135deg, rgba(216, 232, 228, 0.84), rgba(233, 241, 238, 0.90));
+    }
+
+    .screen-planner {
+      color: #322b25;
+      background:
+        linear-gradient(180deg, rgba(242, 235, 221, 0.98), rgba(235, 224, 204, 0.98));
+      font-family: "Newsreader", serif;
+    }
+
+    .screen-planner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(156, 136, 112, 0.12) 1px, transparent 1px);
+      background-size: 100% 34px;
+      pointer-events: none;
+      opacity: 0.38;
+    }
+
+    .screen-planner .mock-shell {
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen-planner .brand-mark,
+    .screen-planner .calendar-title,
+    .screen-planner .hero-line,
+    .screen-planner .start-title {
+      font-family: "Alegreya", serif;
+    }
+
+    .screen-planner .panel,
+    .screen-planner .calendar,
+    .screen-planner .metric,
+    .screen-planner .textarea,
+    .screen-planner .time-pill {
+      background: rgba(255, 253, 248, 0.80);
+      border: 1px solid rgba(103, 81, 59, 0.18);
+      box-shadow: 0 12px 24px rgba(90, 70, 48, 0.08);
+    }
+
+    .screen-planner .hero-line {
+      margin: 10px 0 12px;
+      font-size: 2.25rem;
+      line-height: 0.98;
+      max-width: 10ch;
+    }
+
+    .screen-planner .note-copy {
+      font-size: 0.97rem;
+      line-height: 1.6;
+      color: rgba(50, 43, 37, 0.72);
+    }
+
+    .screen-planner .textarea {
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(251, 246, 239, 0.92));
+      box-shadow: inset 0 0 0 1px rgba(103, 81, 59, 0.10);
+      font-size: 1rem;
+    }
+
+    .screen-planner .cta {
+      background: linear-gradient(135deg, #4b6f61, #6a8d7f);
+      color: #fffaf5;
+      border-radius: 14px;
+    }
+
+    .screen-planner .metric {
+      border-radius: 14px;
+    }
+
+    .screen-planner .start-card {
+      background: linear-gradient(135deg, rgba(184, 108, 74, 0.94), rgba(157, 92, 61, 0.92));
+      color: #fff9f2;
+      transform: rotate(-1.2deg);
+    }
+
+    .screen-planner .calendar {
+      border-radius: 14px;
+    }
+
+    .screen-planner .task-block {
+      background: rgba(68, 104, 91, 0.14);
+      border: 1px solid rgba(68, 104, 91, 0.12);
+    }
+
+    .screen-planner .fixed-block {
+      background: rgba(184, 108, 74, 0.16);
+      border: 1px solid rgba(184, 108, 74, 0.16);
+    }
+
+    .screen-planner .break-block {
+      background: rgba(165, 177, 184, 0.18);
+      border: 1px dashed rgba(102, 114, 119, 0.28);
+    }
+
+    .screen-bright {
+      color: #203138;
+      background:
+        radial-gradient(circle at top left, rgba(255, 127, 80, 0.20), transparent 24%),
+        radial-gradient(circle at 82% 10%, rgba(15, 139, 141, 0.18), transparent 20%),
+        linear-gradient(180deg, #fff8ef 0%, #fff4e0 100%);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    .screen-bright .brand-mark,
+    .screen-bright .calendar-title,
+    .screen-bright .hero-line,
+    .screen-bright .start-title {
+      font-family: "Sora", sans-serif;
+      font-weight: 800;
+    }
+
+    .screen-bright .panel,
+    .screen-bright .calendar,
+    .screen-bright .metric,
+    .screen-bright .textarea,
+    .screen-bright .time-pill {
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(32, 49, 56, 0.08);
+      box-shadow: 0 16px 34px rgba(73, 77, 70, 0.08);
+    }
+
+    .screen-bright .hero-line {
+      margin: 12px 0 10px;
+      font-size: 2.25rem;
+      line-height: 0.96;
+      max-width: 10ch;
+    }
+
+    .screen-bright .flow {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .screen-bright .flow span {
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #13555f;
+      background: rgba(15, 139, 141, 0.10);
+    }
+
+    .screen-bright .cta {
+      color: white;
+      background: linear-gradient(135deg, #ff7f50, #f6a85f);
+    }
+
+    .screen-bright .start-card {
+      background: linear-gradient(135deg, #0f8b8d, #26a6a6);
+      color: #f7ffff;
+    }
+
+    .screen-bright .task-block {
+      background: linear-gradient(135deg, rgba(15, 139, 141, 0.16), rgba(95, 200, 196, 0.18));
+    }
+
+    .screen-bright .fixed-block {
+      background: linear-gradient(135deg, rgba(246, 189, 96, 0.24), rgba(255, 226, 150, 0.22));
+    }
+
+    .screen-bright .break-block {
+      background: linear-gradient(135deg, rgba(255, 127, 80, 0.16), rgba(255, 167, 129, 0.18));
+    }
+
+    .screen-editorial {
+      color: #292723;
+      background:
+        linear-gradient(180deg, #eee7dc 0%, #e4dacb 100%);
+      font-family: "Instrument Sans", sans-serif;
+    }
+
+    .screen-editorial .brand-mark,
+    .screen-editorial .calendar-title,
+    .screen-editorial .hero-line,
+    .screen-editorial .start-title {
+      font-family: "Bodoni Moda", serif;
+    }
+
+    .screen-editorial .panel,
+    .screen-editorial .calendar,
+    .screen-editorial .metric,
+    .screen-editorial .textarea,
+    .screen-editorial .time-pill {
+      background: rgba(251, 247, 241, 0.82);
+      border: 1px solid rgba(42, 40, 37, 0.10);
+      box-shadow: 0 14px 28px rgba(60, 54, 47, 0.06);
+    }
+
+    .screen-editorial .hero-line {
+      margin: 10px 0 14px;
+      font-size: 2.35rem;
+      line-height: 0.92;
+      max-width: 10ch;
+      letter-spacing: -0.04em;
+    }
+
+    .screen-editorial .subtle-copy {
+      color: rgba(41, 39, 35, 0.68);
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+
+    .screen-editorial .cta {
+      color: #f8f4ef;
+      background: linear-gradient(135deg, #4c6958, #71866f);
+    }
+
+    .screen-editorial .start-card {
+      background: linear-gradient(135deg, #4c6958, #6d8066);
+      color: #f5f3ee;
+    }
+
+    .screen-editorial .task-block {
+      background: rgba(75, 106, 87, 0.13);
+    }
+
+    .screen-editorial .fixed-block {
+      background: rgba(160, 109, 59, 0.16);
+    }
+
+    .screen-editorial .break-block {
+      background: rgba(216, 204, 186, 0.46);
+    }
+
+    .direction-notes {
+      margin: 14px 4px 0;
+      color: var(--page-muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 1100px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison-grid > section:last-child {
+        grid-column: auto;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(100vw - 20px, 1440px);
+        padding-top: 18px;
+      }
+
+      .hero,
+      .direction {
+        border-radius: 24px;
+      }
+
+      .mock-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+
+      .screen {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">Untangle Visual Comparison</div>
+      <h1>Five redesign directions for an ADHD-friendly planning app.</h1>
+      <p>Each mockup shows the same product idea through a different design lens: the brain dump input, the “start here” anchor, and the daily calendar. The goal is not pixel-perfect implementation yet, but a real visual decision between tones.</p>
+    </section>
+
+    <div class="comparison-grid">
+      <section class="direction">
+        <div class="direction-header">
+          <div>
+            <h2 class="direction-title">1. Calm Coach</h2>
+            <p class="direction-subtitle">Gentle, regulated, and reassuring. The UI feels like support rather than pressure.</p>
+          </div>
+          <div class="tag">Most soothing</div>
+        </div>
+        <div class="screen screen-calm">
+          <div class="mock-shell">
+            <div class="screen-header">
+              <div class="brand">
+                <div class="brand-mark">Untangle</div>
+                <div class="brand-copy">one kind plan for today</div>
+              </div>
+              <div class="time-pill">it’s 9:14am</div>
+            </div>
+            <div class="mock-grid">
+              <div class="panel">
+                <div class="panel-kicker">Brain dump</div>
+                <div class="hero-line">Unload the swirl.</div>
+                <p class="support-copy">Dump everything in one messy pass. We’ll sort what fits today and leave you with a calm first step.</p>
+                <div class="chip-row">
+                  <span>brain dump first</span>
+                  <span>we’ll sort it</span>
+                  <span>one step at a time</span>
+                </div>
+                <div class="textarea">email Sam about launch
+call insurance
+submit invoice
+pick up meds
+therapy at 4
+slides for tomorrow
+laundry if there’s room</div>
+                <div class="cta">Build my calm plan</div>
+              </div>
+              <div class="panel start-card">
+                <div class="panel-kicker">Start here</div>
+                <div class="start-title">Write the slides intro</div>
+                <p class="metric-note">9:30-10:15 · focus block</p>
+                <ul class="steps">
+                  <li>Open the deck and title the story.</li>
+                  <li>Draft only the first three slides.</li>
+                  <li>Ignore polishing until the block ends.</li>
+                </ul>
+              </div>
+              <div class="metric-row span-2">
+                <div class="metric">
+                  <span class="metric-label">planned time</span>
+                  <div class="metric-value">5h 20m</div>
+                  <div class="metric-note">with 40m of reset time</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">today’s load</span>
+                  <div class="metric-value">steady</div>
+                  <div class="metric-note">doable if scope stays tight</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">protected</span>
+                  <div class="metric-value">2 deferred</div>
+                  <div class="metric-note">not everything belongs today</div>
+                </div>
+              </div>
+              <div class="calendar span-2">
+                <div class="calendar-top">
+                  <div>
+                    <div class="panel-kicker">Focus map</div>
+                    <div class="calendar-title">Today’s rhythm</div>
+                  </div>
+                  <div class="time-pill">now line visible</div>
+                </div>
+                <div class="legend">
+                  <span class="focus">Focus block</span>
+                  <span class="fixed">Locked time</span>
+                  <span class="break">Reset</span>
+                </div>
+                <div class="timeline">
+                  <div class="block">
+                    <div class="block-time">9:30</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Focus block</span><span>45m</span></div>
+                      <div class="block-task">Write the slides intro</div>
+                      <div class="block-note">Quietest, highest-value work first.</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">10:15</div>
+                    <div class="block-card break-block">
+                      <div class="block-label"><span>Reset</span><span>15m</span></div>
+                      <div class="block-task">Snack and stretch</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">10:30</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Focus block</span><span>60m</span></div>
+                      <div class="block-task">Submit invoice and email Sam</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">4:00</div>
+                    <div class="block-card fixed-block">
+                      <div class="block-label"><span>Locked time</span><span>60m</span></div>
+                      <div class="block-task">Therapy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="direction-notes">The memorable trait here is emotional decompression. The interface says “you are safe, start small.”</p>
+      </section>
+
+      <section class="direction">
+        <div class="direction-header">
+          <div>
+            <h2 class="direction-title">2. Focus Dashboard</h2>
+            <p class="direction-subtitle">A sharper system view. Priorities, capacity, and time become immediately scannable.</p>
+          </div>
+          <div class="tag">Most structured</div>
+        </div>
+        <div class="screen screen-dashboard">
+          <div class="mock-shell">
+            <div class="screen-header">
+              <div class="brand">
+                <div class="brand-mark">UNTANGLE</div>
+                <div class="brand-copy">daily planning control panel</div>
+              </div>
+              <div class="time-pill">ACTIVE 09:14</div>
+            </div>
+            <div class="mock-grid">
+              <div class="panel">
+                <div class="panel-kicker">Input</div>
+                <div class="hero-line">Turn a messy list into a decision-ready schedule.</div>
+                <p class="helper">Use plain language. Include hard commitments, deadlines, and anything that feels urgent.</p>
+                <div class="textarea">Need to finish launch slides.
+Therapy at 4pm.
+Invoice needs to go out.
+Must call insurance.
+Pick up meds before 6.
+Laundry optional.
+Send launch note to Sam.</div>
+                <div class="cta">Generate plan</div>
+              </div>
+              <div>
+                <div class="metric-row" style="grid-template-columns:1fr;">
+                  <div class="metric">
+                    <span class="metric-label">first step</span>
+                    <div class="metric-value">slides intro</div>
+                    <div class="metric-note">45m deep work before admin</div>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">time needed</span>
+                    <div class="metric-value">5:20</div>
+                    <div class="metric-note">includes 3 resets</div>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">load</span>
+                    <div class="metric-value">73%</div>
+                    <div class="metric-note">steady, but not overloaded</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel start-card span-2">
+                <div class="panel-kicker">Active block</div>
+                <div class="start-title" style="font-size:1.8rem; margin:0 0 6px;">Write slides intro and outline</div>
+                <p class="metric-note">09:30-10:15 · finish the skeleton, not the polish</p>
+                <ul class="steps">
+                  <li>Open the deck.</li>
+                  <li>Write the title and key message.</li>
+                  <li>Add three headline slides only.</li>
+                </ul>
+              </div>
+              <div class="calendar span-2">
+                <div class="calendar-top">
+                  <div>
+                    <div class="panel-kicker">Schedule matrix</div>
+                    <div class="calendar-title">Today / Friday</div>
+                  </div>
+                  <div class="time-pill">LOAD: STEADY</div>
+                </div>
+                <div class="legend">
+                  <span class="focus">Focus</span>
+                  <span class="fixed">Fixed</span>
+                  <span class="break">Recovery</span>
+                </div>
+                <div class="timeline">
+                  <div class="block">
+                    <div class="block-time">09:30</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Focus</span><span>45m</span></div>
+                      <div class="block-task">Slides intro + outline</div>
+                      <div class="block-note">Priority 1</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">10:20</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Admin</span><span>40m</span></div>
+                      <div class="block-task">Invoice + send Sam launch note</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">11:05</div>
+                    <div class="block-card break-block">
+                      <div class="block-label"><span>Recovery</span><span>10m</span></div>
+                      <div class="block-task">Walk and water</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">16:00</div>
+                    <div class="block-card fixed-block">
+                      <div class="block-label"><span>Fixed</span><span>60m</span></div>
+                      <div class="block-task">Therapy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="direction-notes">This one is less nurturing and more decisive. It is strongest if the product should feel like a clarity machine.</p>
+      </section>
+
+      <section class="direction">
+        <div class="direction-header">
+          <div>
+            <h2 class="direction-title">3. Paper Planner</h2>
+            <p class="direction-subtitle">Warm, familiar, and tactile. It feels like opening a beautiful notebook instead of another productivity app.</p>
+          </div>
+          <div class="tag">Most analog</div>
+        </div>
+        <div class="screen screen-planner">
+          <div class="mock-shell">
+            <div class="screen-header">
+              <div class="brand">
+                <div class="brand-mark">Untangle</div>
+                <div class="brand-copy">today’s notebook</div>
+              </div>
+              <div class="time-pill">Friday, 9:14 in the morning</div>
+            </div>
+            <div class="mock-grid">
+              <div class="panel">
+                <div class="panel-kicker">Morning page</div>
+                <div class="hero-line">Write down the whole day, exactly as it feels.</div>
+                <p class="note-copy">No need to organize it first. Put the loud things down and let the planner do the sorting.</p>
+                <div class="textarea">slides for tomorrow
+insurance call
+pick up meds
+send invoice
+laundry maybe
+therapy at four
+need food break
+email Sam</div>
+                <div class="cta">Draft the day</div>
+              </div>
+              <div class="panel start-card">
+                <div class="panel-kicker">Begin with this</div>
+                <div class="start-title" style="font-size:1.95rem; line-height:0.98; margin:8px 0 6px;">Sketch the opening slides</div>
+                <p class="metric-note">Your clearest hour belongs here.</p>
+                <ul class="steps">
+                  <li>Deck title.</li>
+                  <li>Three core points.</li>
+                  <li>Leave styling for later.</li>
+                </ul>
+              </div>
+              <div class="metric-row span-2">
+                <div class="metric">
+                  <span class="metric-label">inked in</span>
+                  <div class="metric-value">5h 20m</div>
+                  <div class="metric-note">true work, not wishful work</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">moved aside</span>
+                  <div class="metric-value">laundry</div>
+                  <div class="metric-note">can wait until evening</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">steady point</span>
+                  <div class="metric-value">therapy</div>
+                  <div class="metric-note">anchors the afternoon</div>
+                </div>
+              </div>
+              <div class="calendar span-2">
+                <div class="calendar-top">
+                  <div>
+                    <div class="panel-kicker">Daily agenda</div>
+                    <div class="calendar-title">Marked for today</div>
+                  </div>
+                  <div class="time-pill">margin note: keep it light</div>
+                </div>
+                <div class="timeline">
+                  <div class="block">
+                    <div class="block-time">9:30</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Writing block</span><span>45m</span></div>
+                      <div class="block-task">Opening slides</div>
+                      <div class="block-note">Do not revise yet.</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">10:20</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Admin hour</span><span>40m</span></div>
+                      <div class="block-task">Invoice and email Sam</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">12:00</div>
+                    <div class="block-card break-block">
+                      <div class="block-label"><span>Pencil in</span><span>30m</span></div>
+                      <div class="block-task">Lunch away from desk</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">4:00</div>
+                    <div class="block-card fixed-block">
+                      <div class="block-label"><span>Held</span><span>60m</span></div>
+                      <div class="block-task">Therapy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="direction-notes">This route lowers intimidation by making the experience feel personal and tactile rather than “software-ish.”</p>
+      </section>
+
+      <section class="direction">
+        <div class="direction-header">
+          <div>
+            <h2 class="direction-title">4. Bright Momentum</h2>
+            <p class="direction-subtitle">Optimistic and activating. Still organized, but with more visible energy and movement.</p>
+          </div>
+          <div class="tag">Most upbeat</div>
+        </div>
+        <div class="screen screen-bright">
+          <div class="mock-shell">
+            <div class="screen-header">
+              <div class="brand">
+                <div class="brand-mark">Untangle</div>
+                <div class="brand-copy">tiny momentum beats total chaos</div>
+              </div>
+              <div class="time-pill">you’re here · 9:14am</div>
+            </div>
+            <div class="mock-grid">
+              <div class="panel">
+                <div class="panel-kicker">Step 1</div>
+                <div class="hero-line">Dump it fast. We’ll turn it into motion.</div>
+                <p class="helper">This version makes the workflow visible so the app feels active and encouraging.</p>
+                <div class="flow">
+                  <span>dump</span>
+                  <span>sort</span>
+                  <span>start</span>
+                </div>
+                <div class="textarea">slides tomorrow
+therapy at 4
+insurance call
+invoice
+meds pickup
+lunch
+laundry if possible
+message Sam</div>
+                <div class="cta">Let’s make a plan</div>
+              </div>
+              <div class="panel start-card">
+                <div class="panel-kicker">You only need this next</div>
+                <div class="start-title" style="font-size:1.9rem; line-height:0.98; margin:8px 0 6px;">Build the slide skeleton</div>
+                <p class="metric-note">9:30-10:15 · good energy, high leverage</p>
+                <ul class="steps">
+                  <li>Title the deck.</li>
+                  <li>Headline the three core ideas.</li>
+                  <li>Stop when the block ends.</li>
+                </ul>
+              </div>
+              <div class="metric-row span-2">
+                <div class="metric">
+                  <span class="metric-label">wins available</span>
+                  <div class="metric-value">4</div>
+                  <div class="metric-note">quick admin tasks later</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">time in use</span>
+                  <div class="metric-value">5h 20m</div>
+                  <div class="metric-note">balanced with resets</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">scope kept sane</span>
+                  <div class="metric-value">1 deferred</div>
+                  <div class="metric-note">laundry dropped if needed</div>
+                </div>
+              </div>
+              <div class="calendar span-2">
+                <div class="calendar-top">
+                  <div>
+                    <div class="panel-kicker">Momentum map</div>
+                    <div class="calendar-title">Today in color</div>
+                  </div>
+                  <div class="time-pill">confidence: good</div>
+                </div>
+                <div class="legend">
+                  <span class="focus">Focus</span>
+                  <span class="fixed">Fixed</span>
+                  <span class="break">Reset</span>
+                </div>
+                <div class="timeline">
+                  <div class="block">
+                    <div class="block-time">9:30</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Focus</span><span>45m</span></div>
+                      <div class="block-task">Slide skeleton</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">10:20</div>
+                    <div class="block-card fixed-block">
+                      <div class="block-label"><span>Admin sprint</span><span>40m</span></div>
+                      <div class="block-task">Invoice and insurance call</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">12:10</div>
+                    <div class="block-card break-block">
+                      <div class="block-label"><span>Reset</span><span>25m</span></div>
+                      <div class="block-task">Lunch outside</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">4:00</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Locked</span><span>60m</span></div>
+                      <div class="block-task">Therapy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="direction-notes">This is the best fit if the product should create lift and momentum, not just calm.</p>
+      </section>
+
+      <section class="direction">
+        <div class="direction-header">
+          <div>
+            <h2 class="direction-title">5. Quiet Editorial</h2>
+            <p class="direction-subtitle">Restrained, premium, and spacious. Calm comes from typography and composition instead of softness alone.</p>
+          </div>
+          <div class="tag">Most refined</div>
+        </div>
+        <div class="screen screen-editorial">
+          <div class="mock-shell">
+            <div class="screen-header">
+              <div class="brand">
+                <div class="brand-mark">Untangle</div>
+                <div class="brand-copy">a composed ritual for the day ahead</div>
+              </div>
+              <div class="time-pill">March 8 · 9:14</div>
+            </div>
+            <div class="mock-grid">
+              <div class="panel">
+                <div class="panel-kicker">Compose the day</div>
+                <div class="hero-line">Name the obligations. Keep only what the day can actually hold.</div>
+                <p class="subtle-copy">This direction is quieter and more luxurious. It trusts spacing, proportion, and type to create calm.</p>
+                <div class="textarea">Slides for tomorrow.
+Therapy at 4.
+Need to send invoice.
+Insurance call.
+Pick up meds.
+Maybe laundry.
+Lunch.
+Message Sam.</div>
+                <div class="cta">Create the day plan</div>
+              </div>
+              <div class="panel start-card">
+                <div class="panel-kicker">First movement</div>
+                <div class="start-title" style="font-size:1.95rem; line-height:0.94; margin:8px 0 8px;">Draft the opening slide sequence</div>
+                <p class="metric-note">Use the cleanest attention first.</p>
+                <ul class="steps">
+                  <li>Set the story frame.</li>
+                  <li>Write three slide headlines.</li>
+                  <li>Leave revision for later.</li>
+                </ul>
+              </div>
+              <div class="metric-row span-2">
+                <div class="metric">
+                  <span class="metric-label">time reserved</span>
+                  <div class="metric-value">5h 20m</div>
+                  <div class="metric-note">a paced, believable day</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">intensity</span>
+                  <div class="metric-value">moderate</div>
+                  <div class="metric-note">room remains for recovery</div>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">held back</span>
+                  <div class="metric-value">laundry</div>
+                  <div class="metric-note">removed from the promise</div>
+                </div>
+              </div>
+              <div class="calendar span-2">
+                <div class="calendar-top">
+                  <div>
+                    <div class="panel-kicker">Daily cadence</div>
+                    <div class="calendar-title">Friday schedule</div>
+                  </div>
+                  <div class="time-pill">current line at 9:14</div>
+                </div>
+                <div class="timeline">
+                  <div class="block">
+                    <div class="block-time">9:30</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Focus block</span><span>45m</span></div>
+                      <div class="block-task">Opening slide sequence</div>
+                      <div class="block-note">The most elegant surface, but still very readable.</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">10:20</div>
+                    <div class="block-card task-block">
+                      <div class="block-label"><span>Admin block</span><span>40m</span></div>
+                      <div class="block-task">Invoice and message Sam</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">12:00</div>
+                    <div class="block-card break-block">
+                      <div class="block-label"><span>Interval</span><span>30m</span></div>
+                      <div class="block-task">Lunch</div>
+                    </div>
+                  </div>
+                  <div class="block">
+                    <div class="block-time">4:00</div>
+                    <div class="block-card fixed-block">
+                      <div class="block-label"><span>Fixed time</span><span>60m</span></div>
+                      <div class="block-task">Therapy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="direction-notes">This is the most premium-looking option. It is calmer through restraint and craft, not softness or playfulness.</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

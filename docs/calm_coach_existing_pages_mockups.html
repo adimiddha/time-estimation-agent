@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Untangle Calm Coach Mockups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3ede5;
+      --paper: rgba(255, 251, 245, 0.90);
+      --line: rgba(80, 103, 97, 0.12);
+      --ink: #23312d;
+      --muted: #697873;
+      --accent: #2f7a6a;
+      --accent-2: #5aa790;
+      --soft: #deede7;
+      --warm: #e8c89e;
+      --fixed: #cf8d47;
+      --break: #89aebb;
+      --now: #ef7b5b;
+      --shadow: 0 26px 70px rgba(29, 40, 37, 0.10);
+      --radius-xl: 34px;
+      --radius-lg: 26px;
+      --radius: 20px;
+      --radius-sm: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(232, 200, 158, 0.35), transparent 22%),
+        radial-gradient(circle at 88% 12%, rgba(90, 167, 144, 0.18), transparent 20%),
+        linear-gradient(180deg, #f5f0e8 0%, #ebe2d7 100%);
+      font-family: "Atkinson Hyperlegible Next", sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.28;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.60), transparent 78%);
+    }
+
+    main {
+      width: min(1480px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 60px;
+    }
+
+    .hero {
+      margin-bottom: 24px;
+      padding: 28px 30px;
+      border-radius: var(--radius-xl);
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .eyebrow {
+      margin-bottom: 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    h1, .display, .brand-mark, .panel-title, .screen-title {
+      font-family: "Fraunces", serif;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 11ch;
+      font-size: clamp(2.6rem, 5vw, 4.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      max-width: 68ch;
+      margin: 14px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(360px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      padding: 16px;
+      border-radius: var(--radius-xl);
+      background: rgba(255, 251, 245, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 2px 4px 0;
+    }
+
+    .card-head h2 {
+      margin: 0 0 4px;
+      font-size: 1.45rem;
+    }
+
+    .card-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .screen {
+      position: relative;
+      overflow: hidden;
+      min-height: 790px;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at top left, rgba(232, 200, 158, 0.22), transparent 24%),
+        radial-gradient(circle at 100% 100%, rgba(90, 167, 144, 0.18), transparent 26%),
+        linear-gradient(180deg, #f3ede5 0%, #ece2d6 100%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+    }
+
+    .screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent 26%);
+    }
+
+    .mock {
+      position: relative;
+      z-index: 1;
+      padding: 26px;
+    }
+
+    .overlay-card, .app-shell {
+      background: var(--paper);
+      border: 1px solid rgba(255,255,255,0.72);
+      box-shadow: 0 24px 60px rgba(31, 42, 38, 0.10);
+      backdrop-filter: blur(18px);
+    }
+
+    .overlay-card {
+      width: min(720px, 100%);
+      margin: 18px auto;
+      border-radius: 38px;
+      padding: 38px 38px 34px;
+    }
+
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .brand-mark {
+      font-size: 1.9rem;
+      line-height: 0.95;
+    }
+
+    .brand-copy {
+      margin-top: 4px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .time-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(47, 122, 106, 0.10);
+      color: var(--accent);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .kicker {
+      margin-bottom: 10px;
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .display {
+      margin: 0 0 12px;
+      font-size: clamp(2.1rem, 4vw, 3.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 10ch;
+    }
+
+    .subcopy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.97rem;
+      line-height: 1.7;
+      max-width: 54ch;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 16px;
+    }
+
+    .chip {
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid var(--line);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 14px;
+      align-items: stretch;
+      margin-top: 16px;
+    }
+
+    .mic {
+      display: grid;
+      place-items: center;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+      color: var(--muted);
+      font-size: 1.5rem;
+    }
+
+    .textarea {
+      min-height: 186px;
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.74);
+      border: 1px solid rgba(72, 97, 90, 0.18);
+      color: rgba(35, 49, 45, 0.88);
+      box-shadow: inset 0 0 0 2px rgba(47, 122, 106, 0.10);
+      font-size: 0.98rem;
+      line-height: 1.68;
+      white-space: pre-line;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .btn {
+      display: grid;
+      place-items: center;
+      margin-top: 18px;
+      min-height: 54px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #27685b, #4a957f);
+      color: #f7fdfb;
+      font-weight: 800;
+      font-size: 0.96rem;
+      box-shadow: 0 16px 30px rgba(47, 122, 106, 0.24);
+    }
+
+    .kbd {
+      margin-top: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .loading-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 18px;
+      padding: 56px 10px 8px;
+    }
+
+    .ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background:
+        conic-gradient(from 240deg, #4a957f 0 28%, rgba(90,167,144,0.14) 28% 100%);
+      -webkit-mask: radial-gradient(circle at center, transparent 58%, #000 60%);
+              mask: radial-gradient(circle at center, transparent 58%, #000 60%);
+    }
+
+    .loading-label {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .bar {
+      width: min(540px, 100%);
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(47, 122, 106, 0.12);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 72%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #4a957f, #90c6b2);
+    }
+
+    .loading-steps {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .app-shell {
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.74), rgba(249,244,238,0.62));
+    }
+
+    .session {
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .session strong {
+      display: block;
+      color: var(--ink);
+      font-size: 0.98rem;
+    }
+
+    .content {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.70);
+      border: 1px solid var(--line);
+    }
+
+    .mini-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .mini-value {
+      font-family: "Fraunces", serif;
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .mini-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .right-now {
+      padding: 24px 24px 20px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #265b51, #4b8f7c);
+      color: #f6fffb;
+      box-shadow: 0 24px 48px rgba(37, 79, 70, 0.24);
+    }
+
+    .right-now .kicker {
+      color: rgba(236, 255, 247, 0.74);
+    }
+
+    .right-now h3 {
+      margin: 0 0 8px;
+      font-family: "Fraunces", serif;
+      font-size: 2rem;
+      line-height: 0.98;
+    }
+
+    .right-now p {
+      margin: 0 0 12px;
+      color: rgba(241,255,249,0.80);
+      line-height: 1.55;
+    }
+
+    .right-now ul {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 8px;
+      line-height: 1.45;
+    }
+
+    .panel {
+      padding: 18px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.74);
+      border: 1px solid var(--line);
+    }
+
+    .panel-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      margin: 2px 0 0;
+      font-size: 1.5rem;
+      line-height: 0.98;
+    }
+
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid var(--line);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .legend span::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .legend .focus::before { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .legend .fixed::before { background: linear-gradient(135deg, var(--fixed), #e1aa6e); }
+    .legend .rest::before { background: linear-gradient(135deg, var(--break), #aecbd5); }
+
+    .calendar {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.56), rgba(249,244,238,0.38));
+      border: 1px solid rgba(84, 104, 97, 0.10);
+      padding: 12px 14px 16px;
+      min-height: 420px;
+    }
+
+    .calendar::before {
+      content: "";
+      position: absolute;
+      left: 58px;
+      right: 16px;
+      top: 78px;
+      bottom: 16px;
+      background:
+        linear-gradient(rgba(108,128,120,0.10) 1px, transparent 1px);
+      background-size: 100% 72px;
+      opacity: 0.8;
+    }
+
+    .time-labels {
+      position: absolute;
+      top: 78px;
+      left: 12px;
+      display: grid;
+      gap: 54px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .now-line {
+      position: absolute;
+      left: 54px;
+      right: 16px;
+      top: 126px;
+      height: 2px;
+      background: rgba(239, 123, 91, 0.82);
+      box-shadow: 0 0 10px rgba(239,123,91,0.30);
+    }
+
+    .now-line::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: -5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--now);
+    }
+
+    .blocks {
+      position: relative;
+      margin-top: 52px;
+      margin-left: 56px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .block {
+      padding: 12px 14px;
+      border-radius: 18px;
+      color: white;
+      box-shadow: 0 18px 30px rgba(41, 68, 61, 0.14);
+    }
+
+    .block.focus {
+      background: linear-gradient(135deg, #2f7a6a, #62aa96);
+    }
+
+    .block.fixed {
+      background: linear-gradient(135deg, #cf8d47, #e2ab72);
+    }
+
+    .block.rest {
+      background: linear-gradient(135deg, #89aebb, #aac6cf);
+    }
+
+    .block-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.88;
+    }
+
+    .block h4 {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+
+    .block p {
+      margin: 6px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .draft-controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .draft-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .draft-pill {
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: rgba(47, 122, 106, 0.12);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .accordion {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.68);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .approve {
+      min-height: 52px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #2a705f, #4f9a84);
+      color: #f6fffb;
+      font-weight: 800;
+      box-shadow: 0 18px 30px rgba(47,122,106,0.22);
+    }
+
+    .or {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .adjust-row {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .adjust-box {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid var(--line);
+      color: rgba(35,49,45,0.60);
+      min-height: 92px;
+    }
+
+    .adjust-btn {
+      min-height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: rgba(47, 122, 106, 0.10);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .fab {
+      margin-left: auto;
+      width: fit-content;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.84);
+      border: 1px solid var(--line);
+      color: var(--accent);
+      box-shadow: 0 16px 30px rgba(41,68,61,0.10);
+      font-weight: 800;
+    }
+
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100vw - 20px, 1480px);
+        padding-top: 16px;
+      }
+
+      .hero, .card, .screen, .overlay-card, .app-shell {
+        border-radius: 24px;
+      }
+
+      .overlay-card {
+        padding: 24px 22px;
+      }
+
+      .input-row, .adjust-row {
+        grid-template-columns: 1fr;
+      }
+
+      .overview {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">Calm Coach Applied To Existing Flow</div>
+      <h1>Four page-for-page mockups of the app you already have.</h1>
+      <p>These preserve the current product states: brain dump, loading, draft review, and approved schedule. The redesign goal is to keep the same functionality while making the experience feel calmer, more supportive, and easier for an overwhelmed brain to trust.</p>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>1. Brain Dump</h2>
+            <p>The same opening step, but with more reassurance, better hierarchy, and clearer prompting.</p>
+          </div>
+          <div class="tag">Entry</div>
+        </div>
+        <div class="screen">
+          <div class="mock">
+            <div class="overlay-card">
+              <div class="brand-row">
+                <div>
+                  <div class="brand-mark">Untangle</div>
+                  <div class="brand-copy">one calm plan for the day you actually have</div>
+                </div>
+                <div class="time-pill">it’s 9:11pm</div>
+              </div>
+              <div class="kicker">ADHD-friendly day untangler</div>
+              <div class="display">Unload the swirl. Leave with a doable plan.</div>
+              <p class="subcopy">Brain dump everything in one messy pass. We’ll sort what fits tonight, what can wait, and what you should start with first.</p>
+              <div class="chip-row">
+                <div class="chip">brain dump first</div>
+                <div class="chip">we’ll shape it</div>
+                <div class="chip">one step at a time</div>
+              </div>
+              <div class="input-row">
+                <div class="mic">🎙</div>
+                <div class="textarea">Take a walk
+Brush teeth
+Meditate
+Stretch
+Maybe prep clothes for tomorrow too</div>
+              </div>
+              <div class="hint">Helpful prompt: include anything that feels loud in your head, even if you are not sure it belongs tonight.</div>
+              <div class="btn">Build my calm plan</div>
+              <div class="kbd">⌘ + Return</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>2. Loading</h2>
+            <p>Same waiting step, reframed to feel less clinical and more like guided support.</p>
+          </div>
+          <div class="tag">Transition</div>
+        </div>
+        <div class="screen">
+          <div class="mock">
+            <div class="overlay-card">
+              <div class="brand-row">
+                <div>
+                  <div class="brand-mark">Untangle</div>
+                  <div class="brand-copy">building tonight’s plan</div>
+                </div>
+                <div class="time-pill">just a moment</div>
+              </div>
+              <div class="loading-wrap">
+                <div class="ring"></div>
+                <div class="display" style="max-width:none; text-align:center; font-size:2.5rem;">Turning your list into something doable.</div>
+                <div class="loading-label">Estimating task durations…</div>
+                <div class="bar"><div class="bar-fill"></div></div>
+                <div class="loading-steps">
+                  <span>reading your brain dump</span>
+                  <span>protecting tonight’s energy</span>
+                  <span>building your order</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>3. Draft Review</h2>
+            <p>The same draft-and-approve state, but with more supportive framing and more legible schedule blocks.</p>
+          </div>
+          <div class="tag">Draft</div>
+        </div>
+        <div class="screen">
+          <div class="mock">
+            <div class="app-shell">
+              <div class="app-header">
+                <div>
+                  <div class="brand-mark">Untangle</div>
+                  <div class="brand-copy">first pass for tonight</div>
+                </div>
+                <div class="session"><strong>March 7th, 2026</strong>Last planned at 9:11pm</div>
+              </div>
+              <div class="content">
+                <div class="overview">
+                  <div class="mini">
+                    <span class="mini-label">start here</span>
+                    <div class="mini-value">take a walk</div>
+                    <div class="mini-note">9:11-9:41 · easiest good first move</div>
+                  </div>
+                  <div class="mini">
+                    <span class="mini-label">planned time</span>
+                    <div class="mini-value">1h</div>
+                    <div class="mini-note">a light, realistic evening</div>
+                  </div>
+                  <div class="mini">
+                    <span class="mini-label">load</span>
+                    <div class="mini-value">gentle</div>
+                    <div class="mini-note">built to help you wind down</div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="panel-top">
+                    <div>
+                      <div class="kicker">Focus map</div>
+                      <div class="panel-title">Tonight’s rhythm</div>
+                    </div>
+                    <div class="time-pill">it’s 9:12pm</div>
+                  </div>
+                  <div class="legend">
+                    <span class="focus">Focus block</span>
+                    <span class="rest">Reset</span>
+                  </div>
+                  <div class="calendar">
+                    <div class="time-labels">
+                      <span>9pm</span>
+                      <span>10pm</span>
+                      <span>11pm</span>
+                    </div>
+                    <div class="now-line"></div>
+                    <div class="blocks">
+                      <div class="block focus">
+                        <div class="block-meta"><span>Focus block</span><span>30m</span></div>
+                        <h4>Take a walk</h4>
+                        <p>Shift your state first. The rest gets easier after movement.</p>
+                      </div>
+                      <div class="block focus">
+                        <div class="block-meta"><span>Reset</span><span>2m</span></div>
+                        <h4>Brush teeth</h4>
+                      </div>
+                      <div class="block focus">
+                        <div class="block-meta"><span>Reset</span><span>15m</span></div>
+                        <h4>Meditate</h4>
+                      </div>
+                      <div class="block focus">
+                        <div class="block-meta"><span>Reset</span><span>13m</span></div>
+                        <h4>Stretch</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="draft-controls">
+                  <div class="draft-top">
+                    <div class="draft-pill">Draft</div>
+                    <div>Here’s a first pass. Does this feel kind and realistic?</div>
+                  </div>
+                  <div class="accordion">More information</div>
+                  <div class="approve">Approve this plan</div>
+                  <div class="or">or</div>
+                  <div class="adjust-row">
+                    <div class="mic" style="border-radius:18px; min-height:92px;">🎙</div>
+                    <div class="adjust-box">What feels off? Example: shorten the walk, skip meditation, or add prep for tomorrow.</div>
+                  </div>
+                  <div class="adjust-btn">Adjust the plan</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>4. Approved / Right Now</h2>
+            <p>The approved state becomes a strong anchor: one clear next step above a calmer, more attractive calendar.</p>
+          </div>
+          <div class="tag">Approved</div>
+        </div>
+        <div class="screen">
+          <div class="mock">
+            <div class="app-shell">
+              <div class="app-header">
+                <div>
+                  <div class="brand-mark">Untangle</div>
+                  <div class="brand-copy">stay with one thing at a time</div>
+                </div>
+                <div class="session"><strong>March 7th, 2026</strong>Last planned at 9:11pm</div>
+              </div>
+              <div class="content">
+                <div class="overview">
+                  <div class="mini">
+                    <span class="mini-label">start here</span>
+                    <div class="mini-value">walk</div>
+                    <div class="mini-note">comfort first, then reset</div>
+                  </div>
+                  <div class="mini">
+                    <span class="mini-label">tonight’s time</span>
+                    <div class="mini-value">1h</div>
+                    <div class="mini-note">enough to feel complete</div>
+                  </div>
+                  <div class="mini">
+                    <span class="mini-label">load</span>
+                    <div class="mini-value">light</div>
+                    <div class="mini-note">built for low-friction follow-through</div>
+                  </div>
+                </div>
+
+                <div class="right-now">
+                  <div class="kicker">Right now</div>
+                  <h3>Take a walk.</h3>
+                  <p>Don’t think about the rest yet. Finish this block, then come back.</p>
+                  <ul>
+                    <li>Put on comfortable shoes.</li>
+                    <li>Grab your keys or phone.</li>
+                    <li>Step outside and start moving.</li>
+                  </ul>
+                </div>
+
+                <div class="panel">
+                  <div class="panel-top">
+                    <div>
+                      <div class="kicker">Focus map</div>
+                      <div class="panel-title">Tonight’s rhythm</div>
+                    </div>
+                    <div class="time-pill">it’s 9:12pm</div>
+                  </div>
+                  <div class="legend">
+                    <span class="focus">Focus block</span>
+                    <span class="rest">Reset</span>
+                  </div>
+                  <div class="calendar">
+                    <div class="time-labels">
+                      <span>9pm</span>
+                      <span>10pm</span>
+                      <span>11pm</span>
+                    </div>
+                    <div class="now-line"></div>
+                    <div class="blocks">
+                      <div class="block focus">
+                        <div class="block-meta"><span>Focus block</span><span>30m</span></div>
+                        <h4>Take a walk</h4>
+                        <p>Current block in progress.</p>
+                      </div>
+                      <div class="block rest">
+                        <div class="block-meta"><span>Reset</span><span>2m</span></div>
+                        <h4>Brush teeth</h4>
+                      </div>
+                      <div class="block rest">
+                        <div class="block-meta"><span>Reset</span><span>15m</span></div>
+                        <h4>Meditate</h4>
+                      </div>
+                      <div class="block rest">
+                        <div class="block-meta"><span>Reset</span><span>13m</span></div>
+                        <h4>Stretch</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fab">Rebuild my day</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

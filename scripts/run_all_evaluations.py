@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).parent.parent
+
 def run_command(cmd, description):
     """Run a command and show progress."""
     print(f"\n{'='*80}")
@@ -28,45 +30,45 @@ def main():
     print("="*80)
     for dataset in datasets:
         if not run_command(
-            f"cd /Users/adimiddha/time-calibration-agent && source .venv/bin/activate && python -m time_calibration_agent.cli quality-eval --dataset {dataset}_dataset.json --scoring-mode binary --debug --output quality_eval_debug_0-1_{dataset}.json",
+            f"cd {ROOT} && python3 -m time_calibration_agent.cli quality-eval --dataset eval/datasets/{dataset}_dataset.json --scoring-mode binary --debug --output eval/results/quality_eval_debug_0-1_{dataset}.json",
             f"Binary evaluation for {dataset}"
         ):
             print(f"Failed on {dataset}")
             return
-    
+
     # Step 2: Run five-point (1-5) evaluations
     print("\n" + "="*80)
     print("STEP 2: Running Five-Point (1-5) Evaluations")
     print("="*80)
     for dataset in datasets:
         if not run_command(
-            f"cd /Users/adimiddha/time-calibration-agent && source .venv/bin/activate && python -m time_calibration_agent.cli quality-eval --dataset {dataset}_dataset.json --scoring-mode five_point --debug --output quality_eval_debug_1-5_{dataset}.json",
+            f"cd {ROOT} && python3 -m time_calibration_agent.cli quality-eval --dataset eval/datasets/{dataset}_dataset.json --scoring-mode five_point --debug --output eval/results/quality_eval_debug_1-5_{dataset}.json",
             f"Five-point evaluation for {dataset}"
         ):
             print(f"Failed on {dataset}")
             return
-    
+
     # Step 3: Run comparisons
     print("\n" + "="*80)
     print("STEP 3: Running Comparisons")
     print("="*80)
     for dataset in datasets:
         if not run_command(
-            f"cd /Users/adimiddha/time-calibration-agent && source .venv/bin/activate && python -m time_calibration_agent.cli compare-scoring --old quality_eval_debug_1-5_{dataset}.json --new quality_eval_debug_0-1_{dataset}.json --output scoring_comparison_{dataset}.json",
+            f"cd {ROOT} && python3 -m time_calibration_agent.cli compare-scoring --old eval/results/quality_eval_debug_1-5_{dataset}.json --new eval/results/quality_eval_debug_0-1_{dataset}.json --output eval/results/scoring_comparison_{dataset}.json",
             f"Comparison for {dataset}"
         ):
             print(f"Failed comparison on {dataset}")
             return
-    
+
     print("\n" + "="*80)
     print("✅ All evaluations and comparisons complete!")
     print("="*80)
     print("\nGenerated files:")
     for dataset in datasets:
-        print(f"  - quality_eval_debug_0-1_{dataset}.json")
-        print(f"  - quality_eval_debug_1-5_{dataset}.json")
-        print(f"  - scoring_comparison_{dataset}.json")
-        print(f"  - scoring_disagreements_analysis.json (latest)")
+        print(f"  - eval/results/quality_eval_debug_0-1_{dataset}.json")
+        print(f"  - eval/results/quality_eval_debug_1-5_{dataset}.json")
+        print(f"  - eval/results/scoring_comparison_{dataset}.json")
+        print(f"  - eval/results/scoring_disagreements_analysis.json (latest)")
 
 if __name__ == "__main__":
     main()
