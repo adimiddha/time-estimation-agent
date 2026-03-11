@@ -124,6 +124,65 @@ Session IDs default to `YYYY-MM-DD`; optional label produces `YYYY-MM-DD__<label
 - `human_evaluations.json` / `human_ai_comparison.json` — human rating results
 - `eval/` — evaluation output artifacts
 
+## Web UI
+
+The web app is a SPA branded **"Untangle"** — a day-planning interface built with vanilla HTML/CSS/JS and Flask (no build step).
+
+### UI files
+- `time_calibration_agent/templates/index.html` — single HTML template
+- `time_calibration_agent/static/app.js` — all frontend logic
+- `time_calibration_agent/static/style.css` — CSS variables-driven theme
+- `time_calibration_agent/static/manifest.json` — PWA manifest
+
+### Screen flow
+**Welcome overlay (3 screens, shown on first load):**
+1. `#brain-dump-screen` — live clock, mic hero button (voice-first CTA), textarea fallback, "Untangle my day →" submit
+2. `#followup-clarify-screen` — follow-up question from LLM; drum picker for time inputs, textarea for others
+3. `#loading-screen` — canvas knot-untangle animation with 3-stage progress text
+
+**Planner screen (after draft approval):**
+- Sticky header (app title + session date/time)
+- Calendar panel — time blocks with now-line, adaptive scaling (`getLayoutMetrics()`)
+- `#right-now-section` — current/next block with micro-steps (hidden in draft mode)
+- Draft mode sidebar — dropped tasks, rationale, Approve button, Adjust controls (mic + textarea)
+- FAB (approved mode only) — slide-up replan panel with mic + textarea
+
+### API endpoints
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/session` | GET | Load last saved session |
+| `/api/clarify` | POST | Extract follow-up question from raw text |
+| `/api/plan` | POST | Generate or replan the day schedule |
+| `/api/approve` | POST | Approve draft → transition to planner screen |
+| `/api/transcribe` | POST | Whisper audio → text |
+| `/api/export-ics` | GET | Export plan as `.ics` calendar file |
+| `/api/stats` | GET | Return aggregate `plans_created` / `replans` counts |
+| `/api/health` | GET | Check API key + server status |
+
+### Key JS functions
+- `showScreen(id)` / `hideOverlay()` — screen transitions
+- `enterDraftMode()` / `exitDraftMode()` — toggles sidebar + FAB visibility
+- `renderCalendar(timeBlocks)` — main calendar rendering engine
+- `getLayoutMetrics()` — computes adaptive `pixelsPerMinute` from container height
+- `drawNowLine()` — red "now" indicator, updates every minute
+- `updateRightNow()` — populates micro-steps for current/next block
+- `recordAudio()` → POST `/api/transcribe` — voice input via Web Audio API
+- `trackPageView(path, name)` — GA4 virtual page views for SPA screen transitions
+
+### Design system
+- CSS variables in `:root`; accent `#7b68ee` (slate blue), bg `#fdf8f0` (warm white)
+- Block gradients: `task` (blue-purple), `fixed` (amber/honey), `break` (mint)
+- Micro-blocks ≤8 min render as 26px compact pills instead of full-height blocks
+- Responsive breakpoint: ≤768px stacks to single-column, page scrolls
+
+### Additional features
+- **Voice input**: Web Audio API captures audio → POST to `/api/transcribe` (Whisper)
+- **Calendar export**: `.ics` download via `/api/export-ics`
+- **PWA**: installable to home screen; 192px + 512px icons; `standalone` display mode
+- **GA4 analytics**: virtual page views (`/welcome`, `/clarify`, `/planning`, `/draft`, `/planner`) + events (`plan_created`, `plan_approved`, `replan_triggered`, `voice_used`, `export_ics`, `error_occurred`); tracking ID `G-6HRL53D8E1`
+- **Server-side stats**: `.stats.json` in sessions dir tracks aggregate usage counts
+
 ## Skills
 
 - **`/debug-ui`** — diagnose and fix web UI bugs. Defined in `.claude/skills/debug-ui/SKILL.md`. Auto-invoked when a UI issue is described.
