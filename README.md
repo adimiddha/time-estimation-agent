@@ -2,7 +2,7 @@
 
 AI that helps you untangle your day when it all falls apart.
 
-**Try it live:** [Untangel Web App](https://time-estimation-agent-production.up.railway.app/)
+**Try it live:** [Untangle Web App](https://time-estimation-agent-production.up.railway.app/)
 
 ---
 
