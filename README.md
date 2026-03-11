@@ -1,6 +1,6 @@
 # Untangle
 
-AI that helps you untangle your day when it all falls apart.
+AI that helps you untangle your day when it gets messy
 
 **Try it live:** [Untangle Web App](https://time-estimation-agent-production.up.railway.app/)
 
