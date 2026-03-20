@@ -176,6 +176,10 @@ def create_app() -> Flask:
     def privacy():
         return render_template("privacy.html")
 
+    @app.route("/about", methods=["GET"])
+    def about():
+        return render_template("about.html")
+
     @app.route("/api/session", methods=["GET"])
     def api_session():
         session_store = DaySessionStore(root_dir=_user_sessions_dir())

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Untangle — AI-Powered Day Planning</title>
+  <meta name="description" content="Untangle is an AI-powered day planning app. Tell it what's on your plate and it builds a realistic schedule for your day.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fdf8f0;
+      color: #2d2d2d;
+      line-height: 1.7;
+      padding: 60px 20px 80px;
+    }
+    .container { max-width: 680px; margin: 0 auto; }
+    .logo { font-size: 2rem; font-weight: 700; color: #7b68ee; margin-bottom: 8px; }
+    .tagline { font-size: 1.2rem; color: #555; margin-bottom: 40px; }
+    h2 { font-size: 1.1rem; font-weight: 600; margin: 32px 0 10px; }
+    p { margin-bottom: 14px; color: #444; }
+    ul { padding-left: 20px; margin-bottom: 14px; color: #444; }
+    ul li { margin-bottom: 6px; }
+    .cta {
+      display: inline-block;
+      margin-top: 32px;
+      padding: 14px 28px;
+      background: #7b68ee;
+      color: #fff;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .data-section {
+      margin-top: 48px;
+      padding: 24px;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #eee;
+    }
+    .data-section h2 { margin-top: 0; }
+    footer {
+      margin-top: 60px;
+      font-size: 13px;
+      color: #999;
+      border-top: 1px solid #eee;
+      padding-top: 24px;
+    }
+    footer a { color: #7b68ee; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="logo">Untangle</div>
+    <p class="tagline">AI-powered day planning that gets you unstuck.</p>
+
+    <p>
+      Untangle turns a brain dump of tasks and commitments into a realistic, time-blocked schedule
+      for your day — in seconds. Just tell it what's on your plate, and it figures out the rest.
+    </p>
+
+    <h2>What it does</h2>
+    <ul>
+      <li>Takes your task list, deadlines, and energy level as plain text</li>
+      <li>Builds a realistic time-blocked schedule using AI</li>
+      <li>Replans on the fly when your day changes</li>
+      <li>Pushes your plan directly to Google Calendar with one click</li>
+      <li>Works on desktop and mobile — no account required</li>
+    </ul>
+
+    <h2>How your data is used</h2>
+    <p>
+      Your planning text is sent to OpenAI to generate your schedule. If you connect Google Calendar,
+      Untangle uses the <strong>calendar.events</strong> scope to create events from your plan —
+      it never reads or modifies your existing calendar data.
+    </p>
+    <p>
+      No personal account is required. Sessions are keyed to an anonymous browser cookie.
+    </p>
+
+    <a class="cta" href="https://time-estimation-agent-production.up.railway.app/">Open Untangle →</a>
+
+    <div class="data-section">
+      <h2>Privacy &amp; data</h2>
+      <p>
+        We take your privacy seriously. Read our full
+        <a href="https://time-estimation-agent-production.up.railway.app/privacy"><strong>Privacy Policy</strong></a>
+        for details on what data we collect, how it's used, and your rights.
+      </p>
+      <p>
+        Untangle's use of Google user data complies with the
+        <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>,
+        including the Limited Use requirements.
+      </p>
+    </div>
+
+    <footer>
+      <a href="https://time-estimation-agent-production.up.railway.app/">Untangle</a> &nbsp;·&nbsp;
+      <a href="https://time-estimation-agent-production.up.railway.app/privacy">Privacy Policy</a>
+      &nbsp;·&nbsp; Contact: <a href="mailto:aditmiddha@gmail.com">aditmiddha@gmail.com</a>
+    </footer>
+
+  </div>
+</body>
+</html>
