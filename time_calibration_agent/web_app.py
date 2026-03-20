@@ -289,11 +289,28 @@ def create_app() -> Flask:
 
     @app.route("/api/export-ics", methods=["GET"])
     def api_export_ics():
+        session_id = request.args.get("session_id", "").strip() or None
+
+        # Try the current user's session store first
         session_store = DaySessionStore(root_dir=_user_sessions_dir())
-        session_id = request.args.get("session_id") or session_store.load_last_session_id()
+        if session_id:
+            session = session_store.load_session(session_id)
+        else:
+            session_id = session_store.load_last_session_id()
+            session = session_store.load_session(session_id) if session_id else None
+
+        # If not found, search all user subdirectories (covers webcal:// / cross-context requests)
+        if (not session or not session.get("replans")) and session_id:
+            for entry in os.scandir(BASE_SESSIONS_DIR):
+                if entry.is_dir():
+                    candidate_store = DaySessionStore(root_dir=entry.path)
+                    candidate = candidate_store.load_session(session_id)
+                    if candidate and candidate.get("replans"):
+                        session = candidate
+                        break
+
         if not session_id:
             return jsonify({"error": "No active session."}), 404
-        session = session_store.load_session(session_id)
         if not session or not session.get("replans"):
             return jsonify({"error": "No plan found."}), 404
 

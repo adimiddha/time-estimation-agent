@@ -1584,20 +1584,22 @@ function exportCalendar() {
   lines.push('END:VCALENDAR');
 
   const ics = lines.join('\r\n') + '\r\n';
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  if (isIOS && sessionId) {
+    // webcal:// is intercepted by iOS and opened directly in Calendar — no download needed
+    const webcalUrl = `webcal://${window.location.host}/api/export-ics?session_id=${encodeURIComponent(sessionId)}`;
+    window.location.href = webcalUrl;
+    return;
+  }
+
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  // Use window.location for iOS compatibility (download attr not supported on iOS)
-  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-  if (isIOS) {
-    window.open(url, '_blank');
-  } else {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `untangle-${dateStr}.ics`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `untangle-${dateStr}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
