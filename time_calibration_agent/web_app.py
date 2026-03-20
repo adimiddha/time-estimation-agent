@@ -290,7 +290,7 @@ def create_app() -> Flask:
     @app.route("/api/export-ics", methods=["GET"])
     def api_export_ics():
         session_store = DaySessionStore(root_dir=_user_sessions_dir())
-        session_id = session_store.load_last_session_id()
+        session_id = request.args.get("session_id") or session_store.load_last_session_id()
         if not session_id:
             return jsonify({"error": "No active session."}), 404
         session = session_store.load_session(session_id)

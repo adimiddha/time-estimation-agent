@@ -1502,31 +1502,25 @@ function hideFab() {
 }
 
 // ── Calendar Export ────────────────────────────────────────────
-function exportCalendar() {
-  track('export_ics');
-  window.open('/api/export-ics', '_blank');
-}
-
-function showGcalToast(msg) {
+function showGcalToast(msg, isError) {
   let toast = document.getElementById('gcal-toast');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'gcal-toast';
-    toast.style.cssText = [
-      'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%)',
-      'background:#333', 'color:#fff', 'padding:10px 20px', 'border-radius:8px',
-      'font-size:14px', 'z-index:9999', 'pointer-events:none', 'transition:opacity .3s',
-    ].join(';');
     document.body.appendChild(toast);
   }
+  toast.className = 'gcal-toast' + (isError ? ' gcal-toast--error' : '');
   toast.textContent = msg;
-  toast.style.opacity = '1';
+  toast.classList.add('gcal-toast--visible');
   clearTimeout(toast._hideTimer);
-  toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+  toast._hideTimer = setTimeout(() => { toast.classList.remove('gcal-toast--visible'); }, 4000);
 }
 
 async function openGoogleCalendar() {
   track('open_google_calendar');
+  const btn = document.getElementById('gcal-btn');
+  if (btn) { btn.disabled = true; btn.classList.add('btn--loading'); }
+  showGcalToast('Adding to Google Calendar…');
   try {
     const statusRes = await fetch('/api/gcal/status');
     const statusData = await statusRes.json();
@@ -1534,16 +1528,25 @@ async function openGoogleCalendar() {
       const pushRes = await fetch('/api/gcal/push', { method: 'POST' });
       const pushData = await pushRes.json();
       if (pushData.error) {
-        showGcalToast('Error: ' + pushData.error);
+        showGcalToast('Error: ' + pushData.error, true);
       } else {
         showGcalToast(`${pushData.pushed} event${pushData.pushed === 1 ? '' : 's'} added to Google Calendar ✓`);
       }
     } else {
+      if (btn) { btn.disabled = false; btn.classList.remove('btn--loading'); }
       window.location.href = '/api/gcal/auth';
+      return;
     }
   } catch (e) {
-    showGcalToast('Network error — could not reach server.');
+    showGcalToast('Network error — could not reach server.', true);
   }
+  if (btn) { btn.disabled = false; btn.classList.remove('btn--loading'); }
+}
+
+function exportCalendar() {
+  track('export_ics');
+  const sid = currentSessionId || '';
+  window.location.href = '/api/export-ics' + (sid ? '?session_id=' + encodeURIComponent(sid) : '');
 }
 
 // ── Init ───────────────────────────────────────────────────────
