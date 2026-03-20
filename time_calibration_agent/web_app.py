@@ -438,8 +438,11 @@ def create_app() -> Flask:
         time_blocks = last_replan.get("plan_output", {}).get("time_blocks", [])
         date_str = session_id.split("__")[0]
 
+        data = request.get_json(force=True, silent=True) or {}
+        timezone = data.get("timezone", "UTC")
+
         try:
-            count = gcal_sync.push_events(creds, time_blocks, date_str)
+            count = gcal_sync.push_events(creds, time_blocks, date_str, timezone)
         except Exception as e:
             import traceback
             traceback.print_exc()

@@ -68,18 +68,18 @@ def _save_credentials(creds: Credentials, tokens_path: str) -> None:
         f.write(creds.to_json())
 
 
-def push_events(credentials: Credentials, time_blocks: list, session_date: str) -> int:
+def push_events(credentials: Credentials, time_blocks: list, session_date: str, timezone: str = "UTC") -> int:
     service = build("calendar", "v3", credentials=credentials)
     count = 0
     for block in time_blocks:
-        event = build_event(block, session_date)
+        event = build_event(block, session_date, timezone)
         if event:
             service.events().insert(calendarId="primary", body=event).execute()
             count += 1
     return count
 
 
-def build_event(block: dict, date_str: str) -> Optional[dict]:
+def build_event(block: dict, date_str: str, timezone: str = "UTC") -> Optional[dict]:
     try:
         start_str = block["start"]  # "HH:MM"
         end_str = block["end"]
@@ -91,20 +91,16 @@ def build_event(block: dict, date_str: str) -> Optional[dict]:
     sh, sm = start_str.split(":")
     eh, em = end_str.split(":")
 
-    # Include local UTC offset so Google Calendar API accepts the dateTime
-    raw_offset = datetime.now().astimezone().strftime("%z")  # e.g. "-0500"
-    tz_offset = f"{raw_offset[:3]}:{raw_offset[3:]}"         # e.g. "-05:00"
-
-    dt_start = f"{year}-{month}-{day}T{sh}:{sm}:00{tz_offset}"
-    dt_end = f"{year}-{month}-{day}T{eh}:{em}:00{tz_offset}"
+    dt_start = f"{year}-{month}-{day}T{sh}:{sm}:00"
+    dt_end = f"{year}-{month}-{day}T{eh}:{em}:00"
 
     kind = block.get("kind", "task")
-    color_map = {"task": "9", "fixed": "6", "break": "2"}  # grape, sage, sage
+    color_map = {"task": "9", "fixed": "6", "break": "2"}
     color_id = color_map.get(kind, "9")
 
     return {
         "summary": task,
-        "start": {"dateTime": dt_start},
-        "end": {"dateTime": dt_end},
+        "start": {"dateTime": dt_start, "timeZone": timezone},
+        "end": {"dateTime": dt_end, "timeZone": timezone},
         "colorId": color_id,
     }

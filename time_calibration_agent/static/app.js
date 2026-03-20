@@ -1529,7 +1529,12 @@ async function openGoogleCalendar() {
     const statusRes = await fetch('/api/gcal/status');
     const statusData = await statusRes.json();
     if (statusData.connected) {
-      const pushRes = await fetch('/api/gcal/push', { method: 'POST' });
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const pushRes = await fetch('/api/gcal/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timezone: tz })
+      });
       const pushData = await pushRes.json();
       if (pushData.error) {
         showGcalToast('Error: ' + pushData.error, true);
