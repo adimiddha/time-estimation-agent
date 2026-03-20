@@ -1507,6 +1507,45 @@ function exportCalendar() {
   window.open('/api/export-ics', '_blank');
 }
 
+function showGcalToast(msg) {
+  let toast = document.getElementById('gcal-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'gcal-toast';
+    toast.style.cssText = [
+      'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%)',
+      'background:#333', 'color:#fff', 'padding:10px 20px', 'border-radius:8px',
+      'font-size:14px', 'z-index:9999', 'pointer-events:none', 'transition:opacity .3s',
+    ].join(';');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+}
+
+async function openGoogleCalendar() {
+  track('open_google_calendar');
+  try {
+    const statusRes = await fetch('/api/gcal/status');
+    const statusData = await statusRes.json();
+    if (statusData.connected) {
+      const pushRes = await fetch('/api/gcal/push', { method: 'POST' });
+      const pushData = await pushRes.json();
+      if (pushData.error) {
+        showGcalToast('Error: ' + pushData.error);
+      } else {
+        showGcalToast(`${pushData.pushed} event${pushData.pushed === 1 ? '' : 's'} added to Google Calendar ✓`);
+      }
+    } else {
+      window.location.href = '/api/gcal/auth';
+    }
+  } catch (e) {
+    showGcalToast('Network error — could not reach server.');
+  }
+}
+
 // ── Init ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initClock();
@@ -1627,7 +1666,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Export to Calendar button
+  // Google Calendar button
+  const gcalBtn = document.getElementById('gcal-btn');
+  if (gcalBtn) gcalBtn.addEventListener('click', openGoogleCalendar);
+
+  // Handle OAuth callback redirect (?gcal=connected / ?gcal=denied)
+  const gcalParam = new URLSearchParams(window.location.search).get('gcal');
+  if (gcalParam === 'connected') {
+    history.replaceState(null, '', window.location.pathname);
+    // Now authenticated — push events immediately
+    openGoogleCalendar();
+  } else if (gcalParam === 'denied') {
+    history.replaceState(null, '', window.location.pathname);
+    showGcalToast('Google Calendar access was denied.');
+  }
+
+  // Export to Apple Calendar button
   const exportCalBtn = document.getElementById('export-cal-btn');
   if (exportCalBtn) exportCalBtn.addEventListener('click', exportCalendar);
 

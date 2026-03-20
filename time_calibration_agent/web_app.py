@@ -10,8 +10,11 @@ from datetime import datetime
 from typing import Dict, Optional
 
 import openai
-from flask import Flask, render_template, request, jsonify, Response
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, jsonify, Response, redirect
 from flask import session as flask_session
+
+load_dotenv()
 
 from time_calibration_agent.replanner import ReplanningAgent
 from time_calibration_agent.session_store import DaySessionStore
@@ -168,6 +171,10 @@ def create_app() -> Flask:
     @app.route("/planner", methods=["GET"])
     def index():
         return render_template("index.html")
+
+    @app.route("/privacy", methods=["GET"])
+    def privacy():
+        return render_template("privacy.html")
 
     @app.route("/api/session", methods=["GET"])
     def api_session():
@@ -335,6 +342,89 @@ def create_app() -> Flask:
     @app.route("/api/stats", methods=["GET"])
     def api_stats():
         return jsonify(_read_stats())
+
+    # ── Google Calendar OAuth ──────────────────────────────────────────────
+
+    def _gcal_tokens_path() -> str:
+        return os.path.join(_user_sessions_dir(), ".gcal_tokens.json")
+
+    def _gcal_redirect_uri() -> str:
+        # Strip trailing slash from host_url then append path
+        base = request.host_url.rstrip("/")
+        return f"{base}/api/gcal/callback"
+
+    @app.route("/api/gcal/status", methods=["GET"])
+    def api_gcal_status():
+        from time_calibration_agent import gcal_sync
+        creds = gcal_sync.load_credentials(_gcal_tokens_path())
+        return jsonify({"connected": creds is not None})
+
+    @app.route("/api/gcal/auth", methods=["GET"])
+    def api_gcal_auth():
+        if not os.getenv("GOOGLE_CLIENT_ID") or not os.getenv("GOOGLE_CLIENT_SECRET"):
+            return jsonify({"error": "Google OAuth not configured on this server."}), 503
+        from time_calibration_agent import gcal_sync
+        state = flask_session.get("user_id", secrets.token_urlsafe(16))
+        auth_url, code_verifier = gcal_sync.get_auth_url(_gcal_redirect_uri(), state)
+        flask_session["gcal_code_verifier"] = code_verifier
+        return redirect(auth_url)
+
+    @app.route("/api/gcal/callback", methods=["GET"])
+    def api_gcal_callback():
+        from time_calibration_agent import gcal_sync
+        state = request.args.get("state", "")
+        code = request.args.get("code", "")
+        error = request.args.get("error", "")
+
+        if error:
+            return redirect("/?gcal=denied")
+
+        if state != flask_session.get("user_id", ""):
+            return jsonify({"error": "State mismatch — possible CSRF."}), 400
+
+        code_verifier = flask_session.pop("gcal_code_verifier", None)
+        try:
+            creds = gcal_sync.exchange_code(_gcal_redirect_uri(), code, code_verifier)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"error": f"Token exchange failed: {e}"}), 500
+
+        tokens_path = _gcal_tokens_path()
+        os.makedirs(os.path.dirname(tokens_path), exist_ok=True)
+        with open(tokens_path, "w") as f:
+            f.write(creds.to_json())
+
+        return redirect("/?gcal=connected")
+
+    @app.route("/api/gcal/push", methods=["POST"])
+    def api_gcal_push():
+        from time_calibration_agent import gcal_sync
+        creds = gcal_sync.load_credentials(_gcal_tokens_path())
+        if not creds:
+            return jsonify({"error": "Not connected to Google Calendar."}), 401
+
+        session_store = DaySessionStore(root_dir=_user_sessions_dir())
+        session_id = session_store.load_last_session_id()
+        if not session_id:
+            return jsonify({"error": "No active session."}), 404
+
+        session = session_store.load_session(session_id)
+        if not session or not session.get("replans"):
+            return jsonify({"error": "No plan found."}), 404
+
+        last_replan = session["replans"][-1]
+        time_blocks = last_replan.get("plan_output", {}).get("time_blocks", [])
+        date_str = session_id.split("__")[0]
+
+        try:
+            count = gcal_sync.push_events(creds, time_blocks, date_str)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"error": f"Failed to push events: {e}"}), 500
+
+        return jsonify({"pushed": count})
 
     return app
 
