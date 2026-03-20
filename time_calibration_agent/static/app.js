@@ -699,7 +699,11 @@ function renderCalendar(timeBlocks) {
       const maxScrollTop = Math.max(0, totalHeight - viewportHeight);
       const minScrollTop = Math.min(maxScrollTop, Math.max(0, anchorTop - preferredOffset));
       scrollEl.dataset.minScrollTop = String(minScrollTop);
-      scrollEl.scrollTop = minScrollTop;
+      // Only scroll when element is actually scrollable (not overflow:visible)
+      const ovY = getComputedStyle(scrollEl).overflowY;
+      if (ovY !== 'visible' && ovY !== 'hidden') {
+        scrollEl.scrollTop = minScrollTop;
+      }
     } else {
       scrollEl.dataset.minScrollTop = '0';
     }
@@ -1545,11 +1549,10 @@ async function openGoogleCalendar() {
 
 function exportCalendar() {
   track('export_ics');
-  if (!currentPlanData || !currentPlanData.plan_output) {
-    alert('No plan to export.');
+  if (!currentTimeBlocks || !currentTimeBlocks.length) {
+    showGcalToast('No plan to export.', true);
     return;
   }
-  const timeBlocks = currentPlanData.plan_output.time_blocks || [];
   const sessionId = currentSessionId || new Date().toISOString().slice(0, 10);
   const dateStr = sessionId.split('__')[0];
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -1561,7 +1564,7 @@ function exportCalendar() {
     'PRODID:-//Untangle//Time Planner//EN',
     'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
   ];
-  timeBlocks.forEach((block, idx) => {
+  currentTimeBlocks.forEach((block, idx) => {
     try {
       const [sh, sm] = block.start.split(':').map(Number);
       const [eh, em] = block.end.split(':').map(Number);
@@ -1583,13 +1586,19 @@ function exportCalendar() {
   const ics = lines.join('\r\n') + '\r\n';
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `untangle-${dateStr}.ics`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // Use window.location for iOS compatibility (download attr not supported on iOS)
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  if (isIOS) {
+    window.open(url, '_blank');
+  } else {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `untangle-${dateStr}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
 // ── Init ───────────────────────────────────────────────────────
