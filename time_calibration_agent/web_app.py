@@ -353,8 +353,8 @@ def create_app() -> Flask:
         return os.path.join(_user_sessions_dir(), ".gcal_tokens.json")
 
     def _gcal_redirect_uri() -> str:
-        # Strip trailing slash from host_url then append path
-        base = request.host_url.rstrip("/")
+        # Use https:// in production (Railway proxy reports http but serves https)
+        base = request.host_url.rstrip("/").replace("http://", "https://")
         return f"{base}/api/gcal/callback"
 
     @app.route("/api/gcal/status", methods=["GET"])
