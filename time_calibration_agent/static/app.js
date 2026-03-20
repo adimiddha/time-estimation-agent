@@ -1545,8 +1545,51 @@ async function openGoogleCalendar() {
 
 function exportCalendar() {
   track('export_ics');
-  const sid = currentSessionId || '';
-  window.location.href = '/api/export-ics' + (sid ? '?session_id=' + encodeURIComponent(sid) : '');
+  if (!currentPlanData || !currentPlanData.plan_output) {
+    alert('No plan to export.');
+    return;
+  }
+  const timeBlocks = currentPlanData.plan_output.time_blocks || [];
+  const sessionId = currentSessionId || new Date().toISOString().slice(0, 10);
+  const dateStr = sessionId.split('__')[0];
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const pad = n => String(n).padStart(2, '0');
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0',
+    'PRODID:-//Untangle//Time Planner//EN',
+    'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+  ];
+  timeBlocks.forEach((block, idx) => {
+    try {
+      const [sh, sm] = block.start.split(':').map(Number);
+      const [eh, em] = block.end.split(':').map(Number);
+      const dtstart = `${year}${pad(month)}${pad(day)}T${pad(sh)}${pad(sm)}00`;
+      const dtend   = `${year}${pad(month)}${pad(day)}T${pad(eh)}${pad(em)}00`;
+      const task = (block.task || 'Task').replace(/[\r\n]/g, ' ');
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:${sessionId}-block${idx}@untangle`,
+        `DTSTART;TZID=${tz}:${dtstart}`,
+        `DTEND;TZID=${tz}:${dtend}`,
+        `SUMMARY:${task}`,
+        'END:VEVENT',
+      );
+    } catch (e) {}
+  });
+  lines.push('END:VCALENDAR');
+
+  const ics = lines.join('\r\n') + '\r\n';
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `untangle-${dateStr}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // ── Init ───────────────────────────────────────────────────────

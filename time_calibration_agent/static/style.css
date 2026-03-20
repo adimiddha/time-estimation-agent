@@ -1619,12 +1619,26 @@ input::placeholder {
 }
 
 .btn-export--apple {
-  background: #1c1c1e;
+  background: #3a3a3c;
 }
 .btn-export--apple:hover:not(:disabled) {
-  background: #3a3a3c;
+  background: #555;
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+  .app-shell:not(.draft-mode) .export-section {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
 }
 
 .btn-export:active {
