@@ -1605,26 +1605,30 @@ input::placeholder {
   flex: 1;
   font-size: 0.82rem;
   font-weight: 600;
-  border: none;
-  color: #fff;
 }
 
 .btn-export--gcal {
-  background: #1a73e8;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  border: 1.5px solid var(--accent);
 }
 .btn-export--gcal:hover:not(:disabled) {
-  background: #1558b0;
+  background: var(--accent);
+  color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(26,115,232,0.25);
+  box-shadow: 0 3px 12px rgba(47,122,106,0.2);
 }
 
 .btn-export--apple {
-  background: #3a3a3c;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  border: 1.5px solid var(--accent);
 }
 .btn-export--apple:hover:not(:disabled) {
-  background: #555;
+  background: var(--accent);
+  color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 12px rgba(47,122,106,0.2);
 }
 
 

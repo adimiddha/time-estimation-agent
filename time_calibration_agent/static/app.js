@@ -1586,9 +1586,9 @@ function exportCalendar() {
   const ics = lines.join('\r\n') + '\r\n';
   const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
   if (isIOS && sessionId) {
-    // webcal:// is intercepted by iOS and opened directly in Calendar — no download needed
-    const webcalUrl = `webcal://${window.location.host}/api/export-ics?session_id=${encodeURIComponent(sessionId)}`;
-    window.location.href = webcalUrl;
+    // On iOS, navigate to the https:// endpoint — Safari sees text/calendar and offers
+    // "Open in Calendar" as a one-time import (webcal:// creates a subscription instead)
+    window.location.href = `/api/export-ics?session_id=${encodeURIComponent(sessionId)}`;
     return;
   }
 
