@@ -1552,7 +1552,7 @@ async function openGoogleCalendar() {
   if (btn) { btn.disabled = false; btn.classList.remove('btn--loading'); }
 }
 
-function exportCalendar() {
+async function exportCalendar() {
   track('export_ics');
   if (!currentTimeBlocks || !currentTimeBlocks.length) {
     showGcalToast('No plan to export.', true);
@@ -1566,8 +1566,11 @@ function exportCalendar() {
 
   // Only export events that haven't ended yet
   const nowMins = nowMinutes();
-  const blocks = currentTimeBlocks.filter(b => timeToMinutes(b.end) > nowMins);
-  const blocksToExport = blocks.length > 0 ? blocks : currentTimeBlocks;
+  const blocksToExport = currentTimeBlocks.filter(b => timeToMinutes(b.end) > nowMins);
+  if (!blocksToExport.length) {
+    showGcalToast('No upcoming events — all scheduled events have already passed.', true);
+    return;
+  }
 
   const lines = [
     'BEGIN:VCALENDAR', 'VERSION:2.0',
@@ -1594,33 +1597,32 @@ function exportCalendar() {
   lines.push('END:VCALENDAR');
 
   const ics = lines.join('\r\n') + '\r\n';
+  const fileName = `untangle-${dateStr}.ics`;
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 
-  // On iOS, submit a hidden form POST — the server echoes the ICS back as text/calendar,
-  // which triggers the native "Open in Calendar" sheet in Safari and Edge.
-  // This avoids any server-side session lookup (data always comes from currentTimeBlocks).
+  // On iOS, try Web Share API with the .ics file — triggers native "Open in Calendar"
+  // on Safari, Chrome, and Edge without any server roundtrip.
   const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
   if (isIOS) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/api/export-ics';
-    const addField = (name, val) => {
-      const inp = document.createElement('input');
-      inp.type = 'hidden'; inp.name = name; inp.value = val;
-      form.appendChild(inp);
-    };
-    addField('ics_content', ics);
-    addField('date_str', dateStr);
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    const file = new File([blob], fileName, { type: 'text/calendar' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+      } catch (e) {
+        if (e.name !== 'AbortError') showGcalToast('Could not open Calendar.', true);
+      }
+      return;
+    }
+    // Fallback for older iOS: navigate to blob URL (Safari handles text/calendar natively)
+    window.location.href = URL.createObjectURL(blob);
     return;
   }
 
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  // Desktop: anchor-click blob download
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `untangle-${dateStr}.ics`;
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
