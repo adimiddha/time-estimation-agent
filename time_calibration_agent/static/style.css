@@ -1952,6 +1952,49 @@ input::placeholder {
   min-height: 72px;
 }
 
+/* Apple Calendar Preview Panel */
+.apple-cal-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.apple-cal-event-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  gap: 12px;
+}
+.apple-cal-event-name {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.apple-cal-event-time {
+  font-size: 0.82rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.apple-cal-safari-nudge {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.apple-cal-nudge-btns {
+  display: flex;
+  gap: 8px;
+}
+
 /* Hide FAB in draft mode */
 .draft-mode .fab-replan,
 .draft-mode .fab-backdrop,

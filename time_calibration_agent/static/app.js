@@ -61,6 +61,7 @@ let currentFollowUpType = null;   // "end_time" | null
 let currentSessionId = null;  // active session ID
 let isDraftMode = false;       // true while phase=draft (pre-approve)
 let currentTimeBlocks = [];   // latest rendered blocks (with steps)
+let appleCalBlocks = [];      // blocks staged for export from preview panel
 
 let sessionStartMin = 0;   // set each time renderCalendar runs in approved mode
 let suppressBlockAnimation = false;  // skip blockIn animation on drag-triggered re-renders
@@ -1989,32 +1990,100 @@ async function openGoogleCalendar() {
   if (btn) { btn.disabled = false; btn.classList.remove('btn--loading'); }
 }
 
-async function exportCalendar() {
-  track('export_ics');
+function openAppleCalPreview() {
   if (!currentTimeBlocks || !currentTimeBlocks.length) {
     showGcalToast('No plan to export.', true);
     return;
   }
+  const nowMins = nowMinutes();
+  appleCalBlocks = currentTimeBlocks.filter(b => timeToMinutes(b.end) > nowMins);
+  if (!appleCalBlocks.length) {
+    showGcalToast('No upcoming events — all scheduled events have already passed.', true);
+    return;
+  }
+
+  const list = document.getElementById('apple-cal-event-list');
+  const confirmBtn = document.getElementById('apple-cal-confirm-btn');
+  list.innerHTML = '';
+
+  appleCalBlocks.forEach(block => {
+    const item = document.createElement('div');
+    item.className = 'apple-cal-event-item';
+    item.innerHTML = `
+      <span class="apple-cal-event-name">${block.task || 'Task'}</span>
+      <span class="apple-cal-event-time">${fmt12(block.start)} – ${fmt12(block.end)}</span>
+    `;
+    list.appendChild(item);
+  });
+
+  const n = appleCalBlocks.length;
+
+  const ua = navigator.userAgent;
+  const isIOS = /iP(hone|ad|od)/.test(ua);
+  const isIOSNonSafari = isIOS && /CriOS|EdgiOS|FxiOS/.test(ua);
+
+  if (isIOSNonSafari) {
+    confirmBtn.style.display = 'none';
+    // Remove any previous nudge
+    const prev = list.parentElement.querySelector('.apple-cal-safari-nudge');
+    if (prev) prev.remove();
+    const prev2 = list.parentElement.querySelector('.apple-cal-nudge-btns');
+    if (prev2) prev2.remove();
+
+    const nudge = document.createElement('p');
+    nudge.className = 'apple-cal-safari-nudge';
+    nudge.textContent = 'ⓘ For direct import, open this page in Safari.';
+    list.after(nudge);
+
+    const btns = document.createElement('div');
+    btns.className = 'apple-cal-nudge-btns';
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'btn btn-secondary';
+    copyBtn.textContent = 'Copy link';
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy link'; }, 2000);
+      });
+    });
+
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'btn btn-secondary';
+    shareBtn.textContent = 'Share anyway';
+    shareBtn.addEventListener('click', () => confirmAppleCalExport(true));
+
+    btns.appendChild(copyBtn);
+    btns.appendChild(shareBtn);
+    nudge.after(btns);
+  } else {
+    confirmBtn.style.display = '';
+    confirmBtn.textContent = `Add ${n} event${n === 1 ? '' : 's'} to Apple Calendar`;
+  }
+
+  document.getElementById('apple-cal-backdrop').classList.add('open');
+  document.getElementById('apple-cal-panel').classList.add('open');
+}
+
+function closeAppleCalPreview() {
+  document.getElementById('apple-cal-backdrop').classList.remove('open');
+  document.getElementById('apple-cal-panel').classList.remove('open');
+}
+
+async function confirmAppleCalExport(forceShare = false) {
+  track('export_ics');
   const sessionId = currentSessionId || new Date().toISOString().slice(0, 10);
   const dateStr = sessionId.split('__')[0];
   const [year, month, day] = dateStr.split('-').map(Number);
   const pad = n => String(n).padStart(2, '0');
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
-  // Only export events that haven't ended yet
-  const nowMins = nowMinutes();
-  const blocksToExport = currentTimeBlocks.filter(b => timeToMinutes(b.end) > nowMins);
-  if (!blocksToExport.length) {
-    showGcalToast('No upcoming events — all scheduled events have already passed.', true);
-    return;
-  }
-
   const lines = [
     'BEGIN:VCALENDAR', 'VERSION:2.0',
     'PRODID:-//Untangle//Time Planner//EN',
     'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
   ];
-  blocksToExport.forEach((block, idx) => {
+  appleCalBlocks.forEach((block, idx) => {
     try {
       const [sh, sm] = block.start.split(':').map(Number);
       const [eh, em] = block.end.split(':').map(Number);
@@ -2035,27 +2104,48 @@ async function exportCalendar() {
 
   const ics = lines.join('\r\n') + '\r\n';
   const fileName = `untangle-${dateStr}.ics`;
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 
-  // On iOS, try Web Share API with the .ics file — triggers native "Open in Calendar"
-  // on Safari, Chrome, and Edge without any server roundtrip.
-  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-  if (isIOS) {
+  const ua = navigator.userAgent;
+  const isIOS = /iP(hone|ad|od)/.test(ua);
+
+  if (isIOS && !forceShare) {
+    // iOS Safari: form POST → server echoes ICS as text/calendar → native Calendar dialog
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/export-ics';
+    const icsField = document.createElement('input');
+    icsField.type = 'hidden';
+    icsField.name = 'ics_content';
+    icsField.value = ics;
+    const dateField = document.createElement('input');
+    dateField.type = 'hidden';
+    dateField.name = 'date_str';
+    dateField.value = dateStr;
+    form.appendChild(icsField);
+    form.appendChild(dateField);
+    document.body.appendChild(form);
+    closeAppleCalPreview();
+    form.submit();
+    return;
+  }
+
+  if (forceShare) {
+    // Web Share API with .ics file as last resort
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
     const file = new File([blob], fileName, { type: 'text/calendar' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file] });
       } catch (e) {
-        if (e.name !== 'AbortError') showGcalToast('Could not open Calendar.', true);
+        if (e.name !== 'AbortError') showGcalToast('Could not share file.', true);
       }
-      return;
     }
-    // Fallback for older iOS: navigate to blob URL (Safari handles text/calendar natively)
-    window.location.href = URL.createObjectURL(blob);
+    closeAppleCalPreview();
     return;
   }
 
-  // Desktop: anchor-click blob download
+  // Desktop: blob download
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -2064,6 +2154,7 @@ async function exportCalendar() {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 3000);
+  closeAppleCalPreview();
 }
 
 // ── Init ───────────────────────────────────────────────────────
@@ -2209,9 +2300,13 @@ document.addEventListener('DOMContentLoaded', () => {
     showGcalToast('Google Calendar access was denied.');
   }
 
-  // Export to Apple Calendar button
+  // Export to Apple Calendar button — opens preview panel
   const exportCalBtn = document.getElementById('export-cal-btn');
-  if (exportCalBtn) exportCalBtn.addEventListener('click', exportCalendar);
+  if (exportCalBtn) exportCalBtn.addEventListener('click', openAppleCalPreview);
+
+  document.getElementById('apple-cal-close').addEventListener('click', closeAppleCalPreview);
+  document.getElementById('apple-cal-backdrop').addEventListener('click', closeAppleCalPreview);
+  document.getElementById('apple-cal-confirm-btn').addEventListener('click', () => confirmAppleCalExport());
 
   // Init looping knot for replan overlay (dead code canvas, looping version)
   const knotReplan = document.getElementById('knot-canvas-replan');
