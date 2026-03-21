@@ -1989,6 +1989,7 @@ input::placeholder {
   color: var(--ink);
   margin-bottom: 8px;
   line-height: 1.5;
+  text-align: center;
 }
 .apple-cal-nudge-btns {
   display: flex;
@@ -1996,14 +1997,30 @@ input::placeholder {
 }
 .apple-cal-nudge-btn {
   flex: 1;
-  background: var(--accent);
+  box-shadow: none;
+}
+.apple-cal-nudge-btn--primary {
+  background: linear-gradient(135deg, #29695d 0%, #4d9983 100%);
   color: #fff;
   border: none;
-  opacity: 1;
 }
-.apple-cal-nudge-btn:hover {
-  background: #6a58d6;
-  color: #fff;
+.apple-cal-nudge-btn--primary:hover {
+  background: linear-gradient(135deg, #225a50 0%, #428973 100%);
+}
+.apple-cal-nudge-btn--primary:active {
+  background: linear-gradient(135deg, #1e5047 0%, #3a7a66 100%);
+}
+.apple-cal-nudge-btn--secondary {
+  background: transparent;
+  color: #29695d;
+  border: 1.5px solid rgba(41, 105, 93, 0.4);
+}
+.apple-cal-nudge-btn--secondary:hover {
+  background: rgba(41, 105, 93, 0.08);
+  border-color: rgba(41, 105, 93, 0.6);
+}
+.apple-cal-nudge-btn--secondary:active {
+  background: rgba(41, 105, 93, 0.14);
 }
 
 /* Hide FAB in draft mode */

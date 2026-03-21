@@ -2077,7 +2077,7 @@ function openAppleCalPreview() {
     btns.className = 'apple-cal-nudge-btns';
 
     const copyBtn = document.createElement('button');
-    copyBtn.className = 'btn apple-cal-nudge-btn';
+    copyBtn.className = 'btn apple-cal-nudge-btn apple-cal-nudge-btn--primary';
     copyBtn.textContent = 'Copy link';
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(window.location.href).then(() => {
@@ -2087,7 +2087,7 @@ function openAppleCalPreview() {
     });
 
     const shareBtn = document.createElement('button');
-    shareBtn.className = 'btn apple-cal-nudge-btn';
+    shareBtn.className = 'btn apple-cal-nudge-btn apple-cal-nudge-btn--secondary';
     shareBtn.textContent = 'Share anyway';
     shareBtn.addEventListener('click', () => confirmAppleCalExport(true));
 
