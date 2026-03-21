@@ -62,6 +62,30 @@ let currentSessionId = null;  // active session ID
 let isDraftMode = false;       // true while phase=draft (pre-approve)
 let currentTimeBlocks = [];   // latest rendered blocks (with steps)
 
+let sessionStartMin = 0;   // set each time renderCalendar runs in approved mode
+let suppressBlockAnimation = false;  // skip blockIn animation on drag-triggered re-renders
+
+const dragState = {
+  active: false,
+  sourceIndex: null,   // index into currentTimeBlocks
+  overIndex: null,
+  dropPosition: null,  // 'before' | 'after'
+  ghostEl: null,
+};
+
+// Auto-scroll state
+let autoScrollRAF = null;
+const SCROLL_ZONE_PX = 80;
+const SCROLL_SPEED_PX = 3;
+
+// Undo history
+const blockHistory = [];
+const MAX_HISTORY = 10;
+let undoHideTimer = null;
+
+// Toast timer
+let dragToastTimer = null;
+
 // ── Utilities ──────────────────────────────────────────────────
 function timeToMinutes(t) {
   const [h, m] = t.split(':').map(Number);
@@ -75,6 +99,12 @@ function nowMinutes() {
 
 function padTwo(n) {
   return String(n).padStart(2, '0');
+}
+
+function minutesToTime(totalMinutes) {
+  const h = Math.floor(totalMinutes / 60) % 24;
+  const m = totalMinutes % 60;
+  return `${padTwo(h)}:${padTwo(m)}`;
 }
 
 function fmt12(totalMinutes) {
@@ -451,6 +481,8 @@ function initDraftScrollVisibility() {
 // ── Draft Mode Helpers ─────────────────────────────────────────
 function enterDraftMode() {
   isDraftMode = true;
+  blockHistory.length = 0;
+  hideUndoButton();
   const shell = document.getElementById('app-shell');
   if (shell) shell.classList.add('draft-mode');
   const draftSection = document.getElementById('draft-section');
@@ -482,10 +514,397 @@ function showDraftScreen(data) {
   currentPlanTime = data.current_time;
   hideOverlay();
   renderCalendar(data.plan_output.time_blocks);
+  initDragDrop();
   renderSummary(data.plan_output);
   updateSidebar(data.session_id, data.current_time, data.plan_output);
   enterDraftMode();
   trackPageView('/draft', 'draft plan');
+}
+
+// ── Drag/Drop ──────────────────────────────────────────────────
+function recalculateTimes(newOrderBlocks, startMin) {
+  let cursor = startMin;
+  const result = [];
+  for (const block of newOrderBlocks) {
+    const duration = timeToMinutes(block.end) - timeToMinutes(block.start);
+    if (block.kind === 'fixed') {
+      if (cursor > timeToMinutes(block.start)) return null;
+      result.push({ ...block });
+      cursor = timeToMinutes(block.end);
+    } else {
+      result.push({ ...block, start: minutesToTime(cursor), end: minutesToTime(cursor + duration) });
+      cursor += duration;
+    }
+  }
+  return result;
+}
+
+// ── Auto-scroll helpers ─────────────────────────────────────────
+
+// Returns the element that actually scrolls the calendar at the current viewport size.
+// Small screens (draft mode): .calendar-scroll has overflow-y:auto and content overflows.
+// Large screens: adaptive layout fits everything; fall back to .app-body.
+function getCalendarScrollEl() {
+  const cs = document.querySelector('.calendar-scroll');
+  if (cs && cs.scrollHeight > cs.clientHeight) return cs;
+  const ab = document.querySelector('.app-body');
+  if (ab && ab.scrollHeight > ab.clientHeight) return ab;
+  return null;
+}
+
+function startAutoScroll(container, direction) {
+  if (autoScrollRAF) return;
+  function step() {
+    container.scrollTop += direction * SCROLL_SPEED_PX;
+    autoScrollRAF = requestAnimationFrame(step);
+  }
+  autoScrollRAF = requestAnimationFrame(step);
+}
+
+function stopAutoScroll() {
+  if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
+}
+
+// ── Undo helpers ────────────────────────────────────────────────
+function pushHistory() {
+  blockHistory.push(currentTimeBlocks.map(b => ({ ...b })));
+  if (blockHistory.length > MAX_HISTORY) blockHistory.shift();
+}
+
+function undoLastMove() {
+  if (!blockHistory.length) return;
+  currentTimeBlocks = blockHistory.pop();
+  suppressBlockAnimation = true;
+  renderCalendar(currentTimeBlocks);
+  suppressBlockAnimation = false;
+  initDragDrop();
+  updateRightNow();
+  hideUndoButton();
+}
+
+function showUndoButton() {
+  let btn = document.getElementById('drag-undo-btn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'drag-undo-btn';
+    btn.className = 'drag-undo-btn';
+    btn.textContent = '↩ Undo last move';
+    btn.addEventListener('click', undoLastMove);
+    const hint = document.getElementById('drag-reorder-hint');
+    if (hint) hint.insertAdjacentElement('afterend', btn);
+  }
+  btn.style.display = 'block';
+}
+
+function hideUndoButton() {
+  const btn = document.getElementById('drag-undo-btn');
+  if (btn) btn.style.display = 'none';
+}
+
+// ── Toast helper ────────────────────────────────────────────────
+function showDragToast(msg) {
+  let toast = document.getElementById('drag-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'drag-toast';
+    toast.className = 'drag-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(dragToastTimer);
+  dragToastTimer = setTimeout(() => toast.classList.remove('visible'), 2500);
+}
+
+function applyDrop(sourceIdx, overIdx, position) {
+  const blocks = [...currentTimeBlocks];
+  const [moved] = blocks.splice(sourceIdx, 1);
+  let insertAt = overIdx > sourceIdx ? overIdx - 1 : overIdx;
+  if (position === 'after') insertAt += 1;
+  blocks.splice(insertAt, 0, moved);
+
+  const recalculated = recalculateTimes(blocks, sessionStartMin);
+  if (!recalculated) {
+    showDragToast("Can't move past a fixed event");
+    // Flash indicator red as feedback, then hide
+    const ind = document.getElementById('drag-drop-indicator');
+    if (ind) {
+      ind.classList.add('indicator--error');
+      setTimeout(() => { ind.classList.remove('indicator--error'); hideIndicator(); }, 600);
+    }
+    return;
+  }
+  pushHistory();
+  currentTimeBlocks = recalculated;
+  suppressBlockAnimation = true;
+  renderCalendar(currentTimeBlocks);
+  suppressBlockAnimation = false;
+  initDragDrop();       // re-attach after re-render
+  showUndoButton();
+  updateRightNow();
+}
+
+function getOrCreateIndicator(eventsEl) {
+  let el = document.getElementById('drag-drop-indicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'drag-drop-indicator';
+    el.className = 'drag-drop-indicator';
+    eventsEl.appendChild(el);
+  }
+  return el;
+}
+
+function positionIndicator(targetBlockEl, position) {
+  const eventsEl = document.getElementById('calendar-events');
+  if (!eventsEl) return;
+  const indicator = getOrCreateIndicator(eventsEl);
+  const top = parseInt(targetBlockEl.style.top, 10);
+  const height = parseInt(targetBlockEl.style.height, 10);
+  indicator.style.top = (position === 'before' ? top - 2 : top + height + 2) + 'px';
+  indicator.classList.add('visible');
+}
+
+function hideIndicator() {
+  const el = document.getElementById('drag-drop-indicator');
+  if (el) el.classList.remove('visible');
+}
+
+function updateDragPreview() {
+  const eventsEl = document.getElementById('calendar-events');
+  if (!eventsEl || dragState.sourceIndex === null || dragState.overIndex === null) return;
+  const allBlocks = [...eventsEl.querySelectorAll('.calendar-block')];
+  allBlocks.sort((a, b) => parseInt(a.style.top || 0) - parseInt(b.style.top || 0));
+  const sourceEl = eventsEl.querySelector(`.calendar-block[data-block-index="${dragState.sourceIndex}"]`);
+  const targetEl = eventsEl.querySelector(`.calendar-block[data-block-index="${dragState.overIndex}"]`);
+  if (!sourceEl || !targetEl) return;
+  const sourceVisIdx = allBlocks.indexOf(sourceEl);
+  let insertVisIdx = allBlocks.indexOf(targetEl);
+  if (dragState.dropPosition === 'after') insertVisIdx++;
+  const shiftPx = dragState.sourceHeight || 44;
+  allBlocks.forEach((el, i) => {
+    if (el === sourceEl) return;
+    let translate = 0;
+    if (insertVisIdx <= sourceVisIdx) {
+      if (i >= insertVisIdx && i < sourceVisIdx) translate = shiftPx;
+    } else {
+      if (i > sourceVisIdx && i < insertVisIdx) translate = -shiftPx;
+    }
+    // Use setProperty with 'important' priority — CSS animations (blockIn fill-mode:both)
+    // sit above normal author styles in the cascade, so plain style.transform is silently
+    // overridden. !important author beats animations.
+    if (translate) {
+      el.style.setProperty('transform', `translateY(${translate}px)`, 'important');
+    } else {
+      el.style.removeProperty('transform');
+    }
+  });
+}
+
+function clearDragPreview() {
+  const eventsEl = document.getElementById('calendar-events');
+  if (!eventsEl) return;
+  eventsEl.querySelectorAll('.calendar-block').forEach(el => el.style.removeProperty('transform'));
+}
+
+function attachDragListeners(div, sourceIdx) {
+  div.addEventListener('dragstart', (e) => {
+    dragState.active = true;
+    dragState.sourceIndex = sourceIdx;
+    dragState.sourceHeight = parseInt(div.style.height, 10) + 4;
+    e.dataTransfer.effectAllowed = 'move';
+
+    // Transparent ghost so browser doesn't show its own
+    const ghost = div.cloneNode(true);
+    ghost.style.cssText = 'position:fixed;top:-1000px;opacity:0.7;pointer-events:none;';
+    ghost.style.width = div.offsetWidth + 'px';
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, e.offsetX, e.offsetY);
+    dragState.ghostEl = ghost;
+
+    requestAnimationFrame(() => { div.classList.add('is-dragging'); });
+  });
+
+  div.addEventListener('dragend', () => {
+    div.classList.remove('is-dragging');
+    if (dragState.ghostEl) { dragState.ghostEl.remove(); dragState.ghostEl = null; }
+    hideIndicator();
+    clearDragPreview();
+    stopAutoScroll();
+    dragState.active = false;
+    dragState.sourceIndex = null;
+    dragState.overIndex = null;
+  });
+}
+
+function initCalendarDelegatedDrag(eventsEl) {
+  if (eventsEl.dataset.dragBound) return;
+  eventsEl.dataset.dragBound = 'true';
+
+  eventsEl.addEventListener('dragover', (e) => {
+    if (!dragState.active) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = e.target.closest('.calendar-block');
+    if (!target || target.dataset.blockIndex === undefined) return;
+    const overIdx = parseInt(target.dataset.blockIndex, 10);
+    if (overIdx === dragState.sourceIndex) return;
+    const rect = target.getBoundingClientRect();
+    const position = e.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+    dragState.overIndex = overIdx;
+    dragState.dropPosition = position;
+    positionIndicator(target, position);
+    updateDragPreview();
+  });
+
+  eventsEl.addEventListener('dragleave', (e) => {
+    if (!eventsEl.contains(e.relatedTarget)) { hideIndicator(); stopAutoScroll(); }
+  });
+
+  eventsEl.addEventListener('drop', (e) => {
+    e.preventDefault();
+    stopAutoScroll();
+    if (!dragState.active || dragState.overIndex === null) return;
+    applyDrop(dragState.sourceIndex, dragState.overIndex, dragState.dropPosition);
+  });
+}
+
+const LONG_PRESS_MS = 300;
+
+function attachTouchListeners(div, sourceIdx) {
+  let timer = null;
+  let active = false;
+  let ghost = null;
+
+  div.addEventListener('touchstart', (e) => {
+    timer = setTimeout(() => {
+      active = true;
+      dragState.active = true;
+      dragState.sourceIndex = sourceIdx;
+      const rect = div.getBoundingClientRect();
+      ghost = div.cloneNode(true);
+      Object.assign(ghost.style, {
+        position: 'fixed', top: rect.top + 'px', left: rect.left + 'px',
+        width: rect.width + 'px', height: rect.height + 'px',
+        opacity: '0.75', pointerEvents: 'none', zIndex: '999', animation: 'none',
+      });
+      document.body.appendChild(ghost);
+      dragState.ghostEl = ghost;
+      div.classList.add('is-dragging');
+      e.preventDefault();
+    }, LONG_PRESS_MS);
+  }, { passive: false });
+
+  div.addEventListener('touchmove', (e) => {
+    clearTimeout(timer);
+    if (!active) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    ghost.style.top = (touch.clientY - ghost.offsetHeight / 2) + 'px';
+
+    // Hit-test: briefly hide ghost to find element beneath
+    ghost.style.display = 'none';
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    ghost.style.display = '';
+    const target = el ? el.closest('.calendar-block') : null;
+    if (target && target !== div) {
+      const overIdx = parseInt(target.dataset.blockIndex, 10);
+      const rect = target.getBoundingClientRect();
+      const position = touch.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+      dragState.overIndex = overIdx;
+      dragState.dropPosition = position;
+      positionIndicator(target, position);
+    }
+
+    // Touch auto-scroll: find whichever container actually overflows right now
+    const scrollEl = getCalendarScrollEl();
+    if (scrollEl) {
+      const rect = scrollEl.getBoundingClientRect();
+      const relY = touch.clientY - rect.top;
+      if (relY < SCROLL_ZONE_PX) startAutoScroll(scrollEl, -1);
+      else if (relY > rect.height - SCROLL_ZONE_PX) startAutoScroll(scrollEl, 1);
+      else stopAutoScroll();
+    }
+  }, { passive: false });
+
+  const endDrag = () => {
+    clearTimeout(timer);
+    if (!active) return;
+    active = false;
+    if (ghost) { ghost.remove(); ghost = null; }
+    dragState.ghostEl = null;
+    div.classList.remove('is-dragging');
+    hideIndicator();
+    stopAutoScroll();
+    if (dragState.overIndex !== null && dragState.overIndex !== sourceIdx) {
+      applyDrop(sourceIdx, dragState.overIndex, dragState.dropPosition || 'after');
+    }
+    dragState.active = false;
+    dragState.sourceIndex = null;
+    dragState.overIndex = null;
+  };
+
+  div.addEventListener('touchend', endDrag);
+  div.addEventListener('touchcancel', endDrag);
+}
+
+function initDragDrop() {
+  const eventsEl = document.getElementById('calendar-events');
+  if (!eventsEl) return;
+
+  // Inject drag hint below Adjust button (once only)
+  const adjustBtn = document.getElementById('draft-adjust-btn');
+  if (adjustBtn && !document.getElementById('drag-reorder-hint')) {
+    const hint = document.createElement('div');
+    hint.id = 'drag-reorder-hint';
+    hint.className = 'drag-reorder-hint';
+    hint.textContent = '⇅ Tip: Drag blocks on the calendar to reorder';
+    adjustBtn.insertAdjacentElement('afterend', hint);
+  }
+
+  // Document-level dragover drives auto-scroll — fires even over empty calendar space.
+  // Bound once; guarded by dragState.active so it's a no-op when not dragging.
+  if (!document.body.dataset.scrollBound) {
+    document.body.dataset.scrollBound = 'true';
+    document.addEventListener('dragover', (e) => {
+      if (!dragState.active) return;
+      const scrollEl = getCalendarScrollEl();
+      if (!scrollEl) { stopAutoScroll(); return; }
+      const rect = scrollEl.getBoundingClientRect();
+      const relY = e.clientY - rect.top;
+      if (relY < SCROLL_ZONE_PX) startAutoScroll(scrollEl, -1);
+      else if (relY > rect.height - SCROLL_ZONE_PX) startAutoScroll(scrollEl, 1);
+      else stopAutoScroll();
+    });
+    document.addEventListener('dragend', stopAutoScroll);
+    document.addEventListener('drop', stopAutoScroll);
+  }
+
+  initCalendarDelegatedDrag(eventsEl);
+
+  // Mark and wire every non-fixed block regardless of how renderCalendar was called.
+  eventsEl.querySelectorAll('.calendar-block:not(.calendar-block--fixed)').forEach(div => {
+    div.draggable = true;
+    div.classList.add('is-draggable');
+
+    // Inject drag handle if not already present
+    if (!div.querySelector('.drag-handle')) {
+      const handle = document.createElement('span');
+      handle.className = 'drag-handle';
+      handle.innerHTML = `<svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor" aria-hidden="true">
+        <circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/>
+        <circle cx="2" cy="7" r="1.5"/><circle cx="8" cy="7" r="1.5"/>
+        <circle cx="2" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/>
+      </svg>`;
+      div.appendChild(handle);
+    }
+
+    const idx = parseInt(div.dataset.blockIndex, 10);
+    if (!isNaN(idx)) {
+      attachDragListeners(div, idx);
+      attachTouchListeners(div, idx);
+    }
+  });
 }
 
 // ── Calendar Rendering ─────────────────────────────────────────
@@ -544,6 +963,9 @@ function updateRightNow() {
 
 function renderCalendar(timeBlocks) {
   currentTimeBlocks = timeBlocks || [];
+  if (currentTimeBlocks.length > 0) {
+    sessionStartMin = timeToMinutes(currentTimeBlocks[0].start);
+  }
   const eventsEl = document.getElementById('calendar-events');
   const axisEl = document.getElementById('calendar-time-axis');
 
@@ -619,8 +1041,10 @@ function renderCalendar(timeBlocks) {
       // Preserve chronological order, but never let a block render past its true end.
       height = Math.max(durationMin * layout.pixelsPerMinute, blockEndTop - top);
     }
-    // Micro blocks use a tighter gap to minimize cascade
-    stickyBottom = top + height + (isMicro ? 2 : 4);
+    // Only add a gap when this block was pushed down by stickyBottom (min-height overflow).
+    // If it sits at its natural position, no gap — avoids N*4px axis drift for packed schedules.
+    const gap = top > naturalTop ? (isMicro ? 2 : 4) : 0;
+    stickyBottom = top + height + gap;
     visualBottom = Math.max(visualBottom, top + height);
     const kind = block.kind || 'task';
 
@@ -642,7 +1066,11 @@ function renderCalendar(timeBlocks) {
     div.style.height = height + 'px';
 
     const timeLabel = `${fmt12(timeToMinutes(block.start))}–${fmt12(timeToMinutes(block.end))}`;
-    div.style.animationDelay = `${idx * 0.055}s`;
+    if (suppressBlockAnimation) {
+      div.style.animation = 'none';
+    } else {
+      div.style.animationDelay = `${idx * 0.055}s`;
+    }
     const lockIcon = kind === 'fixed' ? '<span class="block-lock">&#128274;</span>' : '';
 
     if (isMicro) {
@@ -671,6 +1099,14 @@ function renderCalendar(timeBlocks) {
         <div class="block-task">${lockIcon}${escHtml(block.task)}</div>
       `;
     }
+    // Map render block → currentTimeBlocks index
+    const ctbIdx = block.is_cluster
+      ? currentTimeBlocks.findIndex(b => b.start === block.cluster_tasks[0].start)
+      : currentTimeBlocks.findIndex(b => b.start === block.start && b.kind === block.kind);
+    div.dataset.blockIndex = ctbIdx;
+
+    // draggable marking and listeners are applied by initDragDrop(), not here
+
     eventsEl.appendChild(div);
   });
 
@@ -1225,6 +1661,7 @@ async function submitAdjust() {
   currentSessionId = data.session_id;
   currentPlanTime = data.current_time;
   renderCalendar(data.plan_output.time_blocks);
+  initDragDrop();
   renderSummary(data.plan_output);
   updateSidebar(data.session_id, data.current_time, data.plan_output);
   if (inputEl) inputEl.value = '';
@@ -1245,7 +1682,7 @@ async function submitApprove() {
     const res = await fetch('/api/approve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: currentSessionId }),
+      body: JSON.stringify({ session_id: currentSessionId, time_blocks: currentTimeBlocks }),
     });
     const data = await res.json();
     if (!res.ok || data.error) {
@@ -1692,6 +2129,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Cmd/Ctrl+Z to undo last drag move (draft mode only)
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'z' && isDraftMode && blockHistory.length) {
+      e.preventDefault();
+      undoLastMove();
+    }
+  });
 
   // Draft approve button
   const draftApproveBtn = document.getElementById('draft-approve-btn');
