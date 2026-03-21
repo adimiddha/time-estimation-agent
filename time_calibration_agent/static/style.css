@@ -394,6 +394,113 @@ body::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   box-shadow: 0 0 10px rgba(255, 123, 107, 0.55);
 }
 
+/* ── Drag / Drop ─────────────────────────────────── */
+.calendar-block.is-draggable { cursor: grab; }
+.calendar-block.is-draggable:active { cursor: grabbing; }
+
+.calendar-block.is-dragging {
+  opacity: 0.35 !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none;
+}
+
+.calendar-block--fixed { cursor: default; }
+
+.drag-drop-indicator {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(123, 104, 238, 0.6);
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0;
+  transform: scaleX(0.95);
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+.drag-drop-indicator.visible {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.drag-drop-indicator.indicator--error {
+  background: #ff7b6b;
+  box-shadow: 0 0 6px rgba(255, 123, 107, 0.6);
+}
+
+/* Drag handle dot-grid icon on draggable blocks */
+.drag-handle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+.calendar-block.is-draggable:hover .drag-handle {
+  color: rgba(255, 255, 255, 0.95);
+}
+/* Micro blocks: hide handle (no room) */
+.calendar-block--micro .drag-handle { display: none; }
+
+/* Drag-to-reorder hint below Adjust button */
+.drag-reorder-hint {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* Undo button after a drag move */
+.drag-undo-btn {
+  display: none;
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--accent);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.drag-undo-btn:hover { opacity: 0.75; }
+
+/* Toast for rejected drops */
+.drag-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: rgba(30, 30, 30, 0.88);
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.drag-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ── Empty / Loading States ────────────────────────── */
 .calendar-empty {
   display: flex;

@@ -196,6 +196,13 @@ def create_app() -> Flask:
         session_id = (data.get("session_id") or "").strip() or session_store.load_last_session_id()
         if not session_id:
             return jsonify({"error": "No session to approve."}), 400
+        # If client sends reordered blocks, persist them before marking approved
+        time_blocks = data.get("time_blocks")
+        if time_blocks:
+            s = session_store.load_session(session_id)
+            if s and s.get("replans"):
+                s["replans"][-1]["plan_output"]["time_blocks"] = time_blocks
+                session_store.save_session(s)
         session = session_store.approve_session(session_id)
         if not session:
             return jsonify({"error": f"Session {session_id} not found."}), 404
