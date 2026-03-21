@@ -2088,7 +2088,7 @@ function openAppleCalPreview() {
 
     const shareBtn = document.createElement('button');
     shareBtn.className = 'btn apple-cal-nudge-btn apple-cal-nudge-btn--secondary';
-    shareBtn.textContent = 'Share anyway';
+    shareBtn.textContent = 'Download .ics';
     shareBtn.addEventListener('click', () => confirmAppleCalExport(true));
 
     btns.appendChild(copyBtn);
