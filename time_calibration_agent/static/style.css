@@ -1986,13 +1986,24 @@ input::placeholder {
 }
 .apple-cal-safari-nudge {
   font-size: 0.85rem;
-  color: var(--muted);
+  color: var(--ink);
   margin-bottom: 8px;
   line-height: 1.5;
 }
 .apple-cal-nudge-btns {
   display: flex;
   gap: 8px;
+}
+.apple-cal-nudge-btn {
+  flex: 1;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  opacity: 1;
+}
+.apple-cal-nudge-btn:hover {
+  background: #6a58d6;
+  color: #fff;
 }
 
 /* Hide FAB in draft mode */
@@ -2504,7 +2515,7 @@ input[type="time"]:focus {
 
 .draft-action-bar,
 .fab-panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.90), rgba(250, 245, 238, 0.82));
+  background: #fdf8f0;
 }
 
 .fab-replan {

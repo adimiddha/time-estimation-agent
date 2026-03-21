@@ -1990,6 +1990,44 @@ async function openGoogleCalendar() {
   if (btn) { btn.disabled = false; btn.classList.remove('btn--loading'); }
 }
 
+function openGcalPreview() {
+  if (!currentTimeBlocks || !currentTimeBlocks.length) {
+    showGcalToast('No plan to export.', true);
+    return;
+  }
+  const nowMins = nowMinutes();
+  const blocks = currentTimeBlocks.filter(b => timeToMinutes(b.end) > nowMins);
+  if (!blocks.length) {
+    showGcalToast('No upcoming events — all scheduled events have already passed.', true);
+    return;
+  }
+
+  const list = document.getElementById('gcal-preview-event-list');
+  const confirmBtn = document.getElementById('gcal-preview-confirm-btn');
+  list.innerHTML = '';
+
+  blocks.forEach(block => {
+    const item = document.createElement('div');
+    item.className = 'apple-cal-event-item';
+    item.innerHTML = `
+      <span class="apple-cal-event-name">${block.task || 'Task'}</span>
+      <span class="apple-cal-event-time">${fmt12(timeToMinutes(block.start))} – ${fmt12(timeToMinutes(block.end))}</span>
+    `;
+    list.appendChild(item);
+  });
+
+  const n = blocks.length;
+  confirmBtn.textContent = `Add ${n} event${n === 1 ? '' : 's'} to Google Calendar`;
+
+  document.getElementById('gcal-preview-backdrop').classList.add('open');
+  document.getElementById('gcal-preview-panel').classList.add('open');
+}
+
+function closeGcalPreview() {
+  document.getElementById('gcal-preview-backdrop').classList.remove('open');
+  document.getElementById('gcal-preview-panel').classList.remove('open');
+}
+
 function openAppleCalPreview() {
   if (!currentTimeBlocks || !currentTimeBlocks.length) {
     showGcalToast('No plan to export.', true);
@@ -2011,7 +2049,7 @@ function openAppleCalPreview() {
     item.className = 'apple-cal-event-item';
     item.innerHTML = `
       <span class="apple-cal-event-name">${block.task || 'Task'}</span>
-      <span class="apple-cal-event-time">${fmt12(block.start)} – ${fmt12(block.end)}</span>
+      <span class="apple-cal-event-time">${fmt12(timeToMinutes(block.start))} – ${fmt12(timeToMinutes(block.end))}</span>
     `;
     list.appendChild(item);
   });
@@ -2039,7 +2077,7 @@ function openAppleCalPreview() {
     btns.className = 'apple-cal-nudge-btns';
 
     const copyBtn = document.createElement('button');
-    copyBtn.className = 'btn btn-secondary';
+    copyBtn.className = 'btn apple-cal-nudge-btn';
     copyBtn.textContent = 'Copy link';
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(window.location.href).then(() => {
@@ -2049,7 +2087,7 @@ function openAppleCalPreview() {
     });
 
     const shareBtn = document.createElement('button');
-    shareBtn.className = 'btn btn-secondary';
+    shareBtn.className = 'btn apple-cal-nudge-btn';
     shareBtn.textContent = 'Share anyway';
     shareBtn.addEventListener('click', () => confirmAppleCalExport(true));
 
@@ -2285,9 +2323,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Google Calendar button
+  // Google Calendar button — opens preview panel
   const gcalBtn = document.getElementById('gcal-btn');
-  if (gcalBtn) gcalBtn.addEventListener('click', openGoogleCalendar);
+  if (gcalBtn) gcalBtn.addEventListener('click', openGcalPreview);
+
+  document.getElementById('gcal-preview-close').addEventListener('click', closeGcalPreview);
+  document.getElementById('gcal-preview-backdrop').addEventListener('click', closeGcalPreview);
+  document.getElementById('gcal-preview-confirm-btn').addEventListener('click', () => {
+    closeGcalPreview();
+    openGoogleCalendar();
+  });
 
   // Handle OAuth callback redirect (?gcal=connected / ?gcal=denied)
   const gcalParam = new URLSearchParams(window.location.search).get('gcal');
