@@ -324,6 +324,26 @@ def create_app() -> Flask:
         except ValueError:
             return jsonify({"error": "Invalid session date."}), 400
 
+        tz = request.args.get("tz", "UTC").strip() or "UTC"
+
+        # Filter out blocks that have already ended (client passes minutes since midnight)
+        try:
+            now_mins = float(request.args.get("nowMinutes", -1))
+        except ValueError:
+            now_mins = -1
+
+        def _block_end_mins(block):
+            try:
+                h, m = block["end"].split(":")
+                return int(h) * 60 + int(m)
+            except Exception:
+                return 9999
+
+        if now_mins >= 0:
+            future = [b for b in time_blocks if _block_end_mins(b) > now_mins]
+            if future:
+                time_blocks = future
+
         lines = [
             "BEGIN:VCALENDAR",
             "VERSION:2.0",
@@ -345,8 +365,8 @@ def create_app() -> Flask:
             lines += [
                 "BEGIN:VEVENT",
                 f"UID:{uid}",
-                f"DTSTART:{dtstart}",
-                f"DTEND:{dtend}",
+                f"DTSTART;TZID={tz}:{dtstart}",
+                f"DTEND;TZID={tz}:{dtend}",
                 f"SUMMARY:{task_name}",
                 "END:VEVENT",
             ]

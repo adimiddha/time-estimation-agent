@@ -1594,6 +1594,17 @@ function exportCalendar() {
   lines.push('END:VCALENDAR');
 
   const ics = lines.join('\r\n') + '\r\n';
+
+  // iOS Safari: navigate to server endpoint — Safari offers native "Open in Calendar" import.
+  // Chrome/Edge on iOS don't support this flow, so they fall through to the blob download.
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  const isIOSSafari = isIOS && /Safari\//.test(navigator.userAgent) && !/CriOS|FxiOS|EdgA|OPiOS/.test(navigator.userAgent);
+  if (isIOSSafari && sessionId) {
+    const params = new URLSearchParams({ session_id: sessionId, tz, nowMinutes: nowMins });
+    window.location.href = `/api/export-ics?${params}`;
+    return;
+  }
+
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
