@@ -441,6 +441,19 @@ def create_app() -> Flask:
         data = request.get_json(force=True, silent=True) or {}
         timezone = data.get("timezone", "UTC")
 
+        # Filter out events that have already ended (client sends minutes since midnight)
+        now_mins = data.get("nowMinutes", -1)
+        if isinstance(now_mins, (int, float)) and now_mins >= 0:
+            def _end_mins(block):
+                try:
+                    h, m = block["end"].split(":")
+                    return int(h) * 60 + int(m)
+                except Exception:
+                    return 9999
+            future = [b for b in time_blocks if _end_mins(b) > now_mins]
+            if future:
+                time_blocks = future
+
         try:
             count = gcal_sync.push_events(creds, time_blocks, date_str, timezone)
         except Exception as e:

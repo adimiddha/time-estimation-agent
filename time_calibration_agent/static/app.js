@@ -1533,7 +1533,7 @@ async function openGoogleCalendar() {
       const pushRes = await fetch('/api/gcal/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timezone: tz })
+        body: JSON.stringify({ timezone: tz, nowMinutes: nowMinutes() })
       });
       const pushData = await pushRes.json();
       if (pushData.error) {
@@ -1564,12 +1564,17 @@ function exportCalendar() {
   const pad = n => String(n).padStart(2, '0');
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
+  // Only export events that haven't ended yet
+  const nowMins = nowMinutes();
+  const blocks = currentTimeBlocks.filter(b => timeToMinutes(b.end) > nowMins);
+  const blocksToExport = blocks.length > 0 ? blocks : currentTimeBlocks;
+
   const lines = [
     'BEGIN:VCALENDAR', 'VERSION:2.0',
     'PRODID:-//Untangle//Time Planner//EN',
     'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
   ];
-  currentTimeBlocks.forEach((block, idx) => {
+  blocksToExport.forEach((block, idx) => {
     try {
       const [sh, sm] = block.start.split(':').map(Number);
       const [eh, em] = block.end.split(':').map(Number);
@@ -1589,14 +1594,6 @@ function exportCalendar() {
   lines.push('END:VCALENDAR');
 
   const ics = lines.join('\r\n') + '\r\n';
-  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-  if (isIOS && sessionId) {
-    // On iOS, navigate to the https:// endpoint — Safari sees text/calendar and offers
-    // "Open in Calendar" as a one-time import (webcal:// creates a subscription instead)
-    window.location.href = `/api/export-ics?session_id=${encodeURIComponent(sessionId)}`;
-    return;
-  }
-
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
