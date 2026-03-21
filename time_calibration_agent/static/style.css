@@ -1,42 +1,42 @@
 /* ── CSS Variables ─────────────────────────────────── */
 :root {
   /* Core palette - warm, calm, ADHD-friendly */
-  --bg:            #fdf8f0;
-  --panel:         #fffdf9;
-  --ink:           #2d2a26;
-  --muted:         #8a8278;
-  --border:        #ede8df;
+  --bg:            #f4eee6;
+  --panel:         rgba(255, 251, 246, 0.88);
+  --ink:           #23312d;
+  --muted:         #697872;
+  --border:        rgba(90, 109, 103, 0.16);
 
-  /* Accent — medium slate blue (calming, creative) */
-  --accent:        #7b68ee;
-  --accent-dark:   #6857e0;
-  --accent-light:  #f0eeff;
+  /* Accent — forest green */
+  --accent:        #2f7a6a;
+  --accent-dark:   #25584d;
+  --accent-light:  #deede7;
 
   /* Block gradients */
-  --task-start:    #7b68ee;
-  --task-end:      #a092f5;
-  --fixed-start:   #e8940a;
-  --fixed-end:     #f5b445;
-  --break-start:   #38b6e8;
-  --break-end:     #72d4f5;
+  --task-start:    #2f7a6a;
+  --task-end:      #66ab96;
+  --fixed-start:   #c98a46;
+  --fixed-end:     #e1ae72;
+  --break-start:   #9ab7c4;
+  --break-end:     #afc9d3;
 
   /* Legacy aliases (kept for JS references) */
   --amber:         #e8940a;
   --amber-light:   #fff8e6;
   --green:         #34b97e;
   --green-light:   #edf9f3;
-  --now-line:      #ff7b6b;
+  --now-line:      #ea7b5d;
 
   /* Shadows */
-  --shadow-xs:     0 1px 4px rgba(45, 42, 38, 0.05);
-  --shadow-sm:     0 2px 10px rgba(45, 42, 38, 0.07);
-  --shadow:        0 8px 28px rgba(45, 42, 38, 0.09);
-  --shadow-accent: 0 4px 18px rgba(123, 104, 238, 0.25);
+  --shadow-xs:     0 1px 4px rgba(35, 49, 45, 0.05);
+  --shadow-sm:     0 8px 22px rgba(35, 49, 45, 0.08);
+  --shadow:        0 22px 56px rgba(35, 49, 45, 0.10);
+  --shadow-accent: 0 4px 18px rgba(47, 122, 106, 0.25);
 
   /* Shape */
-  --radius-sm: 10px;
-  --radius:    16px;
-  --radius-lg: 22px;
+  --radius-sm: 12px;
+  --radius:    18px;
+  --radius-lg: 28px;
 
   /* Motion */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -415,7 +415,7 @@ body::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   height: 3px;
   border-radius: 2px;
   background: var(--accent);
-  box-shadow: 0 0 6px rgba(123, 104, 238, 0.6);
+  box-shadow: 0 0 6px rgba(47, 122, 106, 0.6);
   pointer-events: none;
   z-index: 60;
   opacity: 0;
@@ -653,7 +653,7 @@ input[type="time"]:focus {
   outline: none;
   border-color: var(--accent);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.13);
+  box-shadow: 0 0 0 3px rgba(47, 122, 106, 0.13);
 }
 
 textarea {
@@ -691,20 +691,20 @@ input::placeholder {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent) 0%, #9d8ff5 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #4d9983 100%);
   color: #fff;
   box-shadow: var(--shadow-accent);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--accent-dark) 0%, #8a7cf0 100%);
-  box-shadow: 0 6px 24px rgba(123, 104, 238, 0.32);
+  background: linear-gradient(135deg, var(--accent-dark) 0%, #428973 100%);
+  box-shadow: 0 6px 24px rgba(47, 122, 106, 0.32);
   transform: translateY(-1px);
 }
 
 .btn-primary:active {
   transform: translateY(0) scale(0.97);
-  box-shadow: 0 2px 10px rgba(123, 104, 238, 0.22);
+  box-shadow: 0 2px 10px rgba(47, 122, 106, 0.22);
 }
 
 .btn-primary:disabled {
@@ -720,9 +720,9 @@ input::placeholder {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #e4e0ff;
+  background: #c8ddd8;
   transform: translateY(-1px);
-  box-shadow: 0 3px 12px rgba(123, 104, 238, 0.15);
+  box-shadow: 0 3px 12px rgba(47, 122, 106, 0.15);
 }
 
 .btn-secondary:active {
@@ -854,7 +854,7 @@ input::placeholder {
   flex: 1;
   min-width: 60px;
   height: 7px;
-  background: rgba(123, 104, 238, 0.15);
+  background: rgba(47, 122, 106, 0.15);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -1101,11 +1101,11 @@ input::placeholder {
   transform: translateY(-50%);
   width: calc(100% - 16px);
   height: 44px;
-  background: rgba(123, 104, 238, 0.1);
+  background: rgba(47, 122, 106, 0.1);
   border-radius: 8px;
   pointer-events: none;
-  border-top: 1px solid rgba(123, 104, 238, 0.25);
-  border-bottom: 1px solid rgba(123, 104, 238, 0.25);
+  border-top: 1px solid rgba(47, 122, 106, 0.25);
+  border-bottom: 1px solid rgba(47, 122, 106, 0.25);
   z-index: 1;
 }
 
@@ -1444,7 +1444,7 @@ input::placeholder {
   text-transform: uppercase;
   color: var(--accent);
   background: var(--accent-light);
-  border: 1.5px solid rgba(123, 104, 238, 0.25);
+  border: 1.5px solid rgba(47, 122, 106, 0.25);
   border-radius: 6px;
   padding: 2px 8px;
   flex-shrink: 0;
@@ -2042,31 +2042,7 @@ input::placeholder {
   }
 }
 
-/* ── Calm Coach Overrides ──────────────────────────── */
-:root {
-  --bg: #f4eee6;
-  --panel: rgba(255, 251, 246, 0.88);
-  --ink: #23312d;
-  --muted: #697872;
-  --border: rgba(90, 109, 103, 0.16);
-  --accent: #2f7a6a;
-  --accent-dark: #25584d;
-  --accent-light: #deede7;
-  --task-start: #2f7a6a;
-  --task-end: #66ab96;
-  --fixed-start: #c98a46;
-  --fixed-end: #e1ae72;
-  --break-start: #9ab7c4;
-  --break-end: #afc9d3;
-  --now-line: #ea7b5d;
-  --shadow-xs: 0 1px 4px rgba(35, 49, 45, 0.05);
-  --shadow-sm: 0 8px 22px rgba(35, 49, 45, 0.08);
-  --shadow: 0 22px 56px rgba(35, 49, 45, 0.10);
-  --shadow-accent: 0 10px 26px rgba(47, 122, 106, 0.22);
-  --radius-sm: 12px;
-  --radius: 18px;
-  --radius-lg: 28px;
-}
+/* ── Calm Coach Theme ──────────────────────────────── */
 
 body,
 textarea,
@@ -2204,14 +2180,6 @@ input[type="time"]:focus {
   box-shadow: 0 0 0 4px rgba(47, 122, 106, 0.12);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #29695d 0%, #4d9983 100%);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #225a50 0%, #428973 100%);
-}
-
 /* Plan submit — solid teal, secondary visual weight to mic but clearly pressable */
 #plan-btn {
   background: linear-gradient(135deg, #3d8a79 0%, #5aaa94 100%);
@@ -2225,11 +2193,6 @@ input[type="time"]:focus {
   background: linear-gradient(135deg, #347a6b 0%, #4d9985 100%);
   box-shadow: 0 8px 22px rgba(41, 105, 93, 0.32);
   transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background: rgba(47, 122, 106, 0.10);
-  color: var(--accent-dark);
 }
 
 .btn-export,
