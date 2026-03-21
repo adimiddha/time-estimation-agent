@@ -1595,13 +1595,24 @@ function exportCalendar() {
 
   const ics = lines.join('\r\n') + '\r\n';
 
-  // iOS Safari: navigate to server endpoint — Safari offers native "Open in Calendar" import.
-  // Chrome/Edge on iOS don't support this flow, so they fall through to the blob download.
+  // On iOS, submit a hidden form POST — the server echoes the ICS back as text/calendar,
+  // which triggers the native "Open in Calendar" sheet in Safari and Edge.
+  // This avoids any server-side session lookup (data always comes from currentTimeBlocks).
   const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-  const isIOSSafari = isIOS && /Safari\//.test(navigator.userAgent) && !/CriOS|FxiOS|EdgA|OPiOS/.test(navigator.userAgent);
-  if (isIOSSafari && sessionId) {
-    const params = new URLSearchParams({ session_id: sessionId, tz, nowMinutes: nowMins });
-    window.location.href = `/api/export-ics?${params}`;
+  if (isIOS) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/export-ics';
+    const addField = (name, val) => {
+      const inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = name; inp.value = val;
+      form.appendChild(inp);
+    };
+    addField('ics_content', ics);
+    addField('date_str', dateStr);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
     return;
   }
 

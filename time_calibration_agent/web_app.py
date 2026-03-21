@@ -287,8 +287,19 @@ def create_app() -> Flask:
             traceback.print_exc()
             return jsonify({"error": f"Transcription failed: {e}"}), 500
 
-    @app.route("/api/export-ics", methods=["GET"])
+    @app.route("/api/export-ics", methods=["GET", "POST"])
     def api_export_ics():
+        # POST: client sends pre-generated ICS content; server echoes it back as
+        # text/calendar so iOS Safari/Edge trigger the native "Open in Calendar" flow.
+        if request.method == "POST":
+            ics_content = request.form.get("ics_content", "")
+            date_str = request.form.get("date_str", "untangle")
+            return Response(
+                ics_content,
+                mimetype="text/calendar",
+                headers={"Content-Disposition": f'attachment; filename="untangle-{date_str}.ics"'},
+            )
+
         session_id = request.args.get("session_id", "").strip() or None
 
         # Try the current user's session store first
