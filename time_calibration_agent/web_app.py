@@ -65,6 +65,7 @@ def _build_plan(
     date_override: Optional[str],
     session_end_time: Optional[str] = None,
     current_time_override: Optional[str] = None,
+    follow_up_answer: Optional[str] = None,
 ) -> Dict:
     replanner = ReplanningAgent()
     session_store = DaySessionStore(root_dir=_user_sessions_dir())
@@ -117,6 +118,17 @@ def _build_plan(
     if mode == "adjust" and session_end_time is None:
         session_end_time = session_store.get_session_end_time(session_id)
 
+    # Use cached extraction from /api/clarify for new-plan requests only.
+    # Replan/adjust paths have their own context tracking; leave them unchanged.
+    precomputed_context = None
+    if mode == "new" and not adjustment_mode:
+        cached = flask_session.pop("initial_context", None)
+        if cached is not None:
+            # Patch the cached context with any new constraints from the follow-up answer
+            if follow_up_answer and follow_up_answer.strip():
+                cached = replanner._patch_constraints(follow_up_answer, cached)
+            precomputed_context = cached
+
     plan_output, estimated_tasks, extracted_context = replanner.plan_with_estimates(
         raw_text=raw_text,
         current_time=current_time,
@@ -125,6 +137,7 @@ def _build_plan(
         session_end_time=session_end_time,
         conversation_history=conversation_history if conversation_history else None,
         estimated_tasks=existing_estimates if (adjustment_mode and existing_estimates is not None) else None,
+        extracted_context=precomputed_context,
         adjustment_mode=adjustment_mode,
     )
 
@@ -231,6 +244,17 @@ def create_app() -> Flask:
         try:
             replanner = ReplanningAgent()
             result = replanner.extract_clarification(context, current_time)
+
+            # Front-load _extract_context() while the user reads the follow-up question
+            # (~5-10s dead time). Cache in Flask session so /api/plan can skip re-extraction.
+            # Flask session is cookie-backed (~4KB limit); initial_context is small for
+            # typical days (≤10 tasks). Failure here must not break the clarify response.
+            try:
+                initial_context = replanner._extract_context(context, current_time)
+                flask_session["initial_context"] = initial_context
+            except Exception as ctx_err:
+                print(f"Warning: eager _extract_context in /api/clarify failed: {ctx_err}")
+
             return jsonify(result)
         except Exception as e:
             import traceback
@@ -256,10 +280,11 @@ def create_app() -> Flask:
         date_override = (data.get("date_override") or "").strip() or None
         session_end_time = (data.get("session_end_time") or "").strip() or None
         current_time_override = (data.get("current_time") or "").strip() or None
+        follow_up_answer = (data.get("follow_up_answer") or "").strip() or None
         if not raw_text:
             return jsonify({"error": "No context provided."}), 400
         try:
-            result = _build_plan(raw_text, mode, session_label, date_override, session_end_time, current_time_override)
+            result = _build_plan(raw_text, mode, session_label, date_override, session_end_time, current_time_override, follow_up_answer)
         except Exception as e:
             import traceback
             traceback.print_exc()

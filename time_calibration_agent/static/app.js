@@ -1607,19 +1607,23 @@ async function submitPlan() {
     showFollowUpScreen(clarifyResult.follow_up_question, 'end_time');
   } else {
     // ordering type or no follow-up: go straight to planning
-    await runPlanCall(brainDumpText, clarifyResult.session_end_time || null);
+    await runPlanCall(brainDumpText, clarifyResult.session_end_time || null, null);
   }
 }
 
 async function submitFollowUp(skipped) {
   let finalEndTime = null;
+  let followUpAnswer = null;
   if (currentFollowUpType === 'end_time' && !skipped) {
     finalEndTime = getDrumPickerValue();
+  } else if (!skipped) {
+    const inp = document.getElementById('followup-clarify-input');
+    if (inp) followUpAnswer = inp.value.trim() || null;
   }
-  await runPlanCall(brainDumpText, finalEndTime);
+  await runPlanCall(brainDumpText, finalEndTime, followUpAnswer);
 }
 
-async function runPlanCall(context, sessionEndTime) {
+async function runPlanCall(context, sessionEndTime, followUpAnswer) {
   // Prepend current time so backend has unambiguous anchor
   const timeStr = fmt12(timeToMinutes(currentTimeHHMM || nowHHMM()));
   const fullContext = `It's ${timeStr}. ${context}`;
@@ -1639,6 +1643,7 @@ async function runPlanCall(context, sessionEndTime) {
         current_time: currentTimeHHMM || nowHHMM(),
         session_end_time: sessionEndTime,
         date_override: todayStr(),
+        ...(followUpAnswer ? { follow_up_answer: followUpAnswer } : {}),
       }),
     });
     data = await res.json();

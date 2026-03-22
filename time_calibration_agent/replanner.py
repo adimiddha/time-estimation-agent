@@ -243,20 +243,24 @@ Return ONLY valid JSON with this exact schema:
         session_end_time: Optional[str] = None,
         conversation_history: Optional[List[str]] = None,
         estimated_tasks: Optional[list] = None,
+        extracted_context: Optional[Dict[str, Any]] = None,
         adjustment_mode: bool = False,
     ) -> Tuple[Dict[str, Any], list, Dict[str, Any]]:
         inferred_time = self._infer_time_from_text(raw_text)
         now = inferred_time or current_time or datetime.now().strftime("%H:%M")
 
-        # Build context string for task extraction
-        if conversation_history:
-            context_for_extraction = "\n".join(conversation_history + [raw_text])
-        elif last_input:
-            context_for_extraction = f"{last_input}\n{raw_text}"
-        else:
-            context_for_extraction = raw_text
+        # If caller already did extraction (e.g. web_app cached it during /api/clarify),
+        # skip the full _extract_context() call here.
+        if extracted_context is None:
+            # Build context string for task extraction
+            if conversation_history:
+                context_for_extraction = "\n".join(conversation_history + [raw_text])
+            elif last_input:
+                context_for_extraction = f"{last_input}\n{raw_text}"
+            else:
+                context_for_extraction = raw_text
 
-        extracted_context = self._extract_context(context_for_extraction, now)
+            extracted_context = self._extract_context(context_for_extraction, now)
 
         # Skip estimation if caller provided existing estimates (adjust/replan paths)
         if estimated_tasks is None:
@@ -275,6 +279,78 @@ Return ONLY valid JSON with this exact schema:
             adjustment_mode=adjustment_mode,
         )
         return plan_output, estimated_tasks, extracted_context
+
+    def _patch_constraints(
+        self, follow_up_answer: str, current_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Lightweight constraint patch (gpt-4o-mini, ~200 tokens).
+        Given the follow-up answer text and the already-extracted task list, returns ONLY
+        new items (new time_blocks, deadlines, tasks) not already captured, then merges
+        them into current_context and returns the merged result.
+        Falls back to returning current_context unchanged on any exception.
+        """
+        if not follow_up_answer or not follow_up_answer.strip():
+            return current_context
+
+        existing_json = json.dumps(current_context, indent=2)
+        prompt = (
+            f"You have already extracted this structured context from the user's day plan:\n"
+            f"{existing_json}\n\n"
+            f"The user then answered a follow-up question with this text:\n"
+            f"{follow_up_answer.strip()}\n\n"
+            f"Return ONLY new items NOT already captured above. "
+            f"Do not repeat tasks or constraints already in the existing context. "
+            f"If there is nothing new, return empty lists.\n\n"
+            f"Return JSON with exactly this schema:\n"
+            f'{{\n'
+            f'  "new_tasks": [{{"task": "...", "priority": "high|medium|low"}}],\n'
+            f'  "new_time_blocks": [{{"start": "HH:MM", "end": "HH:MM", "label": "..."}}],\n'
+            f'  "new_deadlines": [{{"time": "HH:MM", "label": "..."}}]\n'
+            f'}}'
+        )
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Extract only new constraints. Respond with valid JSON only."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.1,
+                max_tokens=200,
+            )
+            patch = json.loads(response.choices[0].message.content)
+
+            new_tasks = patch.get("new_tasks", [])
+            if isinstance(new_tasks, list):
+                for t in new_tasks:
+                    if isinstance(t, dict) and t.get("task", "").strip():
+                        priority = str(t.get("priority", "medium")).lower().strip()
+                        if priority not in ("high", "medium", "low"):
+                            priority = "medium"
+                        current_context["remaining_tasks"].append(
+                            {"task": t["task"].strip(), "priority": priority}
+                        )
+
+            new_time_blocks = patch.get("new_time_blocks", [])
+            if isinstance(new_time_blocks, list):
+                current_context.setdefault("constraints", {}).setdefault("time_blocks", [])
+                current_context["constraints"]["time_blocks"].extend(
+                    [b for b in new_time_blocks if isinstance(b, dict)]
+                )
+
+            new_deadlines = patch.get("new_deadlines", [])
+            if isinstance(new_deadlines, list):
+                current_context.setdefault("constraints", {}).setdefault("deadlines", [])
+                current_context["constraints"]["deadlines"].extend(
+                    [d for d in new_deadlines if isinstance(d, dict)]
+                )
+
+            return current_context
+        except Exception as e:
+            print(f"Warning: _patch_constraints failed, using original context: {e}")
+            return current_context
 
     def _normalize_output(self, result: Dict[str, Any]) -> Dict[str, Any]:
         time_blocks = result.get("time_blocks", [])

@@ -1,7 +1,9 @@
 # Feature Plan: Clarify + Context Cache (Scoped)
 
-**Status:** Approved (scoped down from original proposal)
+**Status:** Shipped 2026-03-22
 **Goal:** Front-load _extract_context() work during the clarify screen so /api/plan wall clock time shrinks by ~1.5s. Target: total planning time <5s after the batch estimation and model benchmark changes.
+
+**Note:** `_extract_context()` prompt was significantly improved on 2026-03-22 (constraint-enforcement.md) — it now includes explicit classification rules and few-shot examples. The cached result from /api/clarify will be higher quality than before.
 
 ---
 
