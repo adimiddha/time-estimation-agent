@@ -174,9 +174,13 @@ class ReplanningAgent:
         prompt += "Previous plan output (if any):\n" + last_plan_json + "\n\n"
         prompt += "Task: Create a realistic plan for the rest of the day.\n\nRules:\n"
         prompt += "- Do not schedule anything before the current time.\n"
-        prompt += "- Respect hard constraints (meetings, deadlines).\n"
+        prompt += "- FIXED TIME BLOCKS ARE SACRED: Any event in constraints.time_blocks must appear in\n"
+        prompt += "  the schedule at its exact stated start/end time with kind='fixed'. Schedule these\n"
+        prompt += "  first before placing any flexible tasks. Never place another block overlapping a\n"
+        prompt += "  fixed time block. Never drop a fixed time block — drop flexible tasks instead.\n"
+        prompt += "- Deadlines: tasks with a deadline must be scheduled to complete before their deadline time.\n"
         prompt += "- Soft preferences are used only if they fit.\n"
-        prompt += "- If overbooked, drop the lowest priority tasks.\n"
+        prompt += "- If overbooked, drop the lowest priority flexible tasks. Fixed blocks are never dropped.\n"
         prompt += "- Infer natural task dependencies: if tasks clearly must happen in sequence\n"
         prompt += "  (e.g. 'pick up kids' before 'feed kids'), schedule them in that order automatically.\n"
         prompt += "- If tasks finish significantly before the session end time, add reasonable\n"
@@ -406,7 +410,47 @@ Return ONLY valid JSON with this exact schema:
 
     def _extract_context(self, raw_text: str, now: str) -> Dict[str, Any]:
         """Extract remaining tasks, priorities, and constraints in structured form."""
-        prompt = f"""Extract remaining tasks, priorities, and constraints.\n\nCurrent time: {now}\n\nUser input:\n{raw_text}\n\nReturn JSON exactly:\n{{\n  \"remaining_tasks\": [\n    {{\"task\": \"...\", \"priority\": \"high|medium|low\"}}\n  ],\n  \"constraints\": {{\n    \"time_blocks\": [{{\"start\": \"HH:MM\", \"end\": \"HH:MM\", \"label\": \"...\"}}],\n    \"deadlines\": [{{\"time\": \"HH:MM\", \"label\": \"...\"}}]\n  }}\n}}"""
+        prompt = f"""Extract remaining tasks, priorities, and constraints from the user input below.
+
+Current time: {now}
+
+CLASSIFICATION RULES:
+- "time_blocks": Events anchored to a specific time that CANNOT be moved. Use this for:
+    - Appointments, meetings, calls ("dentist at 2pm", "meeting at 3pm for an hour", "call with Tim at 4pm")
+    - Fixed commitments ("school pickup at 3:15", "dinner reservation at 7:30")
+    - Any event described with "at [time]", "scheduled for [time]", "from [time] to [time]"
+    - If no end time is given, infer a reasonable duration (meetings: 60min, calls: 30min, appointments: 60min)
+- "deadlines": Tasks that must be COMPLETED BY a time, but can be done any time before then.
+    - "submit report by 5pm", "email invoice before 3pm"
+- "remaining_tasks": Everything else — flexible work the user needs to get done.
+
+EXAMPLES:
+Input: "I have a dentist appointment at 2pm and need to finish my report"
+→ time_blocks: [{{"start": "14:00", "end": "15:00", "label": "Dentist appointment"}}]
+→ remaining_tasks: [{{"task": "Finish report", "priority": "medium"}}]
+
+Input: "Team standup at 10am for 30 minutes, then I need to review PRs and send a client email by noon"
+→ time_blocks: [{{"start": "10:00", "end": "10:30", "label": "Team standup"}}]
+→ deadlines: [{{"time": "12:00", "label": "Send client email"}}]
+→ remaining_tasks: [{{"task": "Review PRs", "priority": "medium"}}]
+
+Input: "Pick up kids at 3:15, groceries, make dinner, help with homework"
+→ time_blocks: [{{"start": "15:15", "end": "15:45", "label": "Pick up kids"}}]
+→ remaining_tasks: [{{"task": "Groceries", "priority": "high"}}, {{"task": "Make dinner", "priority": "high"}}, {{"task": "Help with homework", "priority": "medium"}}]
+
+User input:
+{raw_text}
+
+Return JSON exactly:
+{{
+  "remaining_tasks": [
+    {{"task": "...", "priority": "high|medium|low"}}
+  ],
+  "constraints": {{
+    "time_blocks": [{{"start": "HH:MM", "end": "HH:MM", "label": "..."}}],
+    "deadlines": [{{"time": "HH:MM", "label": "..."}}]
+  }}
+}}"""
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
