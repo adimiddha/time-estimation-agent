@@ -8,7 +8,6 @@ const MICRO_CLUSTER_MAX_SPAN_MINUTES = 24;
 // Blocks shorter than this render as compact pills (no minBlockHeight inflation)
 const MICRO_BLOCK_MINUTES = 8;
 const MICRO_BLOCK_HEIGHT = 26; // px — keeps label legible without cascade push
-const STALE_NUDGE_MINUTES = 60; // minutes after last block end before showing nudge
 
 // ── Debug Static Data (computed at call time so blocks start from now) ─
 function makeDebugPlanData() {
@@ -934,7 +933,7 @@ function computeRange(timeBlocks) {
 }
 
 // ── Stale session detection ─────────────────────────────────────
-// Returns one of: 'new_day' | 'draft_expired' | 'draft_valid' | 'nudge' | 'all_past' | null
+// Returns one of: 'new_day' | 'draft_expired' | 'draft_valid' | 'all_past' | null
 function isPlanStale(sessionData) {
   if (!sessionData || !sessionData.plan_output || !sessionData.plan_output.time_blocks) return null;
 
@@ -953,19 +952,13 @@ function isPlanStale(sessionData) {
   const firstStartMin = timeToMinutes(sorted[0].start);
 
   if (sessionData.phase === 'draft') {
-    return firstStartMin < nowMin ? 'draft_expired' : 'draft_valid';
+    const lastEndMin = timeToMinutes(sorted[sorted.length - 1].end);
+    return lastEndMin < nowMin ? 'draft_expired' : 'draft_valid';
   }
 
   // Approved plan staleness checks
   const allPast = sorted.every(b => timeToMinutes(b.end) < nowMin);
   if (allPast) return 'all_past';
-
-  // Nudge: not all past, but the last-ended block finished >STALE_NUDGE_MINUTES ago
-  // (user is in a gap or running significantly behind schedule)
-  const lastPastBlock = sorted.filter(b => timeToMinutes(b.end) < nowMin).pop();
-  if (lastPastBlock && timeToMinutes(lastPastBlock.end) + STALE_NUDGE_MINUTES < nowMin) {
-    return 'nudge';
-  }
 
   return null;
 }
@@ -985,14 +978,10 @@ function updateRightNow() {
     if (section) section.classList.add('right-now-stale');
     if (heading) heading.textContent = "What's Next?";
     nextEl.innerHTML =
-      '<p class="right-now-all-past-msg">Your plan wrapped up. Ready to map out what\'s next?</p>' +
-      '<button class="btn btn-primary right-now-replan-btn" onclick="openFabPanel()">Tap to replan \u2014 just talk</button>';
+      '<p class="right-now-all-past-msg">Your plan wrapped up. Let\'s figure out what else we can accomplish today.</p>' +
+      '<button class="btn btn-primary right-now-replan-btn" onclick="openFabPanel()">Tap to replan \u2192</button>';
     return;
   }
-
-  // ── Nudge: not all past, but last-ended block finished >60min ago ──
-  const lastPastBlock = sorted.filter(b => timeToMinutes(b.end) < now).pop();
-  const isNudge = lastPastBlock && timeToMinutes(lastPastBlock.end) + STALE_NUDGE_MINUTES < now;
 
   // Restore panel to default state (in case it was previously stale)
   if (section) section.classList.remove('right-now-stale');
@@ -1018,10 +1007,6 @@ function updateRightNow() {
   }
 
   let html = '';
-
-  if (isNudge) {
-    html += '<p class="right-now-nudge-text">Your last block ended a while ago — still on track?</p>';
-  }
 
   if (active.steps && active.steps.length) {
     html += '<ul>' + active.steps.map(s => `<li>${escHtml(s)}</li>`).join('') + '</ul>';
@@ -1858,7 +1843,7 @@ async function loadSession() {
 
       if (stale === 'draft_expired') {
         // Draft from earlier today whose schedule has already started — too stale to restore
-        _setStaleWelcomePlaceholder("You had a plan from earlier — it\u2019s a bit out of date. Start fresh or adjust it?");
+        _setStaleWelcomePlaceholder("Your earlier plan has passed. What\u2019s on for today?");
         trackPageView('/welcome', 'welcome');
         track('welcome_screen_shown');
         return;
