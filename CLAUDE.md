@@ -93,7 +93,9 @@ After logging actual time, CLI recomputes calibration from all completed tasks u
 
 ### Replanning flow
 
-`new-session` / `replan` → `ReplanningAgent.plan_with_estimates()` → calls `_extract_context()` (LLM parse of raw text), then `_estimate_tasks()` (calls `EstimationAgent` per task), then `plan()` (LLM schedules time blocks) → output saved to `day_sessions/<session_id>.json`.
+`new-session` / `replan` → `ReplanningAgent.plan_with_estimates()` → calls `_extract_context()` (LLM parse of raw text), then `_estimate_tasks()` (single batched `gpt-4o-mini` call for all tasks via `estimate_tasks_batch()`), then `plan()` (LLM schedules time blocks) → output saved to `day_sessions/<session_id>.json`.
+
+Web app optimisation: `_extract_context()` runs eagerly at `/api/clarify` time and is cached in the Flask session. At `/api/plan` time, only `_patch_constraints()` runs on the follow-up answer before calling `plan_with_estimates()` with the pre-built context.
 
 Session IDs default to `YYYY-MM-DD`; optional label produces `YYYY-MM-DD__<label>`. `DaySessionStore` tracks `day_sessions/.last_session` as a pointer to the most recently used session.
 
@@ -108,9 +110,12 @@ Session IDs default to `YYYY-MM-DD`; optional label produces `YYYY-MM-DD__<label
 
 | Component | Model |
 |---|---|
-| `EstimationAgent` | `gpt-4.1` |
+| `EstimationAgent` (batch) | `gpt-4o-mini` |
+| `EstimationAgent` (single, CLI) | `gpt-4.1` |
+| `ReplanningAgent` | `gpt-5.4-mini` |
 | `QualityEvaluator` | `gpt-4o` |
-| `ReplanningAgent` | `gpt-4.1` |
+| `_patch_constraints()` | `gpt-4o-mini` |
+| `extract_clarification()` | `gpt-4o-mini` |
 
 ### Research / evaluation layer
 

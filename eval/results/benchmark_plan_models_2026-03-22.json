@@ -1,0 +1,2410 @@
+{
+  "gpt-4.1": {
+    "model": "gpt-4.1",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 7.108,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, ensuring clarity and actionability. No tasks are dropped, and all are scheduled within the available time, indicating effective time management.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.005154,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 7.274,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed team meeting time. Each task block includes concrete micro-steps, and no tasks are dropped as the schedule is not overbooked. All tasks are appropriately scheduled within the available time.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.00445,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 8.712,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, and no tasks are dropped unnecessarily, as all fit within the available time.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.00441,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          7.108395792,
+          7.274215916999999,
+          8.711634624999999
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.005154,
+          0.00445,
+          0.00441
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 7.95,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting tasks within the 2-hour limit and respecting task priorities. Each task includes concrete micro-steps, and the drop logic is sound, with clear reasons for deferring the blog post and Notion updates. The plan is well-structured and meets all evaluation criteria.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.004812,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 7.988,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the session end time and prioritization of tasks. Each task block includes concrete micro-steps, and the drop logic is sound, with lower-priority tasks deferred due to time constraints.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.004836,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 9.168,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the session end time and prioritization of tasks. Each task block includes concrete micro-steps, and the drop logic is sound with clear reasons for deferring tasks that cannot fit within the available time.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.005076,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          7.949985708,
+          7.988076708000001,
+          9.168443083
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0048119999999999994,
+          0.004836,
+          0.005076
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 4.71,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks scheduled in a logical order and no violations. Each task block includes concrete micro-steps, ensuring clarity and actionability. The scenario is not overbooked, and all tasks are scheduled effectively without the need to drop any tasks.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.005038,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 4.64,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no overbooking. Each task includes concrete micro-steps, ensuring clarity and actionability. All tasks are scheduled without unnecessary drops, making the plan efficient and comprehensive.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.004862,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 5.003,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks scheduled in a logical order. Each task block includes concrete micro-steps, and no tasks are dropped as the schedule is not overbooked. The plan is well-structured and meets all requirements effectively.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.00495,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          4.710203958000001,
+          4.640116499999998,
+          5.002690375
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.005038,
+          0.004862,
+          0.0049499999999999995
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 4.618,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the given time frame and providing a logical order. Each task includes concrete micro-steps, ensuring clarity and actionability. No tasks are dropped, as the schedule is not overbooked, and all tasks are appropriately accommodated.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.003906,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 3.962,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks comfortably with appropriate breaks. Each task includes concrete micro-steps, and no tasks are dropped as the schedule is not overbooked. The plan is well-structured and actionable.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.003714,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 3.801,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the given time frame and providing clear micro-steps for each task. No tasks were dropped, as the schedule was not overbooked, and all tasks were appropriately prioritized and scheduled.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.003762,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          4.618375458000003,
+          3.9616728330000086,
+          3.8014299999999963
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.003906,
+          0.003714,
+          0.003762
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      7.108395792,
+      7.274215916999999,
+      8.711634624999999,
+      7.949985708,
+      7.988076708000001,
+      9.168443083,
+      4.710203958000001,
+      4.640116499999998,
+      5.002690375,
+      4.618375458000003,
+      3.9616728330000086,
+      3.8014299999999963
+    ],
+    "costs_all": [
+      0.005154,
+      0.00445,
+      0.00441,
+      0.0048119999999999994,
+      0.004836,
+      0.005076,
+      0.005038,
+      0.004862,
+      0.0049499999999999995,
+      0.003906,
+      0.003714,
+      0.003762
+    ],
+    "quality_scores_all": [
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  },
+  "gpt-4.1-mini": {
+    "model": "gpt-4.1-mini",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 7.973,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task is broken down into clear, actionable micro-steps, and no tasks are unnecessarily dropped, as the schedule accommodates all tasks within the available time.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000775,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 6.883,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task includes concrete micro-steps, enhancing clarity and execution. No tasks were dropped, as the schedule fits within the available time, demonstrating effective time management.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000807,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 7.269,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, ensuring clarity in execution. No tasks were dropped, and all are scheduled within the available time, indicating effective time management.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000844,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          7.973275292000011,
+          6.882928915999997,
+          7.269067875000005
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0007748000000000001,
+          0.0008068000000000001,
+          0.0008436
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 6.215,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, ending by 6pm and prioritizing tasks effectively. Micro-steps are concrete and actionable, and the drop logic is sound with clear reasons for deferring lower-priority tasks.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000814,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 6.472,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting tasks within the 2-hour limit and respecting priority. Micro-steps are concrete and actionable, and the drop logic is sound, with clear reasons for deferring lower-priority tasks.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000758,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 7.032,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting tasks within the 2-hour limit and respecting priority. Micro-steps are concrete and actionable, and the drop logic correctly prioritizes high-priority tasks while providing clear reasons for deferring others.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000858,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          6.215238666000005,
+          6.472420624999998,
+          7.031560875000025
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0008136000000000002,
+          0.0007576000000000001,
+          0.0008584
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 24.889,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and within the given time frame. Each task includes concrete micro-steps, ensuring clarity and actionability. No tasks are dropped, as the schedule is well-balanced and fits all necessary activities.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000891,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 8.47,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and completed within the given timeframe. Each task block includes concrete micro-steps, ensuring clarity and ease of execution. No tasks were dropped, as the schedule accommodates all necessary activities without overbooking.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000846,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 7.494,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and within the time frame. Each task includes concrete micro-steps, ensuring clarity and focus. No tasks are dropped, as the schedule is not overbooked, and all necessary actions are included.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000851,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          24.889172833000003,
+          8.469872458999987,
+          7.493944792000008
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0008908,
+          0.0008460000000000001,
+          0.0008508
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 5.531,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the available time starting at 10am. Each task is broken down into concrete, actionable steps, and no tasks are dropped as the schedule is not overbooked. The rationale and confidence levels are well-justified, making this an excellent plan.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000605,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 4.913,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, scheduling tasks sequentially without conflicts. Each task is broken down into concrete, actionable steps. No tasks are dropped as the schedule is not overbooked, ensuring all tasks are completed within the given timeframe.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000575,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 5.025,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, scheduling tasks consecutively without overlap. Each task includes concrete micro-steps, and no tasks are dropped as the schedule is not overbooked. The plan is well-structured and meets all requirements effectively.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000592,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          5.5314887079999835,
+          4.912835124999987,
+          5.024706874999993
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0006052,
+          0.0005748,
+          0.0005924
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      7.973275292000011,
+      6.882928915999997,
+      7.269067875000005,
+      6.215238666000005,
+      6.472420624999998,
+      7.031560875000025,
+      24.889172833000003,
+      8.469872458999987,
+      7.493944792000008,
+      5.5314887079999835,
+      4.912835124999987,
+      5.024706874999993
+    ],
+    "costs_all": [
+      0.0007748000000000001,
+      0.0008068000000000001,
+      0.0008436,
+      0.0008136000000000002,
+      0.0007576000000000001,
+      0.0008584,
+      0.0008908,
+      0.0008460000000000001,
+      0.0008508,
+      0.0006052,
+      0.0005748,
+      0.0005924
+    ],
+    "quality_scores_all": [
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  },
+  "gpt-4o-mini": {
+    "model": "gpt-4o-mini",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 8.495,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time. Each task includes concrete micro-steps, and no tasks were dropped as the schedule accommodates all tasks efficiently.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000295,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 7.194,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 3.0,
+              "overall": 4.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time. Micro-steps are concrete and actionable. However, the drop logic is flawed as the plan is not overbooked; all tasks fit within the available time before the meeting, making the drop unnecessary.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000247,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 8.701,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and no task overlaps. Each task includes clear, concrete micro-steps, and all tasks are scheduled without unnecessary drops, indicating no overbooking.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.00029,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          8.494668749999988,
+          7.19418512499999,
+          8.701475625
+        ],
+        "quality_scores": [
+          5.0,
+          4.0,
+          5.0
+        ],
+        "costs": [
+          0.00029475000000000004,
+          0.00024675,
+          0.00028995000000000003
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 7.988,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints by fitting tasks within the 2-hour limit and dropping lower-priority tasks. Each task block includes concrete micro-steps, and the drop logic is clear and justified, focusing on high-priority tasks.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000241,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 6.797,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting tasks within the 2-hour limit and ending by 6pm. Each task block includes concrete micro-steps, and lower-priority tasks are appropriately deferred with clear reasons.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000236,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 9.657,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting tasks within the 2-hour limit and prioritizing high-priority tasks. Each task block includes concrete micro-steps, and lower-priority tasks are appropriately dropped with clear reasons.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000239,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          7.988192125000012,
+          6.797402000000005,
+          9.65656387499999
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0002415,
+          0.0002355,
+          0.00023909999999999998
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 6.809,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no overbooking. Each task includes clear, concrete micro-steps, ensuring clarity and feasibility. All tasks are scheduled without unnecessary drops, demonstrating excellent planning.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000261,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 6.61,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no violations. Each task block includes concrete micro-steps, ensuring clarity and actionability. The scenario is not overbooked, and all tasks are scheduled appropriately without any unnecessary drops.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000265,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 5.942,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and completed within the available time. Each task block includes concrete micro-steps, and no tasks are unnecessarily dropped, indicating efficient scheduling.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000264,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          6.809026416999984,
+          6.609513292000031,
+          5.9415282080000225
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.00026145,
+          0.00026505,
+          0.00026385
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 5.223,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks fitting within the available time and no need for dropping or deferring. Each task includes concrete micro-steps, ensuring clarity and actionability. The plan is well-structured and meets all requirements effectively.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000198,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 4.252,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the given timeframe without any overlaps or gaps. Each task includes clear and concrete micro-steps, ensuring actionable guidance. No tasks are dropped, as the schedule accommodates all activities efficiently.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000181,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 4.949,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks fitting well within the available time and in a logical order. Each task includes concrete micro-steps, and no tasks are dropped as the schedule is not overbooked.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000186,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          5.222895749999964,
+          4.251525415999993,
+          4.949091333000013
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.00019815,
+          0.00018135,
+          0.00018615
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      8.494668749999988,
+      7.19418512499999,
+      8.701475625,
+      7.988192125000012,
+      6.797402000000005,
+      9.65656387499999,
+      6.809026416999984,
+      6.609513292000031,
+      5.9415282080000225,
+      5.222895749999964,
+      4.251525415999993,
+      4.949091333000013
+    ],
+    "costs_all": [
+      0.00029475000000000004,
+      0.00024675,
+      0.00028995000000000003,
+      0.0002415,
+      0.0002355,
+      0.00023909999999999998,
+      0.00026145,
+      0.00026505,
+      0.00026385,
+      0.00019815,
+      0.00018135,
+      0.00018615
+    ],
+    "quality_scores_all": [
+      5.0,
+      4.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  },
+  "gpt-5-mini": {
+    "model": "gpt-5-mini",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.257,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any constraints, as it does not schedule any tasks or the mandatory meeting. It provides no concrete steps for task execution. While it does not drop tasks, it fails to schedule them, resulting in a low overall score.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000648,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.141,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any constraints, as it does not schedule any tasks or the mandatory meeting. There are no concrete steps provided, and the plan does not attempt to manage the tasks or explain any drop logic, resulting in a very poor overall score.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000648,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.171,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any constraints, as it does not schedule any tasks or the mandatory meeting. It provides no concrete steps for task execution. While it does not drop tasks, it fails to schedule them, resulting in a poor overall plan.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000648,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.25724216700001534,
+          0.14120212500000662,
+          0.1710735839999984
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.0006479000000000001,
+          0.0006479000000000001,
+          0.0006479000000000001
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.131,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to meet any constraints, as it does not schedule any tasks within the available time. There are no concrete steps provided, and the drop logic is absent, with no tasks dropped or deferred despite the overbooked scenario.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000803,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.149,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to adhere to any constraints, as it does not schedule any tasks within the available time. There are no concrete micro-steps provided, and the drop logic is absent since no tasks are scheduled or dropped. The plan is essentially non-functional, resulting in the lowest possible scores across all dimensions.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000803,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.204,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any of the constraints, as it does not schedule any tasks or provide a valid plan. There are no concrete steps or drop logic provided, making it ineffective for the given scenario.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000803,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.1306141249999655,
+          0.14882012500004294,
+          0.20410779200000206
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.0008030000000000001,
+          0.0008030000000000001,
+          0.0008030000000000001
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.145,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any of the constraints, as it does not generate a valid schedule. There are no concrete micro-steps provided, and the plan does not attempt to schedule or drop any tasks, resulting in a complete failure to meet the prompt's requirements.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000795,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.193,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any of the constraints, as it does not generate a valid sequence of tasks. There are no concrete micro-steps provided, and the plan does not attempt to schedule or drop tasks, resulting in a lack of meaningful action. Overall, the plan is ineffective and incomplete.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000795,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.175,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any of the constraints, as it does not generate a valid schedule. There are no concrete micro-steps provided, and the plan does not attempt to prioritize or drop tasks logically. The fallback plan indicates a complete failure to generate a meaningful schedule.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000795,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.14501879200003032,
+          0.1930169589999764,
+          0.1749185830000215
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.0007953000000000001,
+          0.0007953000000000001,
+          0.0007953000000000001
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.176,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to schedule any of the requested tasks, indicating a complete disregard for constraints. No micro-steps are provided, and the plan does not attempt to drop or defer tasks logically, though it does suggest trying again. Overall, the plan is ineffective and lacks detail.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000635,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.202,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to schedule any of the tasks, violating all constraints. No micro-steps are provided, and the plan does not attempt to drop or defer tasks logically. The fallback plan indicates an error without addressing the original prompt's requirements.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000635,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.158,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to schedule any of the tasks, violating all constraints. No micro-steps are provided, and the plan is unable to generate a schedule despite the tasks fitting easily. The drop logic is not applicable as the tasks are not overbooked, but the plan still fails to address them.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000635,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.17589941699998235,
+          0.20150991700000986,
+          0.1582637910000244
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.0006347000000000001,
+          0.0006347000000000001,
+          0.0006347000000000001
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      0.25724216700001534,
+      0.14120212500000662,
+      0.1710735839999984,
+      0.1306141249999655,
+      0.14882012500004294,
+      0.20410779200000206,
+      0.14501879200003032,
+      0.1930169589999764,
+      0.1749185830000215,
+      0.17589941699998235,
+      0.20150991700000986,
+      0.1582637910000244
+    ],
+    "costs_all": [
+      0.0006479000000000001,
+      0.0006479000000000001,
+      0.0006479000000000001,
+      0.0008030000000000001,
+      0.0008030000000000001,
+      0.0008030000000000001,
+      0.0007953000000000001,
+      0.0007953000000000001,
+      0.0007953000000000001,
+      0.0006347000000000001,
+      0.0006347000000000001,
+      0.0006347000000000001
+    ],
+    "quality_scores_all": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  },
+  "gpt-5-nano": {
+    "model": "gpt-5-nano",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.285,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to adhere to any constraints as it does not schedule any tasks or the mandatory meeting. There are no concrete micro-steps provided, and the plan does not address task scheduling or dropping logic effectively. The fallback plan indicates an error, resulting in a very poor overall score.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000177,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.16,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any constraints, as it does not schedule any tasks or the mandatory meeting. There are no micro-steps provided, and the plan does not attempt to prioritize or drop tasks, though it acknowledges an error. Overall, the plan is non-functional.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000177,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.15,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any constraints, as it does not schedule any tasks or the mandatory meeting. There are no concrete steps provided, and the plan does not attempt to manage the tasks or explain any drop logic. It defaults to an error message without attempting to fulfill the prompt requirements.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000177,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.28512658299996474,
+          0.15976349999999684,
+          0.1504954999999768
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.0001767,
+          0.0001767,
+          0.0001767
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.178,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to adhere to any constraints, as it does not schedule any tasks within the available time. There are no concrete micro-steps provided, and the drop logic is absent, with no tasks dropped or deferred despite the overbooked scenario.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000219,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.149,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to meet any constraints, as it does not schedule any tasks within the available time. There are no concrete steps provided, and the drop logic is absent, with no tasks dropped or deferred despite the overbooked scenario.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000219,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.148,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to adhere to any constraints, as it does not schedule any tasks within the available time. There are no concrete micro-steps provided, and the drop logic is absent, with no tasks dropped or deferred despite overbooking. The plan is essentially non-functional.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000219,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.17835029200000463,
+          0.14920854199999667,
+          0.14812945799997124
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.000219,
+          0.000219,
+          0.000219
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.179,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 1.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any of the constraints, provides no concrete steps, and does not attempt to schedule or drop tasks. It defaults to an error message without any actionable content.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000217,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.175,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any of the constraints, as it does not generate a valid schedule. There are no concrete steps provided, and the plan does not attempt to prioritize or drop tasks logically. The fallback plan indicates a complete failure to generate a meaningful schedule.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000217,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.165,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to address any of the constraints, as it does not generate a valid schedule. There are no concrete micro-steps provided, and the plan does not attempt to schedule or drop any tasks, resulting in a low overall score.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000217,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.1785275830000046,
+          0.17467262499997105,
+          0.16456787499998882
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.00021690000000000001,
+          0.00021690000000000001,
+          0.00021690000000000001
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 0.16,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to schedule any of the requested tasks, indicating a complete disregard for constraints. No micro-steps are provided, and the plan does not attempt to address the tasks, resulting in poor scores across all dimensions. The drop logic is rated as acceptable because the scenario is not overbooked, but the plan still fails to schedule any tasks.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000173,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 0.2,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to schedule any of the requested tasks, ignoring all constraints. No micro-steps are provided, and the plan defaults to an error message. Although the scenario is not overbooked, the plan does not attempt to schedule any tasks, resulting in a low overall score.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000173,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 0.154,
+            "quality": {
+              "constraint_adherence": 1.0,
+              "microstep_concreteness": 1.0,
+              "drop_logic": 3.0,
+              "overall": 1.0,
+              "reasoning": "The plan fails to schedule any of the requested tasks, violating all constraints. No micro-steps are provided, and the plan does not attempt to drop or defer tasks logically. The fallback plan indicates an error without addressing the original prompt's requirements.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000173,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          0.16015862500000821,
+          0.19979462499998135,
+          0.15411679199996797
+        ],
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "costs": [
+          0.0001731,
+          0.0001731,
+          0.0001731
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      0.28512658299996474,
+      0.15976349999999684,
+      0.1504954999999768,
+      0.17835029200000463,
+      0.14920854199999667,
+      0.14812945799997124,
+      0.1785275830000046,
+      0.17467262499997105,
+      0.16456787499998882,
+      0.16015862500000821,
+      0.19979462499998135,
+      0.15411679199996797
+    ],
+    "costs_all": [
+      0.0001767,
+      0.0001767,
+      0.0001767,
+      0.000219,
+      0.000219,
+      0.000219,
+      0.00021690000000000001,
+      0.00021690000000000001,
+      0.00021690000000000001,
+      0.0001731,
+      0.0001731,
+      0.0001731
+    ],
+    "quality_scores_all": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  },
+  "gpt-5.4-mini": {
+    "model": "gpt-5.4-mini",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 2.65,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with no tasks overlapping the fixed meeting time. Each task includes concrete micro-steps, and no tasks are unnecessarily dropped as the schedule fits within the available time. The plan is well-structured and meets all requirements effectively.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001758,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 2.602,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, and no tasks were unnecessarily dropped as the schedule fits within the given time frame.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001988,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 2.307,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, and no tasks are dropped as the schedule is not overbooked. All tasks are appropriately scheduled within the available time.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001582,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          2.650397540999961,
+          2.6016819170000076,
+          2.30689154199996
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0017576,
+          0.001988,
+          0.0015816
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 2.047,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting tasks within the 2-hour limit and respecting priority. Micro-steps are concrete and actionable, and the drop logic is sound with clear reasons for deferring lower-priority tasks.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001522,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 1.942,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting tasks within the 2-hour limit and respecting task priorities. Each task block includes concrete micro-steps, and the drop logic is well-reasoned, with clear explanations for deferring or dropping tasks based on priority and time constraints.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001454,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 2.394,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks fitting within the 2-hour window and ending by 6pm. Each task includes concrete micro-steps, and the drop logic is sound, with clear reasons for deferring or dropping tasks based on priority and time constraints.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001611,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          2.0468563750000044,
+          1.9415373749999958,
+          2.3939055000000167
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0015216000000000001,
+          0.0014544000000000002,
+          0.0016112000000000001
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 2.836,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no violations. Each task block includes clear, concrete micro-steps. All tasks are scheduled without unnecessary drops, indicating the scenario is not overbooked.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.002169,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 2.867,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no violations. Each task block includes clear, concrete micro-steps. The scenario is not overbooked, and all tasks are scheduled appropriately without unnecessary drops.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.00222,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 3.285,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and completed before the 9:00pm boundary. Each time block includes concrete micro-steps, ensuring clarity and actionability. No tasks were dropped, as the schedule was not overbooked, and all necessary activities were included.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.002524,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          2.8363937500000134,
+          2.8666631660000235,
+          3.2849136250000015
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0021688000000000002,
+          0.00222,
+          0.002524
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 2.103,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the given timeframe without any conflicts. Each task includes concrete micro-steps, ensuring clarity and actionability. No tasks are dropped, as the schedule is not overbooked, and all tasks are appropriately prioritized and sequenced.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001428,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 2.21,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the available time and maintaining logical order. Each task includes concrete micro-steps, and no tasks were dropped as the schedule was not overbooked.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.00146,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 1.933,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the available time and in a logical order. Each task includes concrete micro-steps, and no tasks are dropped unnecessarily, as the schedule is not overbooked.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.001322,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          2.1033775419999756,
+          2.2096257499999865,
+          1.9329645419999792
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.001428,
+          0.0014600000000000001,
+          0.0013224
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      2.650397540999961,
+      2.6016819170000076,
+      2.30689154199996,
+      2.0468563750000044,
+      1.9415373749999958,
+      2.3939055000000167,
+      2.8363937500000134,
+      2.8666631660000235,
+      3.2849136250000015,
+      2.1033775419999756,
+      2.2096257499999865,
+      1.9329645419999792
+    ],
+    "costs_all": [
+      0.0017576,
+      0.001988,
+      0.0015816,
+      0.0015216000000000001,
+      0.0014544000000000002,
+      0.0016112000000000001,
+      0.0021688000000000002,
+      0.00222,
+      0.002524,
+      0.001428,
+      0.0014600000000000001,
+      0.0013224
+    ],
+    "quality_scores_all": [
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  },
+  "gpt-5.4-nano": {
+    "model": "gpt-5.4-nano",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 4.754,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes clear, concrete micro-steps. No tasks were dropped, and the schedule fits comfortably within the available time, indicating excellent planning.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000716,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 4.273,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time, and provides concrete micro-steps for each task. No tasks were dropped as the schedule fits within the available time, demonstrating excellent planning.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000669,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 3.89,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, ensuring clarity and actionability. The schedule is not overbooked, and all tasks are appropriately accommodated within the available time.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000607,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          4.754479457999992,
+          4.272721416000024,
+          3.8896945000000187
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0007162000000000001,
+          0.000669,
+          0.0006066
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 2.932,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the 6pm cutoff, and provides concrete micro-steps for each task. It correctly identifies the scenario as overbooked and drops the lowest-priority tasks with clear reasons.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000481,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 2.255,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, providing a clear schedule within the 2-hour limit. Micro-steps are concrete and actionable, and the drop logic correctly prioritizes the blog post while deferring other tasks with clear reasons.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000395,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 2.284,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints by scheduling only the blog post within the 2-hour limit, providing clear micro-steps for the task, and correctly deferring other tasks due to time constraints with clear drop reasons.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000391,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          2.932138499999951,
+          2.2549225000000206,
+          2.284116541000003
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0004812,
+          0.00039480000000000006,
+          0.00039080000000000007
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 3.489,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no violations. Each task includes concrete micro-steps, ensuring clarity and actionability. The scenario is not overbooked, and all tasks are scheduled appropriately, resulting in a perfect score across all dimensions.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000555,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 3.571,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and completed within the expected timeframe. Each task includes concrete micro-steps, ensuring clarity and actionability. No tasks are dropped, indicating the scenario is not overbooked and all necessary activities are accounted for.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000533,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 3.757,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and within the time limits. Each task includes concrete micro-steps, ensuring clarity and actionability. No tasks are dropped, as the schedule fits comfortably within the available time.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000634,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          3.4891970409999544,
+          3.570985124999993,
+          3.756817582999986
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.000555,
+          0.0005334,
+          0.0006342
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 2.822,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting the tasks within the given timeframe and maintaining the correct order. Each task includes clear, concrete micro-steps, and no tasks are dropped as the schedule is not overbooked. The plan is well-structured and meets all requirements effectively.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000438,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 3.071,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks fitting well within the time frame and in the correct order. Each task includes clear, concrete micro-steps. No tasks were dropped, as the schedule accommodates all activities comfortably.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000446,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 3.069,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks fitting well within the time frame and in the correct order. Each task includes concrete micro-steps, and no tasks are dropped as the schedule is not overbooked.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.000475,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          2.8216131659999633,
+          3.0712295829999903,
+          3.068526416999987
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0004378,
+          0.00044580000000000005,
+          0.00047460000000000004
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      4.754479457999992,
+      4.272721416000024,
+      3.8896945000000187,
+      2.932138499999951,
+      2.2549225000000206,
+      2.284116541000003,
+      3.4891970409999544,
+      3.570985124999993,
+      3.756817582999986,
+      2.8216131659999633,
+      3.0712295829999903,
+      3.068526416999987
+    ],
+    "costs_all": [
+      0.0007162000000000001,
+      0.000669,
+      0.0006066,
+      0.0004812,
+      0.00039480000000000006,
+      0.00039080000000000007,
+      0.000555,
+      0.0005334,
+      0.0006342,
+      0.0004378,
+      0.00044580000000000005,
+      0.00047460000000000004
+    ],
+    "quality_scores_all": [
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  },
+  "gpt-5.4": {
+    "model": "gpt-5.4",
+    "cases": {
+      "fixed_time": {
+        "label": "Hard fixed time \u2014 team meeting at 3pm",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 13.402,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task includes concrete micro-steps, ensuring clarity and actionability. All tasks are scheduled without unnecessary drops, indicating efficient use of time and resources.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.012111,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 9.012,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, ensuring clarity and actionability. No tasks were dropped, and the schedule fits comfortably within the available time, demonstrating excellent planning.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.009123,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 9.317,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the fixed meeting time and task ordering. Each task block includes concrete micro-steps, ensuring clarity and actionability. The workload fits within the available time, with no unnecessary drops, making the plan efficient and comprehensive.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.009219,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          13.401967082999988,
+          9.012258374999988,
+          9.317488000000026
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.012111,
+          0.009123000000000001,
+          0.009219
+        ],
+        "error_count": 0
+      },
+      "overbooking": {
+        "label": "Overbooking \u2014 5h of tasks in 2h window",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 8.802,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, providing a clear schedule within the 2-hour limit. Each task includes concrete micro-steps, and the drop logic is well-reasoned, prioritizing high-priority tasks and deferring others appropriately.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.009018,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 8.51,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, including the session end time and prioritization of tasks. Each task block includes concrete micro-steps, and the drop logic is well-reasoned, focusing on high-priority tasks while deferring or dropping lower-priority ones.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.008862,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 13.283,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, providing a clear schedule within the 2-hour limit and prioritizing tasks effectively. Each task includes concrete micro-steps, and the drop logic is well-reasoned, focusing on high-priority tasks while deferring lower-priority ones.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.008946,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          8.80150420800004,
+          8.509977582999966,
+          13.283298166000009
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.009018,
+          0.008862,
+          0.008945999999999999
+        ],
+        "error_count": 0
+      },
+      "dependency": {
+        "label": "Task dependency \u2014 pick up kids before feed kids",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 11.263,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no violations. Each task block includes concrete micro-steps, ensuring clarity and ease of execution. The scenario is not overbooked, and all tasks are scheduled effectively without unnecessary drops.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.010809,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 8.092,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks ordered logically and no violations. Each time block includes concrete micro-steps, ensuring clarity in execution. The scenario is not overbooked, and all tasks are scheduled appropriately without unnecessary drops.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.007845,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 8.917,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, with tasks scheduled in a logical order and within the given timeframe. Each task includes concrete micro-steps, ensuring clarity and actionability. No tasks were dropped, as the schedule was not overbooked, and all necessary actions were included.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.008769,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          11.263262792000035,
+          8.091540915999985,
+          8.916665583000054
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.010809,
+          0.007845,
+          0.008768999999999999
+        ],
+        "error_count": 0
+      },
+      "minimal": {
+        "label": "Minimal \u2014 3 tasks, no hard constraints",
+        "runs": [
+          {
+            "run": 1,
+            "latency_s": 5.884,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the available time without conflicts. Each task includes concrete micro-steps, ensuring clarity and actionability. No tasks are dropped, as the schedule is not overbooked, resulting in a well-balanced and efficient plan.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.005499,
+            "plan_error": null
+          },
+          {
+            "run": 2,
+            "latency_s": 7.37,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the given time frame without any gaps or unnecessary drops. Each task includes concrete micro-steps, ensuring clarity and actionability. The plan is well-structured and logical, with a clear rationale for the order and timing of tasks.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.006291,
+            "plan_error": null
+          },
+          {
+            "run": 3,
+            "latency_s": 5.91,
+            "quality": {
+              "constraint_adherence": 5.0,
+              "microstep_concreteness": 5.0,
+              "drop_logic": 5.0,
+              "overall": 5.0,
+              "reasoning": "The plan adheres to all constraints, fitting all tasks within the given timeframe without any drops. Each task includes concrete micro-steps, ensuring clarity and actionability. The plan is well-structured and logical, with no overbooking issues.",
+              "evaluator_error": null
+            },
+            "cost_usd": 0.005427,
+            "plan_error": null
+          }
+        ],
+        "latencies": [
+          5.8839714160000085,
+          7.370184915999971,
+          5.909673417000022
+        ],
+        "quality_scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "costs": [
+          0.0054989999999999995,
+          0.006291,
+          0.005427
+        ],
+        "error_count": 0
+      }
+    },
+    "latencies_all": [
+      13.401967082999988,
+      9.012258374999988,
+      9.317488000000026,
+      8.80150420800004,
+      8.509977582999966,
+      13.283298166000009,
+      11.263262792000035,
+      8.091540915999985,
+      8.916665583000054,
+      5.8839714160000085,
+      7.370184915999971,
+      5.909673417000022
+    ],
+    "costs_all": [
+      0.012111,
+      0.009123000000000001,
+      0.009219,
+      0.009018,
+      0.008862,
+      0.008945999999999999,
+      0.010809,
+      0.007845,
+      0.008768999999999999,
+      0.0054989999999999995,
+      0.006291,
+      0.005427
+    ],
+    "quality_scores_all": [
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "error_count": 0,
+    "skip_reason": null
+  }
+}
