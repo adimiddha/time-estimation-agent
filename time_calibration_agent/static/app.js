@@ -932,11 +932,60 @@ function computeRange(timeBlocks) {
   return { startHour, endHour };
 }
 
+// ── Stale session detection ─────────────────────────────────────
+// Returns one of: 'new_day' | 'draft_expired' | 'draft_valid' | 'all_past' | null
+function isPlanStale(sessionData) {
+  if (!sessionData || !sessionData.plan_output || !sessionData.plan_output.time_blocks) return null;
+
+  const blocks = sessionData.plan_output.time_blocks;
+  if (!blocks.length) return null;
+
+  // Determine the date portion of the session_id (always starts with YYYY-MM-DD)
+  const sessionDate = (sessionData.session_id || '').slice(0, 10);
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  if (sessionDate && sessionDate !== todayStr) return 'new_day';
+
+  const nowMin = nowMinutes();
+  const sorted = [...blocks].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+  const firstStartMin = timeToMinutes(sorted[0].start);
+
+  if (sessionData.phase === 'draft') {
+    const lastEndMin = timeToMinutes(sorted[sorted.length - 1].end);
+    return lastEndMin < nowMin ? 'draft_expired' : 'draft_valid';
+  }
+
+  // Approved plan staleness checks
+  const allPast = sorted.every(b => timeToMinutes(b.end) < nowMin);
+  if (allPast) return 'all_past';
+
+  return null;
+}
+
 function updateRightNow() {
   const nextEl = document.getElementById('summary-next-actions');
+  const section = document.getElementById('right-now-section');
+  const heading = document.querySelector('.right-now-heading');
   if (!nextEl || !currentTimeBlocks.length) return;
 
   const now = nowMinutes();
+  const sorted = [...currentTimeBlocks].sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+  const allPast = currentTimeBlocks.every(b => timeToMinutes(b.end) < now);
+
+  // ── All blocks past: replace panel with muted replan prompt ──
+  if (allPast) {
+    if (section) section.classList.add('right-now-stale');
+    if (heading) heading.textContent = "What's Next?";
+    nextEl.innerHTML =
+      '<p class="right-now-all-past-msg">Your plan wrapped up. Let\'s figure out what else we can accomplish today.</p>' +
+      '<button class="btn btn-primary right-now-replan-btn" onclick="openFabPanel()">Tap to replan \u2192</button>';
+    return;
+  }
+
+  // Restore panel to default state (in case it was previously stale)
+  if (section) section.classList.remove('right-now-stale');
+  if (heading) heading.textContent = '\u26a1 Right Now';
 
   // Find the block currently in progress
   let active = currentTimeBlocks.find(b => {
@@ -957,9 +1006,13 @@ function updateRightNow() {
     return;
   }
 
-  if (!active.steps || !active.steps.length) return;
+  let html = '';
 
-  nextEl.innerHTML = '<ul>' + active.steps.map(s => `<li>${escHtml(s)}</li>`).join('') + '</ul>';
+  if (active.steps && active.steps.length) {
+    html += '<ul>' + active.steps.map(s => `<li>${escHtml(s)}</li>`).join('') + '</ul>';
+  }
+
+  if (html) nextEl.innerHTML = html;
 }
 
 function renderCalendar(timeBlocks) {
@@ -1778,8 +1831,27 @@ async function loadSession() {
     const res = await fetch('/api/session');
     const data = await res.json();
     if (data.plan_output && data.plan_output.time_blocks && data.plan_output.time_blocks.length) {
+      const stale = isPlanStale(data);
+
+      if (stale === 'new_day') {
+        // Prior-day session — reset to welcome and show contextual placeholder
+        _setStaleWelcomePlaceholder("Yesterday's plan is done. What's on for today?");
+        trackPageView('/welcome', 'welcome');
+        track('welcome_screen_shown');
+        return;
+      }
+
+      if (stale === 'draft_expired') {
+        // Draft from earlier today whose schedule has already started — too stale to restore
+        _setStaleWelcomePlaceholder("Your earlier plan has passed. What\u2019s on for today?");
+        trackPageView('/welcome', 'welcome');
+        track('welcome_screen_shown');
+        return;
+      }
+
       currentSessionId = data.session_id;
       if (data.phase === 'draft') {
+        // 'draft_valid' — schedule hasn't started yet, safe to restore
         showDraftScreen(data);
       } else {
         hideOverlay();
@@ -1800,6 +1872,20 @@ async function loadSession() {
     trackPageView('/welcome', 'welcome');
     track('welcome_screen_shown');
   }
+}
+
+// Set a temporary stale-context placeholder on the brain dump textarea.
+// Resets to the default placeholder on first keystroke.
+function _setStaleWelcomePlaceholder(message) {
+  const textarea = document.getElementById('brain-dump');
+  if (!textarea) return;
+  const defaultPlaceholder = "Brain dump it all \u2014 tasks, what\u2019s urgent, what you can\u2019t drop.";
+  textarea.placeholder = message;
+  function restorePlaceholder() {
+    textarea.placeholder = defaultPlaceholder;
+    textarea.removeEventListener('input', restorePlaceholder);
+  }
+  textarea.addEventListener('input', restorePlaceholder);
 }
 
 // ── Escape HTML ────────────────────────────────────────────────

@@ -2255,6 +2255,33 @@ input[type="time"]:focus {
   color: rgba(246, 255, 251, 0.76);
 }
 
+/* Stale plan state — muted panel replaces the green gradient */
+.right-now-section.right-now-stale {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.right-now-section.right-now-stale .right-now-heading {
+  color: var(--ink);
+}
+
+.right-now-section.right-now-stale ul {
+  color: var(--ink);
+}
+
+.right-now-stale .right-now-all-past-msg {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0 0 16px;
+}
+
+
+/* Replan CTA inside the stale all-past panel */
+.right-now-replan-btn {
+  align-self: flex-start;
+}
+
 .calendar-panel {
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.74);
