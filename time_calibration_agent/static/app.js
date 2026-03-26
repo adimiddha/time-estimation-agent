@@ -6,9 +6,25 @@ const API_BASE = IS_NATIVE
   ? 'https://time-estimation-agent-production.up.railway.app'
   : '';
 
-// Wrapper that adds credentials:include for cross-origin native requests
+// Stable user ID for native — persisted in localStorage to survive restarts.
+// Bypasses WKWebView third-party cookie restrictions.
+function getNativeUserId() {
+  let id = localStorage.getItem('native_user_id');
+  if (!id) {
+    id = 'native_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    localStorage.setItem('native_user_id', id);
+  }
+  return id;
+}
+
+// Wrapper: injects X-User-ID header for native so the server can identify the user
+// without relying on cookies (WKWebView blocks third-party cookies).
 function apiFetch(path, options = {}) {
-  if (IS_NATIVE) options = { credentials: 'include', ...options };
+  if (IS_NATIVE) {
+    const headers = new Headers(options.headers || {});
+    headers.set('X-User-ID', getNativeUserId());
+    options = { ...options, headers };
+  }
   return fetch(API_BASE + path, options);
 }
 
