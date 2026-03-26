@@ -170,7 +170,7 @@ def _build_plan(
 def create_app() -> Flask:
     app = Flask(__name__)
     app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
-    CORS(app, origins=['capacitor://localhost', 'ionic://localhost', 'http://localhost'])
+    CORS(app, origins=['capacitor://localhost', 'ionic://localhost', 'http://localhost'], supports_credentials=True)
 
     @app.before_request
     def ensure_user_id():
