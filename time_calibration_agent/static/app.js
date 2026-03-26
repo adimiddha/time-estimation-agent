@@ -496,6 +496,16 @@ function enterDraftMode() {
 
 function exitDraftMode() {
   isDraftMode = false;
+  // Strip drag handles and draggable state left over from draft mode
+  const eventsEl = document.getElementById('calendar-events');
+  if (eventsEl) {
+    eventsEl.querySelectorAll('.calendar-block').forEach(div => {
+      div.draggable = false;
+      div.classList.remove('is-draggable');
+      const handle = div.querySelector('.drag-handle');
+      if (handle) handle.remove();
+    });
+  }
   const shell = document.getElementById('app-shell');
   if (shell) shell.classList.remove('draft-mode');
   const draftSection = document.getElementById('draft-section');
