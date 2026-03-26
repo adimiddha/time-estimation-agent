@@ -578,6 +578,11 @@ body::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   line-height: 1.1;
 }
 
+.emoji-icon {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  font-style: normal;
+}
+
 .right-now-section ul {
   margin: 0;
   padding: 0 0 0 20px;
