@@ -13,6 +13,7 @@ import openai
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response, redirect
 from flask import session as flask_session
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -169,6 +170,7 @@ def _build_plan(
 def create_app() -> Flask:
     app = Flask(__name__)
     app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
+    CORS(app, origins=['capacitor://localhost', 'ionic://localhost', 'http://localhost'])
 
     @app.before_request
     def ensure_user_id():

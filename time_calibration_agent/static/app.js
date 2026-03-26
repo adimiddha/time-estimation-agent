@@ -1,5 +1,11 @@
 'use strict';
 
+// ── Native / API base ───────────────────────────────────────────
+const IS_NATIVE = !!(window.Capacitor);
+const API_BASE = IS_NATIVE
+  ? 'https://time-estimation-agent-production.up.railway.app'
+  : '';
+
 // ── Constants ──────────────────────────────────────────────────
 const BASE_MIN_BLOCK_HEIGHT = 52;
 const COMPACT_THRESHOLD_PX = 0; // all blocks show full content
@@ -1452,6 +1458,7 @@ function track(event, params = {}) {
 }
 
 function updateVirtualLocation(path, title) {
+  if (IS_NATIVE) return;
   if (!window.history || typeof window.history.replaceState !== 'function') return;
   if (window.location.pathname === path && document.title === title) return;
   window.history.replaceState({}, title, path);
@@ -1588,7 +1595,7 @@ async function submitPlan() {
 
   let clarifyResult;
   try {
-    const res = await fetch('/api/clarify', {
+    const res = await fetch(API_BASE + '/api/clarify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ context: rawText, current_time: currentTimeHHMM || nowHHMM() }),
@@ -1634,7 +1641,7 @@ async function runPlanCall(context, sessionEndTime, followUpAnswer) {
 
   let data;
   try {
-    const res = await fetch('/api/plan', {
+    const res = await fetch(API_BASE + '/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1692,7 +1699,7 @@ async function submitAdjust() {
 
   let data;
   try {
-    const res = await fetch('/api/plan', {
+    const res = await fetch(API_BASE + '/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1738,7 +1745,7 @@ async function submitApprove() {
   if (adjustBtn) adjustBtn.disabled = true;
 
   try {
-    const res = await fetch('/api/approve', {
+    const res = await fetch(API_BASE + '/api/approve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: currentSessionId, time_blocks: currentTimeBlocks }),
@@ -1784,7 +1791,7 @@ async function handleReplan() {
 
   let data;
   try {
-    const res = await fetch('/api/plan', {
+    const res = await fetch(API_BASE + '/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1833,7 +1840,7 @@ async function loadSession() {
   }
 
   try {
-    const res = await fetch('/api/session');
+    const res = await fetch(API_BASE + '/api/session');
     const data = await res.json();
     if (data.plan_output && data.plan_output.time_blocks && data.plan_output.time_blocks.length) {
       const stale = isPlanStale(data);
@@ -1959,7 +1966,7 @@ async function transcribeAudio(cfg) {
   formData.append('audio', blob, 'recording.webm');
 
   try {
-    const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
+    const res = await fetch(API_BASE + '/api/transcribe', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.error) {
       showError(cfg.errorBannerId, data.error);
@@ -2055,11 +2062,11 @@ async function openGoogleCalendar() {
   if (btn) { btn.disabled = true; btn.classList.add('btn--loading'); }
   showGcalToast('Adding to Google Calendar…');
   try {
-    const statusRes = await fetch('/api/gcal/status');
+    const statusRes = await fetch(API_BASE + '/api/gcal/status');
     const statusData = await statusRes.json();
     if (statusData.connected) {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const pushRes = await fetch('/api/gcal/push', {
+      const pushRes = await fetch(API_BASE + '/api/gcal/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ timezone: tz, nowMinutes: nowMinutes() })
@@ -2426,14 +2433,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Handle OAuth callback redirect (?gcal=connected / ?gcal=denied)
-  const gcalParam = new URLSearchParams(window.location.search).get('gcal');
-  if (gcalParam === 'connected') {
-    history.replaceState(null, '', window.location.pathname);
-    // Now authenticated — push events immediately
-    openGoogleCalendar();
-  } else if (gcalParam === 'denied') {
-    history.replaceState(null, '', window.location.pathname);
-    showGcalToast('Google Calendar access was denied.');
+  if (!IS_NATIVE) {
+    const gcalParam = new URLSearchParams(window.location.search).get('gcal');
+    if (gcalParam === 'connected') {
+      history.replaceState(null, '', window.location.pathname);
+      // Now authenticated — push events immediately
+      openGoogleCalendar();
+    } else if (gcalParam === 'denied') {
+      history.replaceState(null, '', window.location.pathname);
+      showGcalToast('Google Calendar access was denied.');
+    }
   }
 
   // Export to Apple Calendar button — opens preview panel
