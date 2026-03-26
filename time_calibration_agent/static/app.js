@@ -508,6 +508,16 @@ function enterDraftMode() {
 
 function exitDraftMode() {
   isDraftMode = false;
+  // Strip drag handles and draggable state left over from draft mode
+  const eventsEl = document.getElementById('calendar-events');
+  if (eventsEl) {
+    eventsEl.querySelectorAll('.calendar-block').forEach(div => {
+      div.draggable = false;
+      div.classList.remove('is-draggable');
+      const handle = div.querySelector('.drag-handle');
+      if (handle) handle.remove();
+    });
+  }
   const shell = document.getElementById('app-shell');
   if (shell) shell.classList.remove('draft-mode');
   const draftSection = document.getElementById('draft-section');
@@ -526,11 +536,11 @@ function showDraftScreen(data) {
   currentSessionId = data.session_id;
   currentPlanTime = data.current_time;
   hideOverlay();
+  enterDraftMode();   // set isDraftMode=true before initDragDrop checks it
   renderCalendar(data.plan_output.time_blocks);
   initDragDrop();
   renderSummary(data.plan_output);
   updateSidebar(data.session_id, data.current_time, data.plan_output);
-  enterDraftMode();
   trackPageView('/draft', 'draft plan');
 }
 
@@ -862,6 +872,7 @@ function attachTouchListeners(div, sourceIdx) {
 }
 
 function initDragDrop() {
+  if (!isDraftMode) return;   // drag-drop is draft-only; approved plan is locked
   const eventsEl = document.getElementById('calendar-events');
   if (!eventsEl) return;
 
@@ -1732,13 +1743,12 @@ async function submitAdjust() {
   removeCalendarOverlay();
   currentSessionId = data.session_id;
   currentPlanTime = data.current_time;
+  enterDraftMode();   // set isDraftMode=true before initDragDrop checks it
   renderCalendar(data.plan_output.time_blocks);
   initDragDrop();
   renderSummary(data.plan_output);
   updateSidebar(data.session_id, data.current_time, data.plan_output);
   if (inputEl) inputEl.value = '';
-  // Remain in draft mode
-  enterDraftMode();
 }
 
 // ── Draft Approve flow ─────────────────────────────────────────
