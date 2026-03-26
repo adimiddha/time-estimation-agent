@@ -6,6 +6,12 @@ const API_BASE = IS_NATIVE
   ? 'https://time-estimation-agent-production.up.railway.app'
   : '';
 
+// Wrapper that adds credentials:include for cross-origin native requests
+function apiFetch(path, options = {}) {
+  if (IS_NATIVE) options = { credentials: 'include', ...options };
+  return fetch(API_BASE + path, options);
+}
+
 // ── Constants ──────────────────────────────────────────────────
 const BASE_MIN_BLOCK_HEIGHT = 52;
 const COMPACT_THRESHOLD_PX = 0; // all blocks show full content
@@ -1542,7 +1548,7 @@ async function submitPlan() {
 
   let clarifyResult;
   try {
-    const res = await fetch(API_BASE + '/api/clarify', {
+    const res = await apiFetch('/api/clarify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ context: rawText, current_time: currentTimeHHMM || nowHHMM() }),
@@ -1584,7 +1590,7 @@ async function runPlanCall(context, sessionEndTime) {
 
   let data;
   try {
-    const res = await fetch(API_BASE + '/api/plan', {
+    const res = await apiFetch('/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1641,7 +1647,7 @@ async function submitAdjust() {
 
   let data;
   try {
-    const res = await fetch(API_BASE + '/api/plan', {
+    const res = await apiFetch('/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1687,7 +1693,7 @@ async function submitApprove() {
   if (adjustBtn) adjustBtn.disabled = true;
 
   try {
-    const res = await fetch(API_BASE + '/api/approve', {
+    const res = await apiFetch('/api/approve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: currentSessionId, time_blocks: currentTimeBlocks }),
@@ -1733,7 +1739,7 @@ async function handleReplan() {
 
   let data;
   try {
-    const res = await fetch(API_BASE + '/api/plan', {
+    const res = await apiFetch('/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1782,7 +1788,7 @@ async function loadSession() {
   }
 
   try {
-    const res = await fetch(API_BASE + '/api/session');
+    const res = await apiFetch('/api/session');
     const data = await res.json();
     if (data.plan_output && data.plan_output.time_blocks && data.plan_output.time_blocks.length) {
       currentSessionId = data.session_id;
@@ -1875,7 +1881,7 @@ async function transcribeAudio(cfg) {
   formData.append('audio', blob, 'recording.webm');
 
   try {
-    const res = await fetch(API_BASE + '/api/transcribe', { method: 'POST', body: formData });
+    const res = await apiFetch('/api/transcribe', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.error) {
       showError(cfg.errorBannerId, data.error);
@@ -1971,11 +1977,11 @@ async function openGoogleCalendar() {
   if (btn) { btn.disabled = true; btn.classList.add('btn--loading'); }
   showGcalToast('Adding to Google Calendar…');
   try {
-    const statusRes = await fetch(API_BASE + '/api/gcal/status');
+    const statusRes = await apiFetch('/api/gcal/status');
     const statusData = await statusRes.json();
     if (statusData.connected) {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const pushRes = await fetch(API_BASE + '/api/gcal/push', {
+      const pushRes = await apiFetch('/api/gcal/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ timezone: tz, nowMinutes: nowMinutes() })
