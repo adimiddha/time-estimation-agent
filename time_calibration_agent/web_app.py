@@ -174,7 +174,12 @@ def create_app() -> Flask:
 
     @app.before_request
     def ensure_user_id():
-        if "user_id" not in flask_session:
+        # Native Capacitor app sends a stable client-generated ID to work around
+        # WKWebView third-party cookie restrictions
+        native_id = request.headers.get("X-User-ID")
+        if native_id:
+            flask_session["user_id"] = native_id
+        elif "user_id" not in flask_session:
             flask_session["user_id"] = secrets.token_urlsafe(16)
             flask_session.permanent = True
 
