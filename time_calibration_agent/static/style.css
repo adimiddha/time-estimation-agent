@@ -64,6 +64,7 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ── Layout ────────────────────────────────────────── */
@@ -80,7 +81,7 @@ body {
 }
 
 .app-header {
-  padding: 14px 28px;
+  padding: calc(14px + env(safe-area-inset-top)) 28px 14px;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(130deg, var(--panel) 0%, #f7f4ff 100%);
   display: flex;
