@@ -2081,7 +2081,7 @@ body::before {
 /* Untangle wordmark floats above the welcome card on the landing screen */
 .welcome-brand {
   position: absolute;
-  top: 28px;
+  top: max(28px, env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   font-family: 'Fraunces', serif;
@@ -2203,7 +2203,7 @@ input[type="time"]:focus {
 }
 
 .app-header {
-  padding: 18px 28px;
+  padding: calc(18px + env(safe-area-inset-top)) 28px 18px;
   background: linear-gradient(180deg, rgba(255, 252, 247, 0.96), rgba(248, 243, 236, 0.88));
   backdrop-filter: blur(16px);
 }
@@ -2617,7 +2617,7 @@ input[type="time"]:focus {
   }
 
   .app-header {
-    padding: 16px 18px;
+    padding: calc(10px + env(safe-area-inset-top)) 18px 10px;
   }
 
   .app-header h1 {
