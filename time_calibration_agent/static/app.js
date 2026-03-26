@@ -1959,6 +1959,7 @@ function _setMicRecording(cfg, recording) {
 
 async function startRecording(cfg) {
   clearError(cfg.errorBannerId);
+  if (IS_NATIVE) { await _startRecordingNative(cfg); return; }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = [];
@@ -1967,7 +1968,8 @@ async function startRecording(cfg) {
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
     mediaRecorder.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
-      await transcribeAudio(cfg);
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      await _transcribeBlob(blob, 'recording.webm', cfg);
     };
     mediaRecorder.start();
     isRecording = true;
@@ -1977,15 +1979,50 @@ async function startRecording(cfg) {
   }
 }
 
+async function _startRecordingNative(cfg) {
+  try {
+    const { VoiceRecorder } = Capacitor.Plugins;
+    const perm = await VoiceRecorder.requestAudioRecordingPermission();
+    if (!perm.value) { showError(cfg.errorBannerId, 'Microphone access denied.'); return; }
+    await VoiceRecorder.startRecording();
+    isRecording = true;
+    activeMicCfg = cfg;
+    _setMicRecording(cfg, true);
+  } catch (e) {
+    showError(cfg.errorBannerId, 'Could not start recording.');
+  }
+}
+
 function stopRecording() {
-  if (mediaRecorder && isRecording) {
+  if (!isRecording) return;
+  if (IS_NATIVE) { _stopRecordingNative(); return; }
+  if (mediaRecorder) {
     mediaRecorder.stop();
     isRecording = false;
     if (activeMicCfg) _setMicRecording(activeMicCfg, false);
   }
 }
 
-async function transcribeAudio(cfg) {
+async function _stopRecordingNative() {
+  const cfg = activeMicCfg;
+  isRecording = false;
+  if (cfg) _setMicRecording(cfg, false);
+  try {
+    const { VoiceRecorder } = Capacitor.Plugins;
+    const result = await VoiceRecorder.stopRecording();
+    const { recordDataBase64, mimeType } = result.value;
+    const binary = atob(recordDataBase64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: mimeType || 'audio/aac' });
+    if (cfg) await _transcribeBlob(blob, 'recording.m4a', cfg);
+  } catch (e) {
+    if (cfg) showError(cfg.errorBannerId, 'Recording failed. Please try again.');
+    activeMicCfg = null;
+  }
+}
+
+async function _transcribeBlob(blob, filename, cfg) {
   const statusRow = document.getElementById(cfg.statusRowId);
   const status = document.getElementById(cfg.statusId);
   const micBtn = document.getElementById(cfg.btnId);
@@ -1993,9 +2030,8 @@ async function transcribeAudio(cfg) {
   if (status) status.textContent = 'Transcribing\u2026';
   if (micBtn) micBtn.disabled = true;
 
-  const blob = new Blob(audioChunks, { type: 'audio/webm' });
   const formData = new FormData();
-  formData.append('audio', blob, 'recording.webm');
+  formData.append('audio', blob, filename);
 
   try {
     const res = await apiFetch('/api/transcribe', { method: 'POST', body: formData });
@@ -2019,6 +2055,12 @@ async function transcribeAudio(cfg) {
     if (micBtn) micBtn.disabled = false;
     activeMicCfg = null;
   }
+}
+
+// kept for any legacy call sites
+async function transcribeAudio(cfg) {
+  const blob = new Blob(audioChunks, { type: 'audio/webm' });
+  await _transcribeBlob(blob, 'recording.webm', cfg);
 }
 
 // Mic configurations per context
