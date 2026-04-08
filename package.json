@@ -1,0 +1,14 @@
+{
+  "name": "untangle-playwright-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright visual sweep scripts for Untangle",
+  "scripts": {
+    "playwright:install": "playwright install chromium webkit",
+    "playwright:install-deps": "playwright install-deps",
+    "playwright:visual-sweep": "node scripts/playwright_visual_sweep.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}

@@ -30,3 +30,8 @@ day_sessions/
 # OS
 .DS_Store
 Thumbs.db
+artifacts/
+
+# Playwright / Node tooling
+node_modules/
+playwright-artifacts/
