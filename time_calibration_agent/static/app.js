@@ -116,6 +116,13 @@ let undoHideTimer = null;
 let dragToastTimer = null;
 
 // ── Utilities ──────────────────────────────────────────────────
+function resetPlanButton() {
+  const planBtn = document.getElementById('plan-btn');
+  if (!planBtn) return;
+  planBtn.disabled = false;
+  planBtn.innerHTML = 'Untangle my day &rarr;';
+}
+
 function timeToMinutes(t) {
   const [h, m] = t.split(':').map(Number);
   return h * 60 + (m || 0);
@@ -1051,7 +1058,7 @@ function updateRightNow() {
     html += '<ul>' + active.steps.map(s => `<li>${escHtml(s)}</li>`).join('') + '</ul>';
   }
 
-  if (html) nextEl.innerHTML = html;
+  nextEl.innerHTML = html || '<span class="empty-note">No next actions listed.</span>';
 }
 
 function renderCalendar(timeBlocks) {
@@ -1636,11 +1643,11 @@ async function submitPlan() {
     clarifyResult = await res.json();
   } catch (e) {
     showError('error-banner', 'Network error. Is the server running?');
-    if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Untangle my day'; }
+    resetPlanButton();
     return;
   }
 
-  if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = '<span class="btn-icon">&#9654;</span> Untangle my day'; }
+  resetPlanButton();
 
   if (clarifyResult.follow_up_question && clarifyResult.follow_up_type === 'end_time') {
     currentFollowUpType = 'end_time';
@@ -2542,7 +2549,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Reset plan button to original arrow state (JS may have changed it to play icon)
       const planBtn = document.getElementById('plan-btn');
-      if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = 'Untangle my day \u2192'; }
+      if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = 'Untangle my day &rarr;'; }
 
       const overlay = document.getElementById('welcome-overlay');
       const shell = document.getElementById('app-shell');
