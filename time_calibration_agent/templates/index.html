@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=2" />
+  <link rel="stylesheet" href="/static/style.css?v=3" />
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6HRL53D8E1"></script>
   <script>
@@ -94,6 +94,18 @@
   <div id="loading-screen" class="welcome-card loading-card" style="display:none;">
     <canvas class="knot-canvas knot-canvas--wide" id="knot-canvas-main" width="560" height="240" style="width:280px;height:120px;"></canvas>
     <div class="loading-label" id="progress-label">Untangling your day&hellip;</div>
+  </div>
+
+  <!-- Screen 4: Brief success before draft (hidden initially) -->
+  <div id="plan-ready-screen" class="welcome-card loading-card plan-ready-card" style="display:none;" role="status" aria-live="polite">
+    <div class="plan-ready-icon" aria-hidden="true">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    </div>
+    <div class="loading-label plan-ready-title">Plan ready</div>
+    <p class="plan-ready-sub">Here&rsquo;s your first draft.</p>
   </div>
 
 </div><!-- /welcome-overlay -->
@@ -315,6 +327,6 @@
 
 </div><!-- /app-shell -->
 
-<script src="/static/app.js?v=3"></script>
+<script src="/static/app.js?v=4"></script>
 </body>
 </html>

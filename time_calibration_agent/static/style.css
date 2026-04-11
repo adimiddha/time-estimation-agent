@@ -995,6 +995,53 @@ input::placeholder {
   color: var(--ink);
 }
 
+/* Brief success handoff before draft */
+.plan-ready-card {
+  gap: 14px;
+  padding-top: 36px;
+  padding-bottom: 36px;
+}
+
+.plan-ready-icon {
+  color: var(--accent);
+  display: flex;
+  justify-content: center;
+  animation: planReadyPop 0.45s var(--ease-spring) both;
+}
+
+@keyframes planReadyPop {
+  from { opacity: 0; transform: scale(0.86); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.plan-ready-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.plan-ready-sub {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Stronger CTA when user has typed something */
+#plan-btn.plan-btn--ready:not(:disabled) {
+  box-shadow:
+    0 6px 22px rgba(41, 105, 93, 0.38),
+    0 0 0 1px rgba(47, 122, 106, 0.22);
+  transform: translateY(-1px);
+}
+
+#plan-btn.plan-btn--ready:not(:disabled):hover {
+  box-shadow:
+    0 10px 28px rgba(41, 105, 93, 0.45),
+    0 0 0 1px rgba(47, 122, 106, 0.28);
+}
+
 .progress-bar-wrap {
   width: 100%;
   height: 8px;
@@ -2648,6 +2695,15 @@ input[type="time"]:focus {
     border-radius: 28px;
   }
 
+  .app-body {
+    padding-top: 18px;
+    gap: 22px;
+  }
+
+  .calendar-column {
+    gap: 12px;
+  }
+
   .app-header {
     padding: calc(10px + env(safe-area-inset-top)) 18px 10px;
   }
@@ -2658,6 +2714,15 @@ input[type="time"]:focus {
 
   .right-now-section {
     padding: 24px 22px;
+    margin-bottom: 8px;
+  }
+
+  .calendar-panel {
+    margin-top: 4px;
+  }
+
+  .export-section {
+    margin-top: 6px;
   }
 
   .calendar-scroll {

@@ -30,12 +30,37 @@ async function runScenario(name, browserType, contextOptions) {
         'It is 2pm. I need to finish proposal, respond to 6 emails, and prep for a 5pm call. I want to stop by 7pm.'
       );
       await page.screenshot({ path: path.join(outDir, `${name}-02-filled-brain-dump.png`), fullPage: true });
+
+      const planBtn = page.locator('#plan-btn');
+      await planBtn.waitFor({ state: 'visible', timeout: 10_000 });
+      const hasReadyClass = await planBtn.evaluate((el) => el.classList.contains('plan-btn--ready'));
+      if (!hasReadyClass) {
+        throw new Error('Expected #plan-btn to have .plan-btn--ready after typing in brain dump');
+      }
     }
 
     const planBtn = page.locator('#plan-btn');
     if (await planBtn.count()) {
       await planBtn.click({ timeout: 10_000 });
-      await page.waitForTimeout(7_000);
+      // Either clarify, loading, or (rare) straight to planner
+      await page.waitForSelector(
+        '#followup-clarify-screen, #loading-screen, #plan-ready-screen, #draft-section',
+        { timeout: 60_000 }
+      );
+      // If follow-up appears, skip to planning path
+      const clarify = page.locator('#followup-clarify-screen');
+      if (await clarify.isVisible().catch(() => false)) {
+        await page.locator('#followup-skip-link').click();
+      }
+      // Brief "Plan ready" handoff (may flash quickly)
+      const planReady = page.locator('#plan-ready-screen');
+      try {
+        await planReady.waitFor({ state: 'visible', timeout: 15_000 });
+        await page.screenshot({ path: path.join(outDir, `${name}-03-plan-ready.png`), fullPage: true });
+      } catch {
+        // API may be very fast; draft might appear before screenshot
+      }
+      await page.locator('#draft-section').waitFor({ state: 'visible', timeout: 120_000 });
     }
 
     await page.screenshot({ path: path.join(outDir, `${name}-04-post-plan.png`), fullPage: true });

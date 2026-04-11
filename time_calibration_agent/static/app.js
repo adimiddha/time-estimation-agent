@@ -116,11 +116,19 @@ let undoHideTimer = null;
 let dragToastTimer = null;
 
 // ── Utilities ──────────────────────────────────────────────────
+function syncPlanBtnReadyState() {
+  const ta = document.getElementById('brain-dump');
+  const btn = document.getElementById('plan-btn');
+  if (!ta || !btn) return;
+  btn.classList.toggle('plan-btn--ready', ta.value.trim().length > 0);
+}
+
 function resetPlanButton() {
   const planBtn = document.getElementById('plan-btn');
   if (!planBtn) return;
   planBtn.disabled = false;
   planBtn.innerHTML = 'Untangle my day &rarr;';
+  syncPlanBtnReadyState();
 }
 
 function timeToMinutes(t) {
@@ -464,10 +472,18 @@ const SCREEN_PATHS = {
   'brain-dump-screen': '/welcome',
   'followup-clarify-screen': '/clarify',
   'loading-screen': '/planning',
+  'plan-ready-screen': '/plan-ready',
 };
 
+const WELCOME_SCREEN_IDS = [
+  'brain-dump-screen',
+  'followup-clarify-screen',
+  'loading-screen',
+  'plan-ready-screen',
+];
+
 function showScreen(id) {
-  ['brain-dump-screen', 'followup-clarify-screen', 'loading-screen'].forEach(sid => {
+  WELCOME_SCREEN_IDS.forEach(sid => {
     const el = document.getElementById(sid);
     if (el) el.style.display = sid === id ? '' : 'none';
   });
@@ -475,6 +491,13 @@ function showScreen(id) {
   else stopProgressKnot();
   const path = SCREEN_PATHS[id];
   if (path) trackPageView(path, id.replace('-screen', '').replace(/-/g, ' '));
+}
+
+function showPlanReadyThenDraft(data) {
+  showScreen('plan-ready-screen');
+  setTimeout(() => {
+    showDraftScreen(data);
+  }, 420);
 }
 
 function hideOverlay() {
@@ -1711,8 +1734,8 @@ async function runPlanCall(context, sessionEndTime, followUpAnswer) {
   track('plan_created');
 
   setTimeout(() => {
-    showDraftScreen(data);
-  }, 500);
+    showPlanReadyThenDraft(data);
+  }, 380);
 }
 
 // ── Draft Adjust flow ──────────────────────────────────────────
@@ -2391,12 +2414,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ctrl/Cmd+Enter in brain dump
   const brainDump = document.getElementById('brain-dump');
   if (brainDump) {
+    brainDump.addEventListener('input', syncPlanBtnReadyState);
     brainDump.addEventListener('keydown', e => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         submitPlan();
       }
     });
+    syncPlanBtnReadyState();
   }
 
   // Follow-up continue button
@@ -2550,6 +2575,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Reset plan button to original arrow state (JS may have changed it to play icon)
       const planBtn = document.getElementById('plan-btn');
       if (planBtn) { planBtn.disabled = false; planBtn.innerHTML = 'Untangle my day &rarr;'; }
+      syncPlanBtnReadyState();
 
       const overlay = document.getElementById('welcome-overlay');
       const shell = document.getElementById('app-shell');
